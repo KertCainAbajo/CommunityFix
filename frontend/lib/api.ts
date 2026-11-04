@@ -1,5 +1,6 @@
 import "server-only";
 
+import { io } from "next/cache";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
@@ -24,6 +25,10 @@ export class ApiError extends Error {
 type ErrorBody = { message?: string; errors?: Record<string, string[]> };
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+  // API data is always per-request, so anything built from it, like "2 days ago",
+  // must wait for a real visitor instead of running during prerendering.
+  await io();
+
   const [cookieStore, requestHeaders] = await Promise.all([cookies(), headers()]);
   const token = cookieStore.get(TOKEN_COOKIE)?.value;
   const visitor = requestHeaders.get("x-forwarded-for")?.split(",")[0].trim();

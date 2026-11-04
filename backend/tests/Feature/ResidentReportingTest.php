@@ -135,7 +135,7 @@ class ResidentReportingTest extends TestCase
     {
         $issue = $this->report();
 
-        $this->getJson("/api/issues/{$issue->id}")->assertNotFound();
+        $this->getJson("/api/issues/{$issue->id}")->assertForbidden();
         $this->getJson('/api/issues')->assertJsonPath('total', 0);
 
         Sanctum::actingAs($this->staff());
@@ -154,7 +154,7 @@ class ResidentReportingTest extends TestCase
         $this->move($issue, 'rejected', 'Duplicate.')->assertOk();
         $this->asGuest();
 
-        $this->getJson("/api/issues/{$issue->id}")->assertNotFound();
+        $this->getJson("/api/issues/{$issue->id}")->assertForbidden();
         $this->getJson("/api/track/{$issue->tracking_code}")->assertOk()->assertJsonPath('timeline.1.note', 'Duplicate.');
     }
 

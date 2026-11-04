@@ -45,7 +45,7 @@ class IssueController extends Controller
 
     public function show(Issue $issue, Request $request): JsonResponse
     {
-        abort_unless($issue->status->isPublic() || $request->user('sanctum')?->isStaff(), 404);
+        abort_unless($issue->status->isPublic() || $request->user('sanctum')?->isStaff(), 403, 'This report is not public.');
 
         return $this->issueResponse($issue);
     }
