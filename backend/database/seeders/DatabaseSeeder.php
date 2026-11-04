@@ -18,15 +18,13 @@ class DatabaseSeeder extends Seeder
         }
 
         $password = 'demo-password';
-        $staff = User::create(['name' => 'Dana Reyes', 'email' => 'staff@example.com', 'password' => $password]);
-        $staff->forceFill(['role' => 'staff'])->save();
-        $resident = User::create(['name' => 'Sam Cruz', 'email' => 'resident@example.com', 'password' => $password]);
-        $neighbor = User::create(['name' => 'Alex Santos', 'email' => 'neighbor@example.com', 'password' => $password]);
+        $admin = User::create(['name' => 'Dana Reyes', 'email' => 'staff@example.com', 'password' => $password]);
+        $admin->forceFill(['role' => 'admin'])->save();
+        User::create(['name' => 'Rey Lim', 'email' => 'team@example.com', 'password' => $password]);
 
         $center = config('communityfix.map_center');
 
-        foreach ($this->samples() as $index => $sample) {
-            $reporter = $index % 2 === 0 ? $resident : $neighbor;
+        foreach ($this->samples() as $sample) {
             $created = now()->subDays($sample['age']);
             $last = end($sample['steps']) ?: null;
             $status = $last ? $last[0] : IssueStatus::Reported;
@@ -42,26 +40,23 @@ class DatabaseSeeder extends Seeder
                 'status' => $status,
                 'priority' => $sample['priority'] ?? 'normal',
                 'department' => $sample['department'] ?? null,
-                'reporter_id' => $reporter->id,
+                'contact_name' => $sample['contact'] ?? null,
+                'contact_email' => isset($sample['contact']) ? 'resident@example.com' : null,
                 'resolved_at' => $status === IssueStatus::Resolved ? $updated : null,
             ]);
             $issue->created_at = $created;
             $issue->updated_at = $updated;
             $issue->save();
 
-            $issue->updates()->create(['author_id' => $reporter->id, 'to_status' => IssueStatus::Reported, 'created_at' => $created]);
+            $issue->updates()->create(['to_status' => IssueStatus::Reported, 'created_at' => $created]);
 
             $from = IssueStatus::Reported;
             foreach ($sample['steps'] as [$to, $age, $note]) {
                 $issue->updates()->create([
-                    'author_id' => $staff->id, 'from_status' => $from, 'to_status' => $to,
+                    'author_id' => $admin->id, 'from_status' => $from, 'to_status' => $to,
                     'note' => $note, 'created_at' => now()->subDays($age),
                 ]);
                 $from = $to;
-            }
-
-            if ($sample['supported'] ?? false) {
-                $issue->supporters()->attach($reporter->is($resident) ? $neighbor : $resident);
             }
         }
     }
@@ -73,12 +68,12 @@ class DatabaseSeeder extends Seeder
         $done = IssueStatus::Resolved;
 
         return [
-            ['title' => 'Streetlight out near the covered court', 'category' => 'streetlight', 'address' => 'Mabini St. corner Luna St.', 'offset' => [0.004, -0.006], 'age' => 2, 'supported' => true,
+            ['title' => 'Streetlight out near the covered court', 'category' => 'streetlight', 'address' => 'Mabini St. corner Luna St.', 'offset' => [0.004, -0.006], 'age' => 2, 'contact' => 'Sam Cruz',
                 'description' => 'The light on the second pole from the corner has been off for a week. The whole stretch is dark after 7 PM.', 'steps' => []],
-            ['title' => 'Deep pothole in the northbound lane', 'category' => 'road', 'address' => 'Rizal Avenue, in front of the public market', 'offset' => [-0.003, 0.005], 'age' => 9, 'priority' => 'high', 'department' => 'Engineering Office', 'supported' => true,
+            ['title' => 'Deep pothole in the northbound lane', 'category' => 'road', 'address' => 'Rizal Avenue, in front of the public market', 'offset' => [-0.003, 0.005], 'age' => 9, 'priority' => 'high', 'department' => 'Engineering Office', 'contact' => 'Sam Cruz',
                 'description' => 'Roughly a meter wide and deep enough to damage tires. Tricycles swerve into the other lane to avoid it.',
                 'steps' => [[$ack, 8, 'Inspection scheduled for this week.'], [$work, 3, 'Crew assigned. Patching starts once the materials arrive.']]],
-            ['title' => 'Clogged canal floods the street when it rains', 'category' => 'drainage', 'address' => 'Sampaguita St., near the elementary school', 'offset' => [0.007, 0.003], 'age' => 16, 'priority' => 'urgent', 'department' => 'Public Works', 'supported' => true,
+            ['title' => 'Clogged canal floods the street when it rains', 'category' => 'drainage', 'address' => 'Sampaguita St., near the elementary school', 'offset' => [0.007, 0.003], 'age' => 16, 'priority' => 'urgent', 'department' => 'Public Works', 'contact' => 'Sam Cruz',
                 'description' => 'Even light rain leaves ankle-deep water in front of the school gate. The canal is blocked by silt and plastic.',
                 'steps' => [[$ack, 15, 'Declogging added to the priority list.'], [$work, 10, 'Crew is clearing the canal section by section.']]],
             ['title' => 'Burned-out lamp at the waiting shed', 'category' => 'streetlight', 'address' => 'Bonifacio St. waiting shed', 'offset' => [-0.006, -0.004], 'age' => 21, 'department' => 'Electrical Section',

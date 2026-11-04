@@ -4,5 +4,6 @@
 
 return [
     'frontend_url' => rtrim(env('FRONTEND_URL', 'http://localhost:3000'), '/'),
+    'internal_key' => env('INTERNAL_API_KEY'),
     'map_center' => ['lat' => $lat, 'lng' => $lng],
 ];

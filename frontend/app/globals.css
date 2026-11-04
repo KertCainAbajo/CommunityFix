@@ -7,22 +7,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --font-sans: var(--font-barlow);
+  --font-mono: var(--font-plex-mono);
+  --font-heading: var(--font-barlow-condensed);
+  --font-display: var(--font-barlow-condensed);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -39,6 +27,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-asphalt: var(--asphalt);
+  --color-paint: var(--paint);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -48,86 +38,66 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Colors come from the street: asphalt, road paint, and sign plates. */
 :root {
-  --background: #f6f4ee;
-  --foreground: #1d2826;
-  --card: #ffffff;
-  --card-foreground: #1d2826;
-  --popover: #ffffff;
-  --popover-foreground: #1d2826;
-  --primary: #165a4f;
-  --primary-foreground: #ffffff;
-  --secondary: #ebe8df;
-  --secondary-foreground: #1d2826;
-  --muted: #ebe8df;
-  --muted-foreground: #5d6a66;
-  --accent: #ebe8df;
-  --accent-foreground: #1d2826;
+  --asphalt: #17191a;
+  --asphalt-raised: #212425;
+  --asphalt-line: #393d3f;
+  --paint: #ffc20e;
+  --paint-ink: #17191a;
+
+  --background: #eeeadf;
+  --foreground: #17191a;
+  --card: #fbf9f3;
+  --card-foreground: #17191a;
+  --popover: #fbf9f3;
+  --popover-foreground: #17191a;
+  --primary: #ffc20e;
+  --primary-foreground: #17191a;
+  --secondary: #e2ddcf;
+  --secondary-foreground: #17191a;
+  --muted: #e2ddcf;
+  --muted-foreground: #565b59;
+  --accent: #e2ddcf;
+  --accent-foreground: #17191a;
   --destructive: #b3261e;
-  --border: #dcd8cc;
-  --input: #cfcabc;
-  --ring: #165a4f;
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --status-reported: #c2500f;
-  --status-acknowledged: #8a6a00;
-  --status-in_progress: #1f62b5;
-  --status-resolved: #1a7a4c;
-  --status-rejected: #66716e;
+  --border: #c9c3b3;
+  --input: #8f8c80;
+  --ring: #17191a;
+  --link: #17191a;
+  --ink-line: #17191a;
+  --radius: 0.25rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #131a18;
-    --foreground: #e8ece9;
-    --card: #1c2523;
-    --card-foreground: #e8ece9;
-    --popover: #1c2523;
-    --popover-foreground: #e8ece9;
-    --primary: #5fc4ad;
-    --primary-foreground: #0d1f1b;
-    --secondary: #26312e;
-    --secondary-foreground: #e8ece9;
-    --muted: #26312e;
-    --muted-foreground: #9fada8;
-    --accent: #26312e;
-    --accent-foreground: #e8ece9;
+    --background: #101213;
+    --foreground: #ece8dc;
+    --card: #1b1e1f;
+    --card-foreground: #ece8dc;
+    --popover: #1b1e1f;
+    --popover-foreground: #ece8dc;
+    --secondary: #2a2e30;
+    --secondary-foreground: #ece8dc;
+    --muted: #2a2e30;
+    --muted-foreground: #a4a9a6;
+    --accent: #2a2e30;
+    --accent-foreground: #ece8dc;
     --destructive: #f2978f;
-    --border: #33403c;
-    --input: #3d4b47;
-    --ring: #5fc4ad;
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-    --status-reported: #f0935a;
-    --status-acknowledged: #dcb93f;
-    --status-in_progress: #7fb2f0;
-    --status-resolved: #62cc98;
-    --status-rejected: #a3aeaa;
+    --border: #33383a;
+    --input: #5a6063;
+    --ring: #ffc20e;
+    --link: #ffc20e;
+    --ink-line: #5a6063;
   }
 }
+
+/* Sign plate colors stay the same in light and dark, like real signs. */
+[data-status="reported"] { --plate: #c2410c; --plate-ink: #ffffff; }
+[data-status="acknowledged"] { --plate: #ffc20e; --plate-ink: #17191a; }
+[data-status="in_progress"] { --plate: #0b5fbf; --plate-ink: #ffffff; }
+[data-status="resolved"] { --plate: #0f7a46; --plate-ink: #ffffff; }
+[data-status="rejected"] { --plate: #5f6668; --plate-ink: #ffffff; }
 
 @layer base {
   * {
@@ -139,14 +109,304 @@
   html {
     @apply font-sans;
   }
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+  }
+  label,
+  legend {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
 }
 
-.pin {
-  display: block;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 45%);
-  cursor: pointer;
+@layer components {
+  /* Pages sit in the middle column; .full-bleed spans the whole window. */
+  .page-grid {
+    display: grid;
+    grid-template-columns: 1fr min(70rem, calc(100% - 2rem)) 1fr;
+    align-content: start;
+    row-gap: 1.75rem;
+    padding-block: 1.75rem 3.5rem;
+  }
+  .page-grid > * {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .page-grid > .full-bleed {
+    grid-column: 1 / -1;
+  }
+  .page-grid > .full-bleed:first-child {
+    margin-top: -1.75rem;
+  }
+
+  .asphalt {
+    --foreground: #f1eee4;
+    --muted-foreground: #a9adaa;
+    --border: var(--asphalt-line);
+    color: #f1eee4;
+    background-color: var(--asphalt);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* The painted lane line. */
+  .lane-line {
+    height: 6px;
+    background: repeating-linear-gradient(90deg, var(--paint) 0 56px, transparent 56px 96px);
+  }
+
+  .link {
+    color: var(--link);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--paint);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .link:hover {
+    text-decoration-thickness: 3px;
+  }
+
+  /* Status plate, like a small road sign. */
+  .plate {
+    display: inline-flex;
+    align-items: center;
+    height: 1.4rem;
+    padding-inline: 0.5rem;
+    border-radius: 2px;
+    background: var(--plate);
+    color: var(--plate-ink);
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Urgent work gets the hazard stripes, and nothing else does. */
+  .plate-hazard {
+    --plate: repeating-linear-gradient(-45deg, #17191a 0 7px, #ffc20e 7px 14px);
+    padding: 0;
+  }
+  .plate-hazard > span {
+    margin: 2px;
+    padding: 0 0.4rem;
+    border-radius: 1px;
+    background: #ffc20e;
+    color: #17191a;
+  }
+
+  /* Barrier tape on the "road closed" page. */
+  .hazard-bar {
+    height: 14px;
+    background: repeating-linear-gradient(-45deg, #17191a 0 14px, #ffc20e 14px 28px);
+    box-shadow: 0 0 0 1px #17191a;
+  }
+
+  .pin {
+    display: block;
+    width: 18px;
+    height: 18px;
+    margin: 2px;
+    border: 2px solid #17191a;
+    border-radius: 3px;
+    background: var(--plate);
+    box-shadow: 0 0 0 2px #fff, 0 3px 6px rgb(0 0 0 / 45%);
+    transform: rotate(45deg);
+    cursor: pointer;
+  }
+
+  .sign-diamond {
+    display: grid;
+    place-items: center;
+    flex: none;
+    border: 2px solid #17191a;
+    border-radius: 4px;
+    background: var(--paint);
+    color: #17191a;
+    transform: rotate(45deg);
+  }
+  .sign-diamond > * {
+    transform: rotate(-45deg);
+  }
+
+  /* A printed form: heavy rule on top, plain paper below. */
+  .sheet {
+    display: grid;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--ink-line);
+    border-radius: 2px;
+    background: var(--card);
+  }
+
+  /* Work-order ticket with a tear-off stub. */
+  .ticket {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    height: 100%;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--card);
+    transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  }
+  .ticket:has(.ticket-photo) {
+    grid-template-columns: 4.25rem minmax(0, 1fr) 6.5rem;
+  }
+  .ticket-photo {
+    position: relative;
+    overflow: hidden;
+    border-left: 1px solid var(--border);
+  }
+  .ticket-photo > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  a:hover > .ticket,
+  a:focus-visible > .ticket {
+    border-color: var(--ink-line);
+    box-shadow: 5px 5px 0 var(--paint);
+    transform: translate(-2px, -2px);
+  }
+  .ticket-stub {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1.1rem 0.25rem 0.75rem;
+    border-right: 2px dashed var(--border);
+  }
+
+  /* Survey sheet around the map. */
+  .survey {
+    border: 2px solid var(--ink-line);
+    border-radius: 2px;
+    background: var(--card);
+  }
+  .survey-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem 1.25rem;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* Muted streets, so the sign pins are what you see first. */
+  .leaflet-tile-pane {
+    filter: grayscale(1) contrast(0.95) brightness(1.03);
+  }
+  .leaflet-container {
+    font-family: var(--font-sans);
+  }
+
+  /* The road: stages sit along the lane line. */
+  .road {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    padding: 1rem 0.5rem;
+    border-radius: 2px;
+  }
+  .road-mark {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.45rem;
+    text-align: center;
+  }
+  .road-track {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 2.25rem;
+  }
+  .road-mark:not(:first-child) .road-track::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    width: 100%;
+    height: 4px;
+    margin-top: -2px;
+    background: repeating-linear-gradient(90deg, #6a6f71 0 16px, transparent 16px 26px);
+  }
+  .road-mark[data-passed]:not(:first-child) .road-track::before {
+    background: repeating-linear-gradient(90deg, var(--paint) 0 16px, transparent 16px 26px);
+  }
+  .road-sign {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding-inline: 0.35rem;
+    border: 2px solid #17191a;
+    border-radius: 3px;
+    background: var(--plate);
+    color: var(--plate-ink);
+    box-shadow: 0 0 0 2px #f1eee4;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .road-mark[data-ahead] .road-sign {
+    background: var(--asphalt-raised);
+    color: #a9adaa;
+    box-shadow: 0 0 0 2px var(--asphalt-line);
+  }
+  .road-mark[aria-current] .road-sign {
+    box-shadow: 0 0 0 2px #f1eee4, 0 0 0 6px color-mix(in srgb, var(--plate) 45%, transparent);
+  }
+
+  /* Departure-board list of open work. */
+  .board {
+    border: 1px solid var(--asphalt-line);
+    border-radius: 2px;
+    background: #0f1011;
+    box-shadow: 0 0 0 4px #000;
+  }
+  .board-row {
+    display: grid;
+    grid-template-columns: 4.6rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    border-top: 1px solid #26292b;
+  }
+  a.board-row:hover {
+    background: #1b1d1e;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticket {
+      transition: none;
+    }
+  }
 }

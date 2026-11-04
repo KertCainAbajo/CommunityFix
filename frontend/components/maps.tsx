@@ -22,7 +22,7 @@ function createMap(L: Leaflet, element: HTMLElement, center: Center, zoom: numbe
 function pin(L: Leaflet, status: Status): DivIcon {
   return L.divIcon({
     className: "",
-    html: `<span class="pin" style="background: var(--status-${status})"></span>`,
+    html: `<span class="pin" data-status="${status}"></span>`,
     iconSize: [22, 22],
     iconAnchor: [11, 11],
   });
@@ -54,7 +54,7 @@ function useLeaflet(setup: (L: Leaflet, element: HTMLElement) => LeafletMap) {
   return element;
 }
 
-const mapClass = "z-0 rounded-lg border bg-muted";
+const mapClass = "z-0 rounded-sm border bg-muted";
 
 export function IssueMap({
   points,

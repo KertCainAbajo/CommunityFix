@@ -16,22 +16,16 @@ trait ActsOnIssues
         'address' => '12 Main St',
     ];
 
-    protected function resident(): User
-    {
-        return User::factory()->create(['name' => 'Test Resident', 'role' => 'resident']);
-    }
-
     protected function staff(): User
     {
-        return User::factory()->staff()->create(['name' => 'Staff Member']);
+        return User::factory()->create(['name' => 'Staff Member']);
     }
 
-    protected function report(?User $user = null, array $fields = []): Issue
+    protected function report(array $fields = []): Issue
     {
-        Sanctum::actingAs($user ?? $this->resident());
         $response = $this->postJson('/api/issues', [...self::REPORT, ...$fields])->assertCreated();
 
-        return Issue::findOrFail($response->json('id'));
+        return Issue::where('tracking_code', $response->json('tracking_code'))->firstOrFail();
     }
 
     protected function move(Issue $issue, string $status, ?string $note = null): TestResponse
@@ -45,6 +39,7 @@ trait ActsOnIssues
         $this->move($issue, 'acknowledged')->assertOk();
         $this->move($issue, 'in_progress')->assertOk();
         $this->move($issue, 'resolved', 'Lamp replaced.')->assertOk();
+        $this->asGuest();
     }
 
     /** Sanctum::actingAs persists between requests in a test; this clears it. */

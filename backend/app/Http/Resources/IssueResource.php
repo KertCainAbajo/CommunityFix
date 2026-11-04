@@ -2,8 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\PhotoKind;
+use App\Models\IssuePhoto;
 use App\Models\IssueUpdate;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -12,8 +13,7 @@ class IssueResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $viewer = $request->user('sanctum');
-        $isMine = $viewer?->id === $this->reporter_id;
+        $isStaff = (bool) $request->user('sanctum')?->isStaff();
 
         return [
             'id' => $this->id,
@@ -24,41 +24,44 @@ class IssueResource extends JsonResource
             'address' => $this->address,
             'lat' => $this->lat,
             'lng' => $this->lng,
-            'photo_url' => $this->photo_path ? Storage::url($this->photo_path) : null,
+            'photos' => $this->photos->map(fn (IssuePhoto $photo) => [
+                'id' => $photo->id,
+                'kind' => $photo->kind,
+                'label' => $photo->kind->label(),
+                'url' => Storage::url($photo->path),
+            ]),
+            'photo_url' => $this->coverPhotoUrl(),
             'status' => $this->status,
             'priority' => $this->priority,
             'department' => $this->department,
-            'support_count' => $this->supporters_count ?? 0,
-            'supported' => (bool) ($this->supported ?? false),
-            'is_mine' => $isMine,
-            // Residents stay anonymous to the public.
-            'reporter_name' => $this->when($isMine || $viewer?->isStaff(), fn () => $this->reporter->name),
+            // The tracking code works like a password, and contact details are private.
+            'tracking_code' => $this->when($isStaff, $this->tracking_code),
+            'contact' => $this->when($isStaff, fn () => [
+                'name' => $this->contact_name,
+                'email' => $this->contact_email,
+                'phone' => $this->contact_phone,
+            ]),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'resolved_at' => $this->resolved_at,
             'timeline' => $this->whenLoaded('updates', fn () => $this->updates->map(
-                fn (IssueUpdate $update) => $this->timelineEntry($update, $viewer),
+                fn (IssueUpdate $update) => [
+                    'id' => $update->id,
+                    'author' => $update->author?->name,
+                    'author_role' => $update->author_id ? 'Staff' : 'Resident',
+                    'from_status' => $update->from_status,
+                    'to_status' => $update->to_status,
+                    'note' => $update->note,
+                    'created_at' => $update->created_at,
+                ],
             )),
         ];
     }
 
-    private function timelineEntry(IssueUpdate $update, ?User $viewer): array
+    private function coverPhotoUrl(): ?string
     {
-        $author = $update->author;
-        $showName = $author->isStaff() || $viewer?->isStaff() || $viewer?->id === $author->id;
+        $photo = $this->photos->firstWhere('kind', PhotoKind::After) ?? $this->photos->first();
 
-        return [
-            'id' => $update->id,
-            'author' => $showName ? $author->name : null,
-            'author_role' => match (true) {
-                $author->isStaff() => 'Staff',
-                $author->id === $this->reporter_id => 'Reporter',
-                default => 'Resident',
-            },
-            'from_status' => $update->from_status,
-            'to_status' => $update->to_status,
-            'note' => $update->note,
-            'created_at' => $update->created_at,
-        ];
+        return $photo ? Storage::url($photo->path) : null;
     }
 }

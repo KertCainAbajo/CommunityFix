@@ -8,23 +8,41 @@ use App\Enums\IssueStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Issue extends Model
 {
     use HasFactory;
 
+    // Easy to read aloud: no 0/O or 1/I/L.
+    private const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
     protected $fillable = [
-        'title', 'description', 'category', 'address', 'lat', 'lng', 'photo_path',
-        'status', 'priority', 'department', 'reporter_id', 'resolved_at',
+        'title', 'description', 'category', 'address', 'lat', 'lng', 'status', 'priority', 'department',
+        'contact_name', 'contact_email', 'contact_phone', 'resolved_at',
     ];
 
     protected $attributes = [
         'status' => 'reported',
         'priority' => 'normal',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Issue $issue) {
+            $issue->tracking_code ??= self::generateTrackingCode();
+        });
+    }
+
+    public static function generateTrackingCode(): string
+    {
+        $pick = fn () => implode('', array_map(
+            fn () => self::CODE_ALPHABET[random_int(0, strlen(self::CODE_ALPHABET) - 1)],
+            range(1, 4),
+        ));
+
+        return "CF-{$pick()}-{$pick()}";
+    }
 
     protected function casts(): array
     {
@@ -38,19 +56,14 @@ class Issue extends Model
         ];
     }
 
-    public function reporter(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'reporter_id');
-    }
-
     public function updates(): HasMany
     {
         return $this->hasMany(IssueUpdate::class)->orderBy('id');
     }
 
-    public function supporters(): BelongsToMany
+    public function photos(): HasMany
     {
-        return $this->belongsToMany(User::class, 'issue_supports');
+        return $this->hasMany(IssuePhoto::class)->orderBy('id');
     }
 
     public function ref(): string
@@ -58,10 +71,11 @@ class Issue extends Model
         return 'CF-'.str_pad((string) $this->id, 4, '0', STR_PAD_LEFT);
     }
 
-    public function addUpdate(User $author, ?string $note = null, ?IssueStatus $from = null, ?IssueStatus $to = null): void
+    /** A null author means the resident who filed the report. */
+    public function addUpdate(?User $author, ?string $note = null, ?IssueStatus $from = null, ?IssueStatus $to = null): void
     {
         $this->updates()->create([
-            'author_id' => $author->id,
+            'author_id' => $author?->id,
             'from_status' => $from,
             'to_status' => $to,
             'note' => $note ?: null,
@@ -70,11 +84,9 @@ class Issue extends Model
         $this->touch();
     }
 
-    /** Adds the support count, and whether this viewer has supported the issue. */
-    public function scopeWithViewerContext(Builder $query, ?User $viewer): void
+    public function scopeVisibleTo(Builder $query, ?User $viewer): void
     {
-        $query->withCount('supporters')
-            ->withExists(['supporters as supported' => fn (Builder $q) => $q->where('users.id', $viewer?->id ?? 0)]);
+        $query->when(! $viewer?->isStaff(), fn (Builder $q) => $q->whereIn('status', IssueStatus::public()));
     }
 
     public function scopeFilter(Builder $query, array $filters): void
@@ -82,7 +94,6 @@ class Issue extends Model
         $query
             ->when($filters['status'] ?? null, fn (Builder $q, string $status) => $q->where('status', $status))
             ->when($filters['category'] ?? null, fn (Builder $q, string $category) => $q->where('category', $category))
-            ->when($filters['reporter_id'] ?? null, fn (Builder $q, int $id) => $q->where('reporter_id', $id))
             ->when($filters['open'] ?? false, fn (Builder $q) => $q->whereIn('status', IssueStatus::open()))
             ->when($filters['q'] ?? null, function (Builder $q, string $search) {
                 $pattern = '%'.addcslashes($search, '\\%_').'%';
@@ -97,7 +108,6 @@ class Issue extends Model
     {
         match ($sort) {
             'oldest' => $query->oldest()->orderBy('id'),
-            'supported' => $query->orderByDesc('supporters_count')->latest()->orderByDesc('id'),
             'priority' => $query->orderByRaw(
                 "CASE priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END"
             )->oldest()->orderBy('id'),

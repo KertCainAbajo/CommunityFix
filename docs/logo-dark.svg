@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 96" width="420" height="96" role="img" aria-label="CommunityFix">
-  <rect x="4" y="8" width="80" height="80" rx="18" fill="#5fc4ad"/>
-  <path d="M26 49l13 13 24-29" fill="none" stroke="#0d1f1b" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="102" y="65" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="46" font-weight="700" letter-spacing="-1" fill="#e8ece9">CommunityFix</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 96" width="440" height="96" role="img" aria-label="CommunityFix">
+  <rect x="14" y="14" width="68" height="68" rx="8" transform="rotate(45 48 48)" fill="#ffc20e" stroke="#17191a" stroke-width="3"/>
+  <path d="M31 50l12 12 23-27" fill="none" stroke="#17191a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="106" y="66" font-family="Barlow Condensed, Arial Narrow, Segoe UI, sans-serif" font-size="50" font-weight="800" letter-spacing="1" fill="#f1eee4">COMMUNITYFIX</text>
 </svg>

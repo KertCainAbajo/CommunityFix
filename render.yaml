@@ -39,6 +39,9 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
+      # Must match the website's INTERNAL_API_KEY.
+      - key: INTERNAL_API_KEY
+        sync: false
       - key: MAP_CENTER
         sync: false
       # PostgreSQL connection string from your database host.

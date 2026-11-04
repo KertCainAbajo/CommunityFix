@@ -5,7 +5,8 @@ export type User = {
   id: number;
   name: string;
   email: string;
-  role: "resident" | "staff";
+  role: "staff" | "admin";
+  is_active: boolean;
 };
 
 export type TimelineEntry = {
@@ -18,6 +19,13 @@ export type TimelineEntry = {
   created_at: string;
 };
 
+export type Photo = {
+  id: number;
+  kind: "evidence" | "before" | "after";
+  label: string;
+  url: string;
+};
+
 export type Issue = {
   id: number;
   ref: string;
@@ -27,14 +35,14 @@ export type Issue = {
   address: string;
   lat: number | null;
   lng: number | null;
+  photos: Photo[];
   photo_url: string | null;
   status: Status;
   priority: Priority;
   department: string | null;
-  support_count: number;
-  supported: boolean;
-  is_mine: boolean;
-  reporter_name?: string;
+  // Only staff receive these two.
+  tracking_code?: string;
+  contact?: { name: string | null; email: string | null; phone: string | null };
   created_at: string;
   updated_at: string;
   resolved_at: string | null;
@@ -64,9 +72,16 @@ export type Stats = {
   avg_resolution_days: number | null;
 };
 
+export type Breakdown = { total: number; open: number; resolved: number; avg_days: number | null };
+
+export type Analytics = Stats & {
+  by_category: (Breakdown & { category: string })[];
+  by_team: (Breakdown & { team: string })[];
+  by_month: { month: string; reported: number; resolved: number }[];
+};
+
 export type FormState = { error: string } | null;
 export type NoticeState = { error: string } | { notice: string } | null;
+export type NewStaffState = { error: string } | { email: string; password: string } | null;
 
 export type MapPoint = Pick<Issue, "id" | "title" | "status"> & { lat: number; lng: number };
-
-export const OPEN_STATUSES: Status[] = ["reported", "acknowledged", "in_progress"];

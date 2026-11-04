@@ -28,7 +28,7 @@
 
 ## About CommunityFix
 
-CommunityFix is a community problem-to-resolution tracker. Residents report broken streetlights, damaged roads, drainage problems and other local issues, then follow each report until it is resolved.
+CommunityFix is a community problem-to-resolution tracker. Residents report broken streetlights, damaged roads, drainage problems and other local issues without creating an account, then follow each report with a tracking number until it is resolved.
 
 ![CommunityFix home page with a map of open problems and the latest reports](docs/screenshot-home.png)
 
@@ -46,32 +46,36 @@ CommunityFix is a community problem-to-resolution tracker. Residents report brok
 
 ## Features
 
-**Residents**
-- Report a problem with a category, description, address, map pin and photo
-- Follow progress on a status tracker and an update history
-- Comment on reports and mark "This affects me too"
-- Reopen a resolved report if the problem is not actually fixed
-- Get an email when staff change a report's status
-- Reset a forgotten password by email
-
-**Staff**
-- Dashboard with a work queue, open counts and average time to fix
-- Move reports through the workflow, with a note to the resident
-- Set priority and assign a department
+**Residents (no account needed)**
+- Report a problem with a category, description, location, map pin and up to 3 photos
+- Optionally leave a name, email or phone number, which only staff can see
+- Get a tracking number like `CF-7K2M-9QXD`, and an email confirmation if they left an address
+- Track progress with that number, and reopen a resolved report if it isn't really fixed
+- Get an email when the status changes, if they left an address
 
 **Public**
-- Anyone can browse, search and filter reports and see them on a map, without an account. Resident names are hidden from the public.
+- Anyone can browse, search and filter verified reports and see them on a map. New reports stay hidden until staff verify them, because anyone can submit one.
 
-![Staff dashboard with open reports by category and a prioritized work queue](docs/screenshot-dashboard.png)
+**Staff (account required)**
+- Dashboard with a work queue of every report
+- Verify or reject reports, and update their status with a note to the resident
+- Set priority and assign a maintenance team
+- Upload before-and-after photos and post public updates
+- View analytics by month, category and team
+
+**Admins**
+- Everything staff can do, plus creating staff accounts, changing roles and deactivating accounts
+
+![Analytics page with monthly report counts and breakdowns by category and team](docs/screenshot-analytics.png)
 
 ## Status workflow
 
 ```
-Reported → Acknowledged → In progress → Resolved
-    └───────────┴──→ Rejected
+Reported → Verified → In progress → Resolved
+    └─────────┴──→ Rejected
 ```
 
-Resolving or rejecting a report requires a note. The reporter can send a resolved report back to Acknowledged.
+Resolving or rejecting a report requires a note. Anyone with the tracking number can send a resolved report back to Verified.
 
 ## Getting started
 
@@ -107,19 +111,19 @@ npm run dev                  # http://localhost:3000
 
 ### Demo logins
 
-Created by `--seed`, with the password `demo-password`:
+Created by `--seed`, with the password `demo-password`. Log in at `/staff/login`, which is also linked from the footer.
 
-| Role     | Email                |
-| -------- | -------------------- |
-| Staff    | staff@example.com    |
-| Resident | resident@example.com |
+| Role  | Email             |
+| ----- | ----------------- |
+| Admin | staff@example.com |
+| Staff | team@example.com  |
 
 The seeder refuses to run when `APP_ENV=production`, because these passwords are public.
 
-To add a real staff account, run the command below. It prints a generated password.
+To create the first real admin, run the command below. It prints a generated password. After that, admins can add staff from the website.
 
 ```bash
-php artisan staff:create "Full Name" person@example.com
+php artisan staff:create "Full Name" person@example.com --admin
 ```
 
 ## Configuration
@@ -133,37 +137,41 @@ php artisan staff:create "Full Name" person@example.com
 | `FILESYSTEM_DISK` | Where photos are stored: `public` for local files, `s3` for a bucket |
 | `FRONTEND_URL`    | Address of the website, used in email links                          |
 | `MAIL_*`          | How email is sent                                                    |
+| `INTERNAL_API_KEY` | Shared with the website, so rate limits see each visitor's address  |
 
-Locally, `MAIL_MAILER=log` writes emails to `backend/storage/logs/laravel.log` instead of sending them, so you can open a password reset link from there.
+Locally, `MAIL_MAILER=log` writes emails to `backend/storage/logs/laravel.log` instead of sending them, so you can read them, or open a password reset link, from there.
 
 **`frontend/.env.local`**
 
 | Variable  | Purpose                                     |
 | --------- | ------------------------------------------- |
 | `API_URL` | Address of the Laravel API, ending in `/api` |
+| `INTERNAL_API_KEY` | Must match the value in `backend/.env` |
 
 ## How login works
 
-The browser only talks to Next.js. On login, a Next.js Server Action receives a Sanctum token from Laravel and stores it in an httpOnly cookie, so JavaScript in the browser cannot read it. Next.js then attaches the token to its requests to Laravel. This lets the frontend and API run on different domains.
+Only staff log in. The browser only talks to Next.js. On login, a Next.js Server Action receives a Sanctum token from Laravel and stores it in an httpOnly cookie, so JavaScript in the browser cannot read it. Next.js then attaches the token to its requests to Laravel. This lets the frontend and API run on different domains.
 
 ## Limits
 
-| Action                     | Limit                       |
-| -------------------------- | --------------------------- |
-| Login, sign-up, reset      | 10 a minute per email       |
-| New reports                | 10 an hour per account      |
-| Comments and "affects me"  | 30 a minute per account     |
-| Photos                     | 4 MB, JPEG, PNG or WebP     |
+| Action                | Limit                                                  |
+| --------------------- | ------------------------------------------------------ |
+| New reports           | 10 an hour per visitor, 200 an hour across the site    |
+| Tracking lookups      | 30 a minute per visitor                                |
+| Staff login and reset | 10 a minute per email                                  |
+| Photos                | 3 per report, 4 MB each, JPEG, PNG or WebP             |
+
+The report form also has a hidden field that catches simple bots.
 
 ## Deployment
 
-The API deploys to [Render](https://render.com) from `render.yaml`, using `backend/Dockerfile`. The website deploys to [Vercel](https://vercel.com) with `frontend` as its root directory and `API_URL` set to the API address.
+The API deploys to [Render](https://render.com) from `render.yaml`, using `backend/Dockerfile`. The website deploys to [Vercel](https://vercel.com) with `frontend` as its root directory, `API_URL` set to the API address, and `INTERNAL_API_KEY` matching the API.
 
 In production you also need:
 
 - A hosted PostgreSQL database, set as `DB_URL`
 - S3-compatible storage for photos, because Render's free plan deletes local files
-- An email provider's SMTP login, for password resets and status emails
+- An email provider's SMTP login, for tracking confirmations, status emails and password resets
 
 Secrets are entered in Render's dashboard, not in this repository. Create `APP_KEY` with `php artisan key:generate --show`.
 
@@ -185,19 +193,21 @@ backend/
   app/Console/Commands/      Command-line tools (staff:create)
   app/Enums/                 Statuses, categories, priorities and allowed status moves
   app/Http/Controllers/Api/  One small controller per area of the API
+  app/Providers/             Staff and admin permissions, and rate limits
   app/Http/Middleware/       Rejects text the database can't store
   app/Http/Requests/         Validation rules and error messages
   app/Http/Resources/        JSON output, including what the public may see
-  app/Models/                Database models and search filters
+  app/Models/                Database models, tracking numbers and search filters
   app/Notifications/         Emails sent to residents
-  app/Policies/              Who is allowed to do what
   app/Services/              Report workflow rules and statistics
   database/                  Migrations, factories and demo data
   docker/                    Production start script and PHP settings
-  routes/api.php             API routes
+  routes/api.php             API routes, grouped by who can use them
   tests/Feature/             API tests
 frontend/
-  app/                       Pages and Server Actions (actions.ts)
+  app/(site)/                Public pages and the staff dashboard
+  app/staff/                 Separate staff portal: login and password reset
+  app/actions.ts             Server Actions
   components/                Forms, maps and shared UI
   lib/api.ts                 Server-side API client
 docs/                        README images

@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Issue;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +17,11 @@ class IssueFactory extends Factory
             'description' => 'The light has been off for a week.',
             'category' => 'streetlight',
             'address' => '12 Main St',
-            'reporter_id' => User::factory(),
         ];
+    }
+
+    public function verified(): static
+    {
+        return $this->state(fn () => ['status' => 'acknowledged']);
     }
 }

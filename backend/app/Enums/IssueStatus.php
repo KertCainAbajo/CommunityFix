@@ -14,7 +14,7 @@ enum IssueStatus: string
     {
         return match ($this) {
             self::Reported => 'Reported',
-            self::Acknowledged => 'Acknowledged',
+            self::Acknowledged => 'Verified',
             self::InProgress => 'In progress',
             self::Resolved => 'Resolved',
             self::Rejected => 'Rejected',
@@ -42,6 +42,17 @@ enum IssueStatus: string
     public function isOpen(): bool
     {
         return in_array($this, self::open(), true);
+    }
+
+    /** New reports stay private until staff verify them, because anyone can submit one. */
+    public static function public(): array
+    {
+        return [self::Acknowledged, self::InProgress, self::Resolved];
+    }
+
+    public function isPublic(): bool
+    {
+        return in_array($this, self::public(), true);
     }
 
     public static function open(): array

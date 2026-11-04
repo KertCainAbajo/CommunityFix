@@ -7,11 +7,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/** Only staff have accounts. Residents report and track without one. */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    // `role` is deliberately absent: public sign-up must never be able to set it.
+    // `role` and `is_active` are deliberately absent, so they can only be set on purpose.
     protected $fillable = ['name', 'email', 'password'];
 
     protected $hidden = ['password', 'remember_token'];
@@ -21,11 +22,17 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 
     public function isStaff(): bool
     {
-        return $this->role === 'staff';
+        return in_array($this->role, ['staff', 'admin'], true);
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class CreateStaffCommand extends Command
 {
-    protected $signature = 'staff:create {name} {email}';
+    protected $signature = 'staff:create {name} {email} {--admin : Allow this person to manage staff accounts}';
 
     protected $description = 'Create a staff account with a generated password';
 
@@ -21,9 +21,9 @@ class CreateStaffCommand extends Command
             'email' => Str::lower($this->argument('email')),
             'password' => $password,
         ]);
-        $user->forceFill(['role' => 'staff'])->save();
+        $user->forceFill(['role' => $this->option('admin') ? 'admin' : 'staff'])->save();
 
-        $this->info("Created staff account for {$user->email}");
+        $this->info("Created {$user->role} account for {$user->email}");
         $this->line("Password: {$password}");
 
         return self::SUCCESS;

@@ -1,11 +1,13 @@
 import "server-only";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { cache } from "react";
 
 import type { IssuePage, Meta, Stats, User } from "@/lib/types";
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000/api";
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY;
 
 // The Sanctum token lives in this httpOnly cookie, so browser code never sees it.
 export const TOKEN_COOKIE = "cf_token";
@@ -22,7 +24,9 @@ export class ApiError extends Error {
 type ErrorBody = { message?: string; errors?: Record<string, string[]> };
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = (await cookies()).get(TOKEN_COOKIE)?.value;
+  const [cookieStore, requestHeaders] = await Promise.all([cookies(), headers()]);
+  const token = cookieStore.get(TOKEN_COOKIE)?.value;
+  const visitor = requestHeaders.get("x-forwarded-for")?.split(",")[0].trim();
   const isJson = typeof init.body === "string";
 
   const response = await fetch(`${API_URL}${path}`, {
@@ -32,6 +36,9 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
       Accept: "application/json",
       ...(isJson && { "Content-Type": "application/json" }),
       ...(token && { Authorization: `Bearer ${token}` }),
+      // Rate limits need the visitor's address, not this server's.
+      ...(INTERNAL_KEY && { "X-Internal-Key": INTERNAL_KEY }),
+      ...(visitor && { "X-Client-Ip": visitor }),
     },
   });
 
@@ -55,7 +62,7 @@ export const getMeta = cache(() => api<Meta>("/meta"));
 
 export const getStats = () => api<Stats>("/stats");
 
-export const getIssues = (query = "") => api<IssuePage>(`/issues${query && `?${query}`}`);
+export const getIssues = cache((query = "") => api<IssuePage>(`/issues${query && `?${query}`}`));
 
 export const getUser = cache(async (): Promise<User | null> => {
   if (!(await cookies()).has(TOKEN_COOKIE)) return null;
@@ -66,6 +73,13 @@ export const getUser = cache(async (): Promise<User | null> => {
     throw error;
   }
 });
+
+/** The signed-in staff member, or a trip to the login page. */
+export async function requireStaff(next: string): Promise<User> {
+  const user = await getUser();
+  if (!user) redirect(`/staff/login?next=${encodeURIComponent(next)}`);
+  return user;
+}
 
 /** Turns Next.js search params into a query string for the API. */
 export function toQuery(params: Record<string, string | string[] | undefined>) {

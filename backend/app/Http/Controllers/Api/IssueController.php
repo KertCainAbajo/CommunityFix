@@ -22,8 +22,8 @@ class IssueController extends Controller
     public function index(ListIssuesRequest $request): JsonResponse
     {
         $page = Issue::query()
-            ->with('reporter')
-            ->withViewerContext($request->user('sanctum'))
+            ->with('photos')
+            ->visibleTo($request->user('sanctum'))
             ->filter($request->filters())
             ->sortBy($request->validated('sort'))
             ->paginate(self::PAGE_SIZE);
@@ -38,20 +38,22 @@ class IssueController extends Controller
 
     public function store(StoreIssueRequest $request, IssueWorkflow $workflow): JsonResponse
     {
-        $issue = $workflow->report($request->details(), $request->file('photo'), $request->user());
+        $issue = $workflow->report($request->details(), $request->file('photos', []));
 
-        return $this->issueResponse($issue, $request, 201);
+        return response()->json(['ref' => $issue->ref(), 'tracking_code' => $issue->tracking_code], 201);
     }
 
     public function show(Issue $issue, Request $request): JsonResponse
     {
-        return $this->issueResponse($issue, $request);
+        abort_unless($issue->status->isPublic() || $request->user('sanctum')?->isStaff(), 404);
+
+        return $this->issueResponse($issue);
     }
 
     public function update(Issue $issue, UpdateIssueRequest $request): JsonResponse
     {
         $issue->update($request->validated());
 
-        return $this->issueResponse($issue, $request);
+        return $this->issueResponse($issue);
     }
 }
