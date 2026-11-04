@@ -1,12 +1,48 @@
-# CommunityFix
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <img src="docs/logo-light.svg" alt="CommunityFix" width="420">
+  </picture>
+</p>
 
-A community problem-to-resolution tracker. Residents report broken streetlights, damaged roads, drainage problems and other local issues, then follow each report until it is resolved.
+<p align="center">
+  <strong>Frontend</strong><br>
+  <img src="https://img.shields.io/badge/Next.js-16.4-000000?logo=nextdotjs&logoColor=white" alt="Next.js 16.4">
+  <img src="https://img.shields.io/badge/React-19.3-087EA4?logo=react&logoColor=white" alt="React 19.3">
+  <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white" alt="TypeScript 5.9">
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-4.3-0E7490?logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4.3">
+  <img src="https://img.shields.io/badge/shadcn%2Fui-000000?logo=shadcnui&logoColor=white" alt="shadcn/ui">
+</p>
 
-| Part     | Technology                                                    |
-| -------- | ------------------------------------------------------------- |
-| Frontend | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Leaflet  |
-| Backend  | Laravel API, PHP 8.3+, Laravel Sanctum                        |
-| Database | PostgreSQL                                                    |
+<p align="center">
+  <strong>Backend</strong><br>
+  <img src="https://img.shields.io/badge/Laravel-13.40-FF2D20?logo=laravel&logoColor=white" alt="Laravel 13.40">
+  <img src="https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white" alt="PHP 8.3+">
+  <img src="https://img.shields.io/badge/Laravel%20Sanctum-4.3-FF2D20?logo=laravel&logoColor=white" alt="Laravel Sanctum 4.3">
+</p>
+
+<p align="center">
+  <strong>Database</strong><br>
+  <img src="https://img.shields.io/badge/PostgreSQL-18-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 18">
+</p>
+
+## About CommunityFix
+
+CommunityFix is a community problem-to-resolution tracker. Residents report broken streetlights, damaged roads, drainage problems and other local issues, then follow each report until it is resolved.
+
+![CommunityFix home page with a map of open problems and the latest reports](docs/screenshot-home.png)
+
+## Tech stack
+
+| Part     | Technology                                       | Used for                                     |
+| -------- | ------------------------------------------------ | -------------------------------------------- |
+| Frontend | Next.js 16.4, React 19.3                       | Website pages and forms                      |
+|          | TypeScript 5.9                                   | Type-checked frontend code                   |
+|          | Tailwind CSS 4.3, shadcn/ui                      | Styling and UI components                    |
+|          | Leaflet with OpenStreetMap                       | Report maps                                  |
+| Backend  | Laravel 13.40, PHP 8.3+                           | API, validation and the report workflow      |
+|          | Laravel Sanctum 4.3                              | Login tokens                                 |
+| Database | PostgreSQL 18                                    | Accounts, reports and update history         |
 
 ## Features
 
@@ -23,6 +59,8 @@ A community problem-to-resolution tracker. Residents report broken streetlights,
 
 **Public**
 - Anyone can browse, search and filter reports and see them on a map, without an account. Resident names are hidden from the public.
+
+![Staff dashboard with open reports by category and a prioritized work queue](docs/screenshot-dashboard.png)
 
 ## Status workflow
 
