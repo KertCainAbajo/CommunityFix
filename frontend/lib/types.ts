@@ -65,6 +65,7 @@ export type Stats = {
 };
 
 export type FormState = { error: string } | null;
+export type NoticeState = { error: string } | { notice: string } | null;
 
 export type MapPoint = Pick<Issue, "id" | "title" | "status"> & { lat: number; lng: number };
 

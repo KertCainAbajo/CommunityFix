@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Issue;
 
 use App\Enums\IssueCategory;
 use Illuminate\Foundation\Http\FormRequest;
@@ -34,5 +34,10 @@ class StoreIssueRequest extends FormRequest
             'photo.max' => 'Photos can be up to 4 MB.',
             'photo.*' => 'Photos must be JPEG, PNG or WebP images.',
         ];
+    }
+
+    public function details(): array
+    {
+        return $this->safe()->except('photo');
     }
 }

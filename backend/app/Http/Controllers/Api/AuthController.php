@@ -3,74 +3,54 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
     private const TOKEN_DAYS = 14;
 
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        if (is_string($request->input('email'))) {
-            $request->merge(['email' => Str::lower(trim($request->input('email')))]);
-        }
-
-        $data = $request->validate([
-            'name' => ['required', 'string', 'min:2', 'max:80'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'max:200'],
-        ], [
-            'name.*' => 'Enter your name.',
-            'email.unique' => 'That email already has an account. Try logging in.',
-            'email.*' => 'Enter a valid email address.',
-            'password.*' => 'Use a password of at least 8 characters.',
-        ]);
-
-        return $this->session(User::create($data)->refresh(), 201);
+        return $this->startSession(User::create($request->validated())->refresh(), 201);
     }
 
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'email' => ['required', 'string'],
-            'password' => ['required', 'string'],
-        ]);
+        $user = User::where('email', $request->validated('email'))->first();
+        $valid = $user && Hash::check($request->validated('password'), $user->password);
 
-        $user = User::where('email', Str::lower(trim($data['email'])))->first();
+        abort_unless($valid, 401, 'Wrong email or password.');
 
-        abort_if(! $user || ! Hash::check($data['password'], $user->password), 401, 'Wrong email or password.');
-
-        return $this->session($user);
+        return $this->startSession($user);
     }
 
-    public function logout(Request $request): JsonResponse
+    public function logout(Request $request): Response
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json(['user' => $this->publicUser($request->user())]);
+        return response()->json(['user' => new UserResource($request->user())]);
     }
 
-    private function session(User $user, int $status = 200): JsonResponse
+    private function startSession(User $user, int $status = 200): JsonResponse
     {
+        $user->tokens()->where('expires_at', '<', now())->delete();
         $token = $user->createToken('web', expiresAt: now()->addDays(self::TOKEN_DAYS));
 
         return response()->json([
-            'user' => $this->publicUser($user),
+            'user' => new UserResource($user),
             'token' => $token->plainTextToken,
         ], $status);
-    }
-
-    private function publicUser(User $user): array
-    {
-        return $user->only(['id', 'name', 'email', 'role']);
     }
 }

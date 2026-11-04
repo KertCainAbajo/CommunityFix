@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.git
+vendor
+tests
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/views/*
+public/storage

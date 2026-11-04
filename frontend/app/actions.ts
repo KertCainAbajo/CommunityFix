@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { ApiError, TOKEN_COOKIE, api, post } from "@/lib/api";
-import type { FormState, Issue, User } from "@/lib/types";
+import type { FormState, Issue, NoticeState, User } from "@/lib/types";
 
 const SESSION_SECONDS = 14 * 86_400;
 
@@ -60,6 +60,28 @@ export async function logout() {
   await attempt(() => post("/auth/logout"));
   (await cookies()).delete(TOKEN_COOKIE);
   redirect("/");
+}
+
+export async function forgotPassword(_: NoticeState, form: FormData): Promise<NoticeState> {
+  try {
+    const { message } = await post<{ message: string }>("/auth/forgot-password", { email: form.get("email") });
+    return { notice: message };
+  } catch (error) {
+    if (error instanceof ApiError) return { error: error.message };
+    throw error;
+  }
+}
+
+export async function resetPassword(_: FormState, form: FormData): Promise<FormState> {
+  const failed = await attempt(() =>
+    post("/auth/reset-password", {
+      token: form.get("token"),
+      email: form.get("email"),
+      password: form.get("password"),
+    }),
+  );
+  if (failed) return failed;
+  redirect("/login?reset=1");
 }
 
 export async function createIssue(_: FormState, form: FormData): Promise<FormState> {

@@ -9,9 +9,11 @@ import {
   assignIssue,
   changeStatus,
   createIssue,
+  forgotPassword,
   login,
   register,
   reopenIssue,
+  resetPassword,
   toggleSupport,
 } from "@/app/actions";
 import { LocationPicker } from "@/components/maps";
@@ -21,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
-import type { FormState, Issue, Meta, Status } from "@/lib/types";
+import type { FormState, Issue, Meta, NoticeState, Status } from "@/lib/types";
 
 const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
 const MAX_PHOTO_EDGE = 1600;
@@ -35,8 +37,8 @@ function Field({ label, id, children }: { label: ReactNode; id: string; children
   );
 }
 
-function FormError({ state }: { state: FormState }) {
-  if (!state) return null;
+function FormError({ state }: { state: FormState | NoticeState }) {
+  if (!state || !("error" in state)) return null;
   return (
     <Alert variant="destructive" role="alert">
       <AlertDescription>{state.error}</AlertDescription>
@@ -80,6 +82,40 @@ export function AuthForm({ mode, next }: { mode: "login" | "register"; next: str
       </Field>
       <FormError state={state} />
       <Submit>{isLogin ? "Log in" : "Create account"}</Submit>
+    </form>
+  );
+}
+
+export function ForgotPasswordForm() {
+  const [state, action] = useActionState(forgotPassword, null);
+
+  if (state && "notice" in state) {
+    return <p role="status" className="rounded-xl border bg-card p-5">{state.notice}</p>;
+  }
+
+  return (
+    <form action={action} className="grid gap-4 rounded-xl border bg-card p-5">
+      <Field label="Email" id="email">
+        <Input id="email" type="email" name="email" required autoComplete="email" />
+      </Field>
+      <FormError state={state} />
+      <Submit>Send reset link</Submit>
+    </form>
+  );
+}
+
+export function ResetPasswordForm({ token, email }: { token: string; email: string }) {
+  const [state, action] = useActionState(resetPassword, null);
+
+  return (
+    <form action={action} className="grid gap-4 rounded-xl border bg-card p-5">
+      <input type="hidden" name="token" value={token} />
+      <input type="hidden" name="email" value={email} />
+      <Field label="New password" id="password">
+        <Input id="password" type="password" name="password" required minLength={8} maxLength={72} autoComplete="new-password" />
+      </Field>
+      <FormError state={state} />
+      <Submit>Change password</Submit>
     </form>
   );
 }
@@ -271,11 +307,18 @@ export function AuthSwitch({ mode, next }: { mode: "login" | "register"; next: s
   const href = `/${isLogin ? "register" : "login"}?next=${encodeURIComponent(next)}`;
 
   return (
-    <p className="text-sm text-muted-foreground">
-      {isLogin ? "New here? " : "Already have an account? "}
-      <Link href={href} className="text-primary underline">
-        {isLogin ? "Create an account" : "Log in"}
-      </Link>
-    </p>
+    <div className="grid gap-1 text-sm text-muted-foreground">
+      <p>
+        {isLogin ? "New here? " : "Already have an account? "}
+        <Link href={href} className="text-primary underline">
+          {isLogin ? "Create an account" : "Log in"}
+        </Link>
+      </p>
+      {isLogin && (
+        <p>
+          <Link href="/forgot-password" className="text-primary underline">Forgot your password?</Link>
+        </p>
+      )}
+    </div>
   );
 }

@@ -9,13 +9,14 @@ type Params = Promise<Record<string, string | string[] | undefined>>;
 type Mode = "login" | "register";
 
 async function AuthContent({ mode, searchParams }: { mode: Mode; searchParams: Params }) {
-  const { next } = await searchParams;
+  const { next, reset } = await searchParams;
   const target = typeof next === "string" ? next : "/";
 
   if (await getUser()) redirect(target.startsWith("/") && !target.startsWith("//") ? target : "/");
 
   return (
     <>
+      {reset && <p role="status" className="rounded-lg border bg-card px-4 py-3">Your password has been changed. You can log in now.</p>}
       <AuthForm mode={mode} next={target} />
       <AuthSwitch mode={mode} next={target} />
     </>

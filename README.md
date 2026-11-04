@@ -51,6 +51,8 @@ CommunityFix is a community problem-to-resolution tracker. Residents report brok
 - Follow progress on a status tracker and an update history
 - Comment on reports and mark "This affects me too"
 - Reopen a resolved report if the problem is not actually fixed
+- Get an email when staff change a report's status
+- Reset a forgotten password by email
 
 **Staff**
 - Dashboard with a work queue, open counts and average time to fix
@@ -129,6 +131,10 @@ php artisan staff:create "Full Name" person@example.com
 | `DB_*`            | PostgreSQL connection                                                |
 | `MAP_CENTER`      | Starting map position, as `lat,lng`                                  |
 | `FILESYSTEM_DISK` | Where photos are stored: `public` for local files, `s3` for a bucket |
+| `FRONTEND_URL`    | Address of the website, used in email links                          |
+| `MAIL_*`          | How email is sent                                                    |
+
+Locally, `MAIL_MAILER=log` writes emails to `backend/storage/logs/laravel.log` instead of sending them, so you can open a password reset link from there.
 
 **`frontend/.env.local`**
 
@@ -139,6 +145,27 @@ php artisan staff:create "Full Name" person@example.com
 ## How login works
 
 The browser only talks to Next.js. On login, a Next.js Server Action receives a Sanctum token from Laravel and stores it in an httpOnly cookie, so JavaScript in the browser cannot read it. Next.js then attaches the token to its requests to Laravel. This lets the frontend and API run on different domains.
+
+## Limits
+
+| Action                     | Limit                       |
+| -------------------------- | --------------------------- |
+| Login, sign-up, reset      | 10 a minute per email       |
+| New reports                | 10 an hour per account      |
+| Comments and "affects me"  | 30 a minute per account     |
+| Photos                     | 4 MB, JPEG, PNG or WebP     |
+
+## Deployment
+
+The API deploys to [Render](https://render.com) from `render.yaml`, using `backend/Dockerfile`. The website deploys to [Vercel](https://vercel.com) with `frontend` as its root directory and `API_URL` set to the API address.
+
+In production you also need:
+
+- A hosted PostgreSQL database, set as `DB_URL`
+- S3-compatible storage for photos, because Render's free plan deletes local files
+- An email provider's SMTP login, for password resets and status emails
+
+Secrets are entered in Render's dashboard, not in this repository. Create `APP_KEY` with `php artisan key:generate --show`.
 
 ## Tests
 
@@ -154,12 +181,25 @@ npm run lint
 ## Project layout
 
 ```
-backend/app/Enums/           Statuses, categories, priorities and allowed status moves
-backend/app/Http/            API controllers, validation and JSON output
-backend/routes/api.php       API routes
-backend/database/            Migrations and demo data
-backend/tests/Feature/       API tests
-frontend/app/                Pages and Server Actions (actions.ts)
-frontend/components/         Forms, maps and shared UI
-frontend/lib/api.ts          Server-side API client
+backend/
+  app/Console/Commands/      Command-line tools (staff:create)
+  app/Enums/                 Statuses, categories, priorities and allowed status moves
+  app/Http/Controllers/Api/  One small controller per area of the API
+  app/Http/Middleware/       Rejects text the database can't store
+  app/Http/Requests/         Validation rules and error messages
+  app/Http/Resources/        JSON output, including what the public may see
+  app/Models/                Database models and search filters
+  app/Notifications/         Emails sent to residents
+  app/Policies/              Who is allowed to do what
+  app/Services/              Report workflow rules and statistics
+  database/                  Migrations, factories and demo data
+  docker/                    Production start script and PHP settings
+  routes/api.php             API routes
+  tests/Feature/             API tests
+frontend/
+  app/                       Pages and Server Actions (actions.ts)
+  components/                Forms, maps and shared UI
+  lib/api.ts                 Server-side API client
+docs/                        README images
+render.yaml                  Render deployment settings
 ```
