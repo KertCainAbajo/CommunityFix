@@ -24,6 +24,12 @@ class IssueController extends Controller
         $viewer = $request->user('sanctum');
         abort_if($request->boolean('mine') && ! $viewer, 401, 'Please log in first.');
 
+        $request->validate([
+            'q' => ['nullable', 'string', 'max:200'],
+            'status' => ['nullable', 'string'],
+            'category' => ['nullable', 'string'],
+        ]);
+
         $query = self::withCounts(Issue::query()->with('reporter'), $request)
             ->when(IssueStatus::tryFrom((string) $request->query('status')), fn (Builder $q, $status) => $q->where('status', $status))
             ->when(IssueCategory::tryFrom((string) $request->query('category')), fn (Builder $q, $category) => $q->where('category', $category))

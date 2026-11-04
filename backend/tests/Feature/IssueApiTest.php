@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Issue;
 use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -359,6 +360,44 @@ class IssueApiTest extends TestCase
             ->assertOk()
             ->assertJsonPath('statuses.in_progress', 'In progress')
             ->assertJsonPath('transitions.reported', ['acknowledged', 'rejected']);
+    }
+
+    public function test_malformed_filters_are_rejected_cleanly(): void
+    {
+        foreach (['status[]=x', 'category[]=x', 'q[]=x', 'q[a]=b', 'q=%FF%FE', 'q=a%00b', 'q='.str_repeat('a', 201)] as $query) {
+            $this->getJson("/api/issues?{$query}")->assertUnprocessable();
+        }
+    }
+
+    public function test_malformed_login_and_registration_are_rejected_cleanly(): void
+    {
+        $this->postJson('/api/auth/login', ['email' => ['a'], 'password' => 'x'])->assertUnprocessable();
+        $this->postJson('/api/auth/login', ['email' => "a\0b@example.com", 'password' => 'x'])->assertUnprocessable();
+        $this->postJson('/api/auth/register', ['name' => 'Valid', 'email' => ['a'], 'password' => 'password123'])->assertUnprocessable();
+        $this->postJson('/api/auth/register', ['name' => "Va\0lid", 'email' => 'a@example.com', 'password' => 'password123'])->assertUnprocessable();
+    }
+
+    public function test_invalid_characters_never_reach_the_database(): void
+    {
+        Sanctum::actingAs($this->resident());
+
+        $this->postJson('/api/issues', [...self::REPORT, 'title' => "Bad \0 title here"])->assertUnprocessable();
+        $this->assertSame(0, Issue::count());
+    }
+
+    public function test_staff_accounts_can_be_created_from_the_command_line(): void
+    {
+        $this->artisan('staff:create', ['name' => 'New Staff', 'email' => 'NEW@Example.com'])->assertSuccessful();
+
+        $this->assertTrue(User::where('email', 'new@example.com')->firstOrFail()->isStaff());
+    }
+
+    public function test_demo_data_cannot_be_seeded_in_production(): void
+    {
+        $this->app['env'] = 'production';
+
+        $this->expectExceptionMessage('must not be seeded in production');
+        $this->app->make(DatabaseSeeder::class)->run();
     }
 
     public function test_unknown_issues_and_routes_return_404(): void

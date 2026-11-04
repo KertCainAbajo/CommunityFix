@@ -18,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
         // Keyed by account, not IP: every request arrives from the Next.js server,
         // so an IP limit would throttle all residents as if they were one person.
         RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(10)
-            ->by(Str::lower((string) $request->input('email')))
+            ->by(Str::lower(is_string($request->input('email')) ? $request->input('email') : ''))
             ->response(fn () => response()->json(['message' => 'Too many attempts. Please try again in a minute.'], 429)));
     }
 }
