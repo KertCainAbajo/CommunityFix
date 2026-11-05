@@ -6,7 +6,7 @@ import { StaffNoteForm, StaffPanel } from "@/components/forms";
 import { PageSkeleton } from "@/components/issue-parts";
 import { Fact, IssueView } from "@/components/issue-view";
 import { buttonVariants } from "@/components/ui/button";
-import { ApiError, api, getMeta, getUser } from "@/lib/api";
+import { ApiError, api, getMeta, getUser, isStaff } from "@/lib/api";
 import type { Issue } from "@/lib/types";
 
 async function loadIssue(id: string) {
@@ -24,7 +24,7 @@ async function loadIssue(id: string) {
 function PrivateReport({ id }: { id: string }) {
   return (
     <section className="grid justify-items-center gap-4 py-10 text-center">
-      <h1 className="text-5xl sm:text-6xl">This report isn&apos;t public</h1>
+      <h1 className="text-4xl sm:text-6xl">This report isn&apos;t public</h1>
       <p className="max-w-md text-lg text-muted-foreground">
         Reports appear here once staff verify them. If this is your report, follow it with your tracking number.
       </p>
@@ -46,7 +46,7 @@ async function IssueDetail({ params }: Pick<PageProps<"/issues/[id]">, "params">
   const [issue, meta, user] = await Promise.all([loadIssue(id), getMeta(), getUser()]);
 
   if (!issue) return <PrivateReport id={id} />;
-  if (!user) return <IssueView issue={issue} meta={meta} />;
+  if (!isStaff(user)) return <IssueView issue={issue} meta={meta} />;
 
   const { name, email, phone } = issue.contact ?? {};
   const hasContact = name || email || phone;
@@ -58,7 +58,7 @@ async function IssueDetail({ params }: Pick<PageProps<"/issues/[id]">, "params">
       belowTimeline={<StaffNoteForm issueId={issue.id} />}
       facts={
         <>
-          <Fact label="Tracking number"><span className="font-mono text-sm">{issue.tracking_code}</span></Fact>
+          <Fact label="Tracking number"><span className="text-base">{issue.tracking_code}</span></Fact>
           <Fact label="Resident contact">
             {hasContact ? [name, email, phone].filter(Boolean).join(" · ") : "None left"}
           </Fact>

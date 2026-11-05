@@ -16,12 +16,6 @@ class StaffLoginTest extends TestCase
 {
     use ActsOnIssues, RefreshDatabase;
 
-    public function test_there_is_no_public_sign_up(): void
-    {
-        $this->postJson('/api/auth/register', ['name' => 'Sneaky', 'email' => 's@example.com', 'password' => 'password123'])
-            ->assertNotFound();
-    }
-
     public function test_login_returns_a_working_token_and_logout_revokes_it(): void
     {
         User::factory()->create(['email' => 'me@example.com', 'password' => 'password123']);

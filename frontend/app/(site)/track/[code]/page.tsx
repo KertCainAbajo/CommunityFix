@@ -1,3 +1,4 @@
+import { CircleCheckBig } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
@@ -11,13 +12,19 @@ export const metadata: Metadata = { title: "Track your report" };
 
 function NewReportBanner({ code }: { code: string }) {
   return (
-    <section className="asphalt grid gap-3 p-5" aria-labelledby="saved-title">
-      <h2 id="saved-title" className="text-3xl text-paint">Report received. Save your tracking number.</h2>
-      <p className="text-muted-foreground">
-        It&apos;s the only way to follow this report, and we can&apos;t recover it unless you left an email.
+    <section className="grid gap-3 border-l-4 border-brand-green bg-accent p-6" aria-labelledby="saved-title">
+      <h2 id="saved-title" className="flex items-center gap-2.5 text-2xl sm:text-3xl">
+        <CircleCheckBig aria-hidden className="size-8 flex-none text-brand-green" />
+        Thank you! Please save your tracking number.
+      </h2>
+      <p className="text-lg">
+        Write it down or take a photo of this page. It&apos;s how you follow your report, and we can only send it to you
+        again if you left an email.
       </p>
       <div className="flex flex-wrap items-center gap-3">
-        <code className="border-2 border-dashed border-paint px-3 py-1.5 font-mono text-2xl font-medium tracking-wider">{code}</code>
+        <code className="border-2 border-dashed border-primary bg-card px-4 py-2 font-sans text-3xl font-bold tracking-wider text-primary">
+          {code}
+        </code>
         <CopyCode code={code} />
       </div>
     </section>
@@ -40,9 +47,9 @@ async function Tracked({ params, searchParams }: Pick<PageProps<"/track/[code]">
 
   if (!issue) {
     return (
-      <div className="mx-auto grid w-full max-w-md gap-3.5">
-        <h1 className="text-5xl">Report not found</h1>
-        <p className="text-muted-foreground">Check the tracking number and try again.</p>
+      <div className="mx-auto grid w-full max-w-lg gap-3.5">
+        <h1 className="text-4xl">Report not found</h1>
+        <p className="text-lg text-muted-foreground">Please check the tracking number and try again.</p>
         <div className="sheet"><TrackForm /></div>
       </div>
     );
@@ -52,7 +59,7 @@ async function Tracked({ params, searchParams }: Pick<PageProps<"/track/[code]">
     <>
       {isNew && <NewReportBanner code={code.toUpperCase()} />}
       {issue.status === "reported" && (
-        <p className="border-l-4 border-[#c2410c] bg-card px-4 py-3">
+        <p className="border-l-4 border-primary bg-card px-4 py-3 text-lg">
           Staff will review your report soon. It appears publicly once it&apos;s verified.
         </p>
       )}

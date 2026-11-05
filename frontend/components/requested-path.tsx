@@ -8,5 +8,5 @@ const noChanges = () => () => {};
 export function RequestedPath() {
   const path = useSyncExternalStore(noChanges, () => window.location.pathname, () => "");
 
-  return <code className="min-h-5 font-mono text-sm break-all text-muted-foreground">{path}</code>;
+  return <code className="min-h-5 break-all text-muted-foreground">{path}</code>;
 }

@@ -158,6 +158,42 @@ class StaffWorkTest extends TestCase
         $this->assertIsNumeric($stats->json('avg_resolution_days'));
     }
 
+    public function test_stats_include_30_day_trends_and_overdue_reports(): void
+    {
+        $old = Issue::factory()->create();
+        $old->forceFill(['created_at' => now()->subDays(20)])->saveQuietly();
+        Issue::factory()->create();
+
+        $stats = $this->getJson('/api/stats')->assertOk();
+
+        $stats->assertJsonPath('overdue', 1)
+            ->assertJsonCount(30, 'trends.total')
+            ->assertJsonPath('trends.total.29', 2)
+            ->assertJsonPath('trends.total.0', 0)
+            ->assertJsonPath('trends.open.29', 2)
+            ->assertJsonPath('trends.overdue.29', 1)
+            ->assertJsonPath('trends.overdue.0', 0);
+    }
+
+    public function test_activity_shows_the_public_only_verified_reports(): void
+    {
+        $hidden = $this->report(['title' => 'Still waiting for review', 'contact_email' => 'sam@example.com']);
+        $shown = $this->report(['title' => 'Verified problem here']);
+
+        Sanctum::actingAs($this->staff());
+        $this->move($shown, 'acknowledged')->assertOk();
+        $this->getJson('/api/activity')->assertSee('Still waiting for review');
+        $this->asGuest();
+
+        $response = $this->getJson('/api/activity')->assertOk();
+
+        $response->assertSee('Verified problem here')->assertJsonPath('items.0.to_status', 'acknowledged');
+        $response->assertDontSee('Still waiting for review');
+        $this->assertStringNotContainsString('sam@example.com', $response->getContent());
+        $this->assertStringNotContainsString($hidden->tracking_code, $response->getContent());
+        $this->assertStringNotContainsString($shown->tracking_code, $response->getContent());
+    }
+
     public function test_only_admins_can_manage_staff_accounts(): void
     {
         Sanctum::actingAs($this->staff());

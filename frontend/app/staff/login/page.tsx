@@ -4,7 +4,8 @@ import { Suspense } from "react";
 
 import { ForgotLink, LoginForm } from "@/components/forms";
 import { PageSkeleton } from "@/components/issue-parts";
-import { getUser } from "@/lib/api";
+import { PortalTabs } from "@/components/portal";
+import { getUser, isStaff } from "@/lib/api";
 
 export const metadata: Metadata = { title: "Staff login" };
 
@@ -12,16 +13,17 @@ async function Login({ searchParams }: Pick<PageProps<"/staff/login">, "searchPa
   const { next, reset } = await searchParams;
   const target = typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
 
-  if (await getUser()) redirect(target);
+  // A resident who is signed in can still switch to a staff account here.
+  if (isStaff(await getUser())) redirect(target);
 
   return (
     <>
       {reset && (
-        <p role="status" className="border-l-4 border-[#0f7a46] bg-card px-4 py-3">
+        <p role="status" className="rounded-xl border border-[#bbe5c8] bg-[#ecfbf1] px-4 py-3 text-sm text-[#166534]">
           Your password has been changed. You can log in now.
         </p>
       )}
-      <LoginForm next={target} />
+      <LoginForm next={target} portal="staff" />
       <ForgotLink />
     </>
   );
@@ -30,8 +32,8 @@ async function Login({ searchParams }: Pick<PageProps<"/staff/login">, "searchPa
 export default function StaffLoginPage({ searchParams }: PageProps<"/staff/login">) {
   return (
     <>
-      <h1 className="text-5xl">Staff login</h1>
-      <p className="text-muted-foreground">Residents don&apos;t need an account to report or track a problem.</p>
+      <PortalTabs active="staff" />
+      <h1 className="sr-only">Staff login</h1>
       <Suspense fallback={<PageSkeleton />}>
         <Login searchParams={searchParams} />
       </Suspense>

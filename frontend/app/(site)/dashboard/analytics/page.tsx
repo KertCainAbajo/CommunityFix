@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Analytics" };
 
 function BreakdownTable({ label, rows }: { label: string; rows: (Breakdown & { name: string })[] }) {
   return (
-    <div className="survey">
+    <div className="panel">
       <Table className="min-w-130">
         <TableHeader>
           <TableRow>
@@ -43,14 +43,14 @@ function MonthlyChart({ months }: { months: Analytics["by_month"] }) {
     <ul className="grid gap-2.5">
       {months.map((row) => (
         <li key={row.month} className="grid grid-cols-[4.5rem_1fr] items-center gap-3 text-sm">
-          <span className="font-mono text-xs">{row.month}</span>
+          <span className="text-sm">{row.month}</span>
           <div className="grid gap-1">
             {(["reported", "resolved"] as const).map((kind) => (
               <div key={kind} className="grid grid-cols-[1fr_1.75rem] items-center gap-2">
-                <span className="h-3 border border-[var(--ink-line)] bg-card">
+                <span className="h-3 rounded-full bg-muted">
                   <span
                     className="block h-full"
-                    style={{ width: `${(row[kind] / most) * 100}%`, background: kind === "reported" ? "#c2410c" : "#0f7a46" }}
+                    style={{ width: `${(row[kind] / most) * 100}%`, background: kind === "reported" ? "#1e7fc2" : "#2f8a45" }}
                   />
                 </span>
                 <span className="text-right text-xs tabular-nums" aria-label={`${row[kind]} ${kind}`}>{row[kind]}</span>
@@ -80,16 +80,16 @@ async function Report() {
       />
 
       <section className="grid gap-3">
-        <h2 className="text-3xl">Last 6 months</h2>
+        <h2 className="text-2xl">Last 6 months</h2>
         <ul className="flex gap-4 text-sm" aria-label="Chart legend">
-          <li className="flex items-center gap-1.5"><span className="size-3 bg-[#c2410c]" />Reported</li>
-          <li className="flex items-center gap-1.5"><span className="size-3 bg-[#0f7a46]" />Resolved</li>
+          <li className="flex items-center gap-1.5"><span className="size-3.5 rounded-full bg-[#1e7fc2]" />Reported</li>
+          <li className="flex items-center gap-1.5"><span className="size-3.5 rounded-full bg-[#2f8a45]" />Resolved</li>
         </ul>
         <MonthlyChart months={data.by_month} />
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-3xl">By category</h2>
+        <h2 className="text-2xl">By category</h2>
         {data.by_category.length > 0 ? (
           <BreakdownTable
             label="Category"
@@ -101,7 +101,7 @@ async function Report() {
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-3xl">By maintenance team</h2>
+        <h2 className="text-2xl">By maintenance team</h2>
         {data.by_team.length > 0 ? (
           <BreakdownTable label="Team" rows={data.by_team.map((row) => ({ ...row, name: row.team }))} />
         ) : (
@@ -115,7 +115,7 @@ async function Report() {
 export default function AnalyticsPage() {
   return (
     <>
-      <h1 className="text-5xl">Analytics</h1>
+      <h1 className="text-3xl">Analytics</h1>
       <Suspense fallback={<PageSkeleton />}>
         <Report />
       </Suspense>

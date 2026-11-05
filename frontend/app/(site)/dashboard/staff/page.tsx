@@ -17,7 +17,7 @@ async function StaffList() {
   return (
     <>
       <NewStaffForm />
-      <ul className="survey" aria-label="Staff accounts">
+      <ul className="panel" aria-label="Staff accounts">
         {items.map((person) => <StaffRow key={person.id} person={person} isSelf={person.id === user.id} />)}
       </ul>
     </>
@@ -27,7 +27,7 @@ async function StaffList() {
 export default function StaffPage() {
   return (
     <>
-      <h1 className="text-5xl">Staff accounts</h1>
+      <h1 className="text-3xl">Staff accounts</h1>
       <Suspense fallback={<PageSkeleton />}>
         <StaffList />
       </Suspense>

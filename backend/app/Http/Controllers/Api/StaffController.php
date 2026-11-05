@@ -10,12 +10,12 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 
-/** Admins manage staff accounts here. There is no public sign-up. */
+/** Admins manage staff accounts here. Residents sign up on their own and never appear in this list. */
 class StaffController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(['items' => UserResource::collection(User::orderBy('name')->get())]);
+        return response()->json(['items' => UserResource::collection(User::whereIn('role', ['staff', 'admin'])->orderBy('name')->get())]);
     }
 
     public function store(StoreStaffRequest $request): JsonResponse
@@ -31,6 +31,7 @@ class StaffController extends Controller
 
     public function update(User $user, UpdateStaffRequest $request): JsonResponse
     {
+        abort_unless($user->isStaff(), 404, 'That staff account does not exist.');
         abort_if($user->is($request->user()), 422, 'You cannot change your own account here.');
 
         $user->forceFill($request->validated())->save();

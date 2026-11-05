@@ -1,15 +1,15 @@
-export function Logo({ className = "size-8" }: { className?: string }) {
+export function Logo() {
   return (
-    <svg viewBox="0 0 32 32" aria-hidden className={className}>
-      <rect x="5.4" y="5.4" width="21.2" height="21.2" rx="3" transform="rotate(45 16 16)" fill="#ffc20e" />
-      <path
-        d="M10.5 16.5l3.8 3.8 7.2-8.6"
-        fill="none"
-        stroke="#17191a"
-        strokeWidth="3.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <span className="flex items-center gap-2.5">
+      <span className="grid size-10 flex-none place-items-center rounded-xl bg-white p-1 shadow-[0_0_0_1px_rgb(11_23_41/6%),0_6px_16px_-6px_rgb(29_78_216/35%)]">
+        <img src="/logo-mark.png" alt="" className="size-full object-contain" />
+      </span>
+      <span className="grid leading-none">
+        <span className="font-heading text-lg font-extrabold tracking-tight text-foreground">
+          Community<span className="text-brand-green">Fix</span>
+        </span>
+        <span className="mt-1 font-mono text-[0.65rem] tracking-[0.14em] text-muted-foreground uppercase">Civic tracker</span>
+      </span>
+    </span>
   );
 }

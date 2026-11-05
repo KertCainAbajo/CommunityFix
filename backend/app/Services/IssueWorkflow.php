@@ -19,14 +19,26 @@ use Throwable;
 /** The rules for how a report moves from filed to resolved. */
 class IssueWorkflow
 {
-    /** @param UploadedFile[] $photos */
-    public function report(array $details, array $photos): Issue
+    /**
+     * A signed-in resident owns the report, and their account fills in any contact details left empty.
+     *
+     * @param  UploadedFile[]  $photos
+     */
+    public function report(array $details, array $photos, ?User $owner = null): Issue
     {
+        if ($owner && ! $owner->isStaff()) {
+            $details['contact_name'] ??= $owner->name;
+            $details['contact_email'] ??= $owner->email;
+            $details['contact_phone'] ??= $owner->phone;
+        }
+
         $paths = array_map(fn (UploadedFile $photo) => $photo->store('issues'), $photos);
 
         try {
-            $issue = DB::transaction(function () use ($details, $paths) {
-                $issue = Issue::create($details);
+            $issue = DB::transaction(function () use ($details, $paths, $owner) {
+                $issue = new Issue($details);
+                $issue->user_id = $owner && ! $owner->isStaff() ? $owner->id : null;
+                $issue->save();
                 foreach ($paths as $path) {
                     $issue->photos()->create(['kind' => PhotoKind::Evidence, 'path' => $path, 'created_at' => now()]);
                 }

@@ -4,10 +4,9 @@ import { refresh } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { ApiError, TOKEN_COOKIE, api, post } from "@/lib/api";
+import { ApiError, TOKEN_COOKIE, api, homeFor, post, startSession } from "@/lib/api";
 import type { FormState, NewStaffState, NoticeState, User } from "@/lib/types";
 
-const SESSION_SECONDS = 14 * 86_400;
 const TRACKING_CODE = /^CF-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
 
 async function attempt(work: () => Promise<unknown>): Promise<FormState> {
@@ -27,9 +26,9 @@ async function withRefresh(work: () => Promise<unknown>): Promise<FormState> {
 }
 
 // Only same-site paths, so a crafted link can't send people elsewhere after login.
-function safeNext(value: FormDataEntryValue | null) {
+function safeNext(value: FormDataEntryValue | null, fallback: string) {
   const next = String(value ?? "");
-  return next.startsWith("/") && !next.startsWith("//") && !next.includes("\\") ? next : "/dashboard";
+  return next.startsWith("/") && !next.startsWith("//") && !next.includes("\\") ? next : fallback;
 }
 
 // Residents
@@ -57,24 +56,35 @@ export async function reopenReport(code: string, _: FormState, form: FormData) {
   return withRefresh(() => post(`/track/${code}/reopen`, { note: form.get("note") }));
 }
 
-// Staff sign-in
+// Signing in: staff and residents
 
 export async function login(_: FormState, form: FormData): Promise<FormState> {
+  let user: User | undefined;
   const failed = await attempt(async () => {
-    const { token } = await post<{ user: User; token: string }>("/auth/login", {
+    const session = await post<{ user: User; token: string }>("/auth/login", {
+      login: form.get("login"),
+      password: form.get("password"),
+      portal: form.get("portal"),
+    });
+    await startSession(session.token);
+    user = session.user;
+  });
+  if (failed || !user) return failed;
+  redirect(safeNext(form.get("next"), homeFor(user)));
+}
+
+export async function register(_: FormState, form: FormData): Promise<FormState> {
+  const failed = await attempt(async () => {
+    const session = await post<{ user: User; token: string }>("/auth/register", {
+      name: form.get("name"),
       email: form.get("email"),
+      phone: form.get("phone"),
       password: form.get("password"),
     });
-    (await cookies()).set(TOKEN_COOKIE, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: SESSION_SECONDS,
-      path: "/",
-    });
+    await startSession(session.token);
   });
   if (failed) return failed;
-  redirect(safeNext(form.get("next")));
+  redirect(safeNext(form.get("next"), "/my-reports"));
 }
 
 export async function logout() {
@@ -138,7 +148,8 @@ export async function createStaff(_: NewStaffState, form: FormData): Promise<New
       role: form.get("role"),
     });
     refresh();
-    return { email: user.email, password };
+    // Staff accounts always have an email: admins must give one.
+    return { email: user.email ?? "", password };
   } catch (error) {
     if (error instanceof ApiError) return { error: error.message };
     throw error;

@@ -38,8 +38,10 @@ class AppServiceProvider extends ServiceProvider
         $tooMany = fn () => response()->json(['message' => 'Too many attempts. Please try again later.'], 429);
 
         RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(10)
-            ->by(Str::lower(is_string($request->input('email')) ? $request->input('email') : ''))
+            ->by(Str::lower((string) collect([$request->input('login'), $request->input('email')])->first(fn ($value) => is_string($value))))
             ->response($tooMany));
+
+        RateLimiter::for('register', fn (Request $request) => Limit::perHour(5)->by($this->visitor($request))->response($tooMany));
 
         // The hourly cap for everyone protects the staff queue if the per-visitor limit is dodged.
         RateLimiter::for('reports', fn (Request $request) => [

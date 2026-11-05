@@ -44,6 +44,11 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function resident(): static
+    {
+        return $this->state(fn () => ['role' => 'resident']);
+    }
+
     public function admin(): static
     {
         return $this->state(fn () => ['role' => 'admin']);

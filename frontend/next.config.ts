@@ -10,12 +10,10 @@ const nextConfig: NextConfig = {
     return [
       to("/staff", "/staff/login"),
       to("/admin", "/staff/login"),
-      to("/login", "/staff/login"),
       to("/forgot-password", "/staff/forgot-password"),
       to("/reset-password", "/staff/reset-password"),
-      // Residents no longer have accounts.
-      to("/register", "/report"),
-      to("/mine", "/track"),
+      to("/signup", "/register"),
+      to("/mine", "/my-reports"),
     ];
   },
   experimental: {

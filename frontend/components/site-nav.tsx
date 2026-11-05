@@ -1,26 +1,43 @@
+import { BarChart3, ClipboardList, FolderOpen, Hash, LayoutDashboard, LogOut, Megaphone, Radar, Users } from "lucide-react";
 import Link from "next/link";
 
 import { logout } from "@/app/actions";
+import { NavLink } from "@/components/nav-link";
 import { buttonVariants } from "@/components/ui/button";
-import { getUser } from "@/lib/api";
+import { getUser, isStaff } from "@/lib/api";
 
-const linkClass = "font-display text-lg font-semibold tracking-wide uppercase hover:text-paint";
-const reportClass = buttonVariants({ className: "h-9 px-3.5 text-base" });
+const icon = "size-[1.15rem] flex-none text-muted-foreground";
+
+const PUBLIC_LINKS = [
+  { href: "/", label: "Overview", Icon: Radar },
+  { href: "/issues", label: "All reports", Icon: ClipboardList },
+  { href: "/track", label: "Track a report", Icon: Hash },
+];
 
 function PublicLinks() {
+  return PUBLIC_LINKS.map(({ href, label, Icon }) => (
+    <NavLink key={href} href={href} icon={<Icon aria-hidden className={icon} />}>{label}</NavLink>
+  ));
+}
+
+function ReportButton() {
   return (
-    <>
-      <Link href="/issues" className={linkClass}>All reports</Link>
-      <Link href="/track" className={linkClass}>Track a report</Link>
-    </>
+    <Link href="/report" className={buttonVariants({ className: "cta mb-3 h-11 w-full gap-2 text-[0.95rem]" })}>
+      <Megaphone aria-hidden className="size-[1.1rem]" /> Report a problem
+    </Link>
   );
 }
 
 export function SiteNavFallback() {
   return (
-    <nav aria-label="Main" className="flex flex-wrap items-center gap-x-5 gap-y-1">
-      <PublicLinks />
-      <Link href="/report" className={reportClass}>Report a problem</Link>
+    <nav aria-label="Main" className="flex flex-wrap gap-1 lg:grid">
+      <ReportButton />
+      {/* Prepared ahead of time, before the current page is known, so nothing is highlighted yet. */}
+      {PUBLIC_LINKS.map(({ href, label, Icon }) => (
+        <Link key={href} href={href} className="side-link">
+          <Icon aria-hidden className={icon} /> {label}
+        </Link>
+      ))}
     </nav>
   );
 }
@@ -29,20 +46,34 @@ export async function SiteNav() {
   const user = await getUser();
 
   return (
-    <nav aria-label="Main" className="flex flex-wrap items-center gap-x-5 gap-y-1">
-      {user ? (
+    <nav aria-label="Main" className="flex flex-wrap gap-1 lg:grid">
+      <ReportButton />
+      <PublicLinks />
+      {user && !isStaff(user) && (
         <>
-          <Link href="/dashboard" className={linkClass}>Dashboard</Link>
-          <Link href="/dashboard/analytics" className={linkClass}>Analytics</Link>
-          {user.role === "admin" && <Link href="/dashboard/staff" className={linkClass}>Staff</Link>}
+          <p className="side-section eyebrow hidden lg:block">Your account</p>
+          <NavLink href="/my-reports" icon={<FolderOpen aria-hidden className={icon} />}>My reports</NavLink>
+        </>
+      )}
+      {isStaff(user) && (
+        <>
+          <p className="side-section eyebrow hidden lg:block">Staff workspace</p>
+          <NavLink href="/dashboard" icon={<LayoutDashboard aria-hidden className={icon} />}>Dashboard</NavLink>
+          <NavLink href="/dashboard/analytics" icon={<BarChart3 aria-hidden className={icon} />}>Analytics</NavLink>
+          {user.role === "admin" && (
+            <NavLink href="/dashboard/staff" icon={<Users aria-hidden className={icon} />}>Staff accounts</NavLink>
+          )}
+        </>
+      )}
+      {user && (
+        <>
           <form action={logout}>
-            <button type="submit" className={`${linkClass} cursor-pointer`}>Log out</button>
+            <button type="submit" className="side-link w-full cursor-pointer">
+              <LogOut aria-hidden className={icon} /> Log out
+            </button>
           </form>
         </>
-      ) : (
-        <PublicLinks />
       )}
-      <Link href="/report" className={reportClass}>Report a problem</Link>
     </nav>
   );
 }

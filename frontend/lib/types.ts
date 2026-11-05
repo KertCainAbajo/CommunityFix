@@ -4,8 +4,9 @@ export type Priority = "low" | "normal" | "high" | "urgent";
 export type User = {
   id: number;
   name: string;
-  email: string;
-  role: "staff" | "admin";
+  email: string | null;
+  phone: string | null;
+  role: "staff" | "admin" | "resident";
   is_active: boolean;
 };
 
@@ -62,6 +63,7 @@ export type Meta = {
   priorities: Record<Priority, string>;
   transitions: Record<Status, Status[]>;
   map_center: { lat: number; lng: number };
+  google_login: boolean;
 };
 
 export type Stats = {
@@ -70,6 +72,19 @@ export type Stats = {
   by_status: Record<Status, number>;
   open_by_category: { category: string; n: number }[];
   avg_resolution_days: number | null;
+  overdue: number;
+  trends: { total: number[]; open: number[]; resolved: number[]; overdue: number[] };
+};
+
+export type Activity = {
+  id: number;
+  issue_id: number;
+  ref: string;
+  title: string;
+  from_status: Status | null;
+  to_status: Status | null;
+  author: string | null;
+  created_at: string;
 };
 
 export type Breakdown = { total: number; open: number; resolved: number; avg_days: number | null };

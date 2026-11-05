@@ -23,6 +23,7 @@ class MetaController extends Controller
                 $status->value => array_map(fn (IssueStatus $to) => $to->value, $status->transitions()),
             ]),
             'map_center' => config('communityfix.map_center'),
+            'google_login' => GoogleAuthController::enabled(),
         ]);
     }
 }

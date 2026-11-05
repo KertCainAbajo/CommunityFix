@@ -2,15 +2,15 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (@media (prefers-color-scheme: dark));
+/* One light theme. */
+@custom-variant dark (&:is(.no-dark-mode *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-barlow);
-  --font-mono: var(--font-plex-mono);
-  --font-heading: var(--font-barlow-condensed);
-  --font-display: var(--font-barlow-condensed);
+  --font-sans: var(--font-geist);
+  --font-heading: var(--font-jakarta);
+  --font-mono: var(--font-geist-mono);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -27,8 +27,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-asphalt: var(--asphalt);
-  --color-paint: var(--paint);
+  --color-brand-green: var(--brand-green);
+  --color-sky: var(--sky);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -38,97 +38,79 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Colors come from the street: asphalt, road paint, and sign plates. */
+/* Colors come from the CommunityFix logo (navy, blue, green), pushed brighter. */
 :root {
-  --asphalt: #17191a;
-  --asphalt-raised: #212425;
-  --asphalt-line: #393d3f;
-  --paint: #ffc20e;
-  --paint-ink: #17191a;
-
-  --background: #eeeadf;
-  --foreground: #17191a;
-  --card: #fbf9f3;
-  --card-foreground: #17191a;
-  --popover: #fbf9f3;
-  --popover-foreground: #17191a;
-  --primary: #ffc20e;
-  --primary-foreground: #17191a;
-  --secondary: #e2ddcf;
-  --secondary-foreground: #17191a;
-  --muted: #e2ddcf;
-  --muted-foreground: #565b59;
-  --accent: #e2ddcf;
-  --accent-foreground: #17191a;
-  --destructive: #b3261e;
-  --border: #c9c3b3;
-  --input: #8f8c80;
-  --ring: #17191a;
-  --link: #17191a;
-  --ink-line: #17191a;
-  --radius: 0.25rem;
+  color-scheme: light;
+  --background: #f5f7fb;
+  --foreground: #0b1729;
+  --card: #ffffff;
+  --card-foreground: #0b1729;
+  --popover: #ffffff;
+  --popover-foreground: #0b1729;
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --secondary: #eef3fe;
+  --secondary-foreground: #0b1729;
+  --muted: #f0f3f8;
+  --muted-foreground: #5b6b80;
+  --accent: #e8f8ef;
+  --accent-foreground: #0b1729;
+  --destructive: #dc2626;
+  --border: #e4e9f1;
+  --input: #cfd8e5;
+  --ring: #2563eb;
+  --brand-green: #16a34a;
+  --brand-navy: #0b1f3a;
+  --sky: #eaf1ff;
+  --ink-line: #e4e9f1;
+  --radius: 0.75rem;
+  --shadow-soft: 0 1px 2px rgb(11 23 41 / 4%), 0 8px 24px -12px rgb(11 23 41 / 12%);
+  --shadow-lift: 0 1px 2px rgb(11 23 41 / 5%), 0 18px 40px -16px rgb(29 78 216 / 28%);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #101213;
-    --foreground: #ece8dc;
-    --card: #1b1e1f;
-    --card-foreground: #ece8dc;
-    --popover: #1b1e1f;
-    --popover-foreground: #ece8dc;
-    --secondary: #2a2e30;
-    --secondary-foreground: #ece8dc;
-    --muted: #2a2e30;
-    --muted-foreground: #a4a9a6;
-    --accent: #2a2e30;
-    --accent-foreground: #ece8dc;
-    --destructive: #f2978f;
-    --border: #33383a;
-    --input: #5a6063;
-    --ring: #ffc20e;
-    --link: #ffc20e;
-    --ink-line: #5a6063;
-  }
-}
-
-/* Sign plate colors stay the same in light and dark, like real signs. */
-[data-status="reported"] { --plate: #c2410c; --plate-ink: #ffffff; }
-[data-status="acknowledged"] { --plate: #ffc20e; --plate-ink: #17191a; }
-[data-status="in_progress"] { --plate: #0b5fbf; --plate-ink: #ffffff; }
-[data-status="resolved"] { --plate: #0f7a46; --plate-ink: #ffffff; }
-[data-status="rejected"] { --plate: #5f6668; --plate-ink: #ffffff; }
+[data-status="reported"] { --plate: #fff4dc; --plate-ink: #92400e; --plate-solid: #f59e0b; }
+[data-status="acknowledged"] { --plate: #e3edff; --plate-ink: #1e40af; --plate-solid: #3b82f6; }
+[data-status="in_progress"] { --plate: #efe8ff; --plate-ink: #5b21b6; --plate-solid: #8b5cf6; }
+[data-status="resolved"] { --plate: #dcfce7; --plate-ink: #166534; --plate-solid: #22c55e; }
+[data-status="rejected"] { --plate: #eef0f3; --plate-ink: #4b5563; --plate-solid: #9ca3af; }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
+    font-feature-settings: "ss01", "cv11";
+  }
+  body {
+    @apply text-foreground;
+    line-height: 1.55;
+    background:
+      radial-gradient(60rem 30rem at 85% -10%, rgb(59 130 246 / 10%), transparent 60%),
+      radial-gradient(50rem 28rem at 20% -15%, rgb(34 197 94 / 8%), transparent 60%),
+      var(--background);
+    background-attachment: fixed;
   }
   h1,
-  h2 {
-    font-family: var(--font-display);
-    font-weight: 800;
-    letter-spacing: 0.01em;
-    line-height: 1;
-    text-transform: uppercase;
-  }
+  h2,
   h3 {
-    font-family: var(--font-display);
+    font-family: var(--font-jakarta);
     font-weight: 700;
-    letter-spacing: 0.01em;
-    line-height: 1.15;
+    letter-spacing: -0.025em;
+    line-height: 1.12;
+    color: var(--foreground);
   }
   label,
   legend {
-    font-family: var(--font-display);
     font-size: 0.95rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    font-weight: 600;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: rgb(59 130 246 / 22%);
   }
 }
 
@@ -136,10 +118,10 @@
   /* Pages sit in the middle column; .full-bleed spans the whole window. */
   .page-grid {
     display: grid;
-    grid-template-columns: 1fr min(70rem, calc(100% - 2rem)) 1fr;
+    grid-template-columns: 1fr min(84rem, calc(100% - 2rem)) 1fr;
     align-content: start;
-    row-gap: 1.75rem;
-    padding-block: 1.75rem 3.5rem;
+    row-gap: 1.25rem;
+    padding-block: 1.25rem 3rem;
   }
   .page-grid > * {
     grid-column: 2;
@@ -149,264 +131,492 @@
     grid-column: 1 / -1;
   }
   .page-grid > .full-bleed:first-child {
-    margin-top: -1.75rem;
+    margin-top: -2rem;
   }
 
-  .asphalt {
-    --foreground: #f1eee4;
-    --muted-foreground: #a9adaa;
-    --border: var(--asphalt-line);
-    color: #f1eee4;
-    background-color: var(--asphalt);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  /* The painted lane line. */
-  .lane-line {
-    height: 6px;
-    background: repeating-linear-gradient(90deg, var(--paint) 0 56px, transparent 56px 96px);
+  .container-wide {
+    width: min(84rem, calc(100% - 2rem));
+    margin-inline: auto;
   }
 
   .link {
-    color: var(--link);
+    color: var(--primary);
     font-weight: 600;
     text-decoration: underline;
-    text-decoration-color: var(--paint);
+    text-decoration-color: rgb(29 78 216 / 35%);
     text-decoration-thickness: 2px;
     text-underline-offset: 3px;
   }
   .link:hover {
-    text-decoration-thickness: 3px;
+    text-decoration-color: currentColor;
   }
 
-  /* Status plate, like a small road sign. */
+  /* The main action on a page: a glowing green gradient. */
+  .cta,
+  .cta:not(:disabled) {
+    background-image: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+    background-color: #16a34a !important;
+    color: #fff !important;
+    border-radius: 0.75rem;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 25%),
+      0 8px 20px -8px rgb(22 163 74 / 65%);
+  }
+  .cta:hover {
+    background-image: linear-gradient(180deg, #16a34a 0%, #15803d 100%) !important;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 25%),
+      0 12px 26px -8px rgb(22 163 74 / 75%);
+  }
+
+  /* Status label */
+  .plate::before {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--plate-solid);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--plate-solid) 22%, transparent);
+  }
   .plate {
     display: inline-flex;
     align-items: center;
-    height: 1.4rem;
-    padding-inline: 0.5rem;
-    border-radius: 2px;
+    gap: 0.45rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
     background: var(--plate);
     color: var(--plate-ink);
-    font-family: var(--font-display);
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 600;
     white-space: nowrap;
   }
 
-  /* Urgent work gets the hazard stripes, and nothing else does. */
-  .plate-hazard {
-    --plate: repeating-linear-gradient(-45deg, #17191a 0 7px, #ffc20e 7px 14px);
-    padding: 0;
-  }
-  .plate-hazard > span {
-    margin: 2px;
-    padding: 0 0.4rem;
-    border-radius: 1px;
-    background: #ffc20e;
-    color: #17191a;
-  }
-
-  /* Barrier tape on the "road closed" page. */
-  .hazard-bar {
-    height: 14px;
-    background: repeating-linear-gradient(-45deg, #17191a 0 14px, #ffc20e 14px 28px);
-    box-shadow: 0 0 0 1px #17191a;
-  }
-
-  .pin {
+  .map-pin {
     display: block;
-    width: 18px;
-    height: 18px;
-    margin: 2px;
-    border: 2px solid #17191a;
-    border-radius: 3px;
-    background: var(--plate);
-    box-shadow: 0 0 0 2px #fff, 0 3px 6px rgb(0 0 0 / 45%);
-    transform: rotate(45deg);
+    width: 34px;
+    height: 44px;
+    filter: drop-shadow(0 4px 6px rgb(11 23 41 / 35%));
     cursor: pointer;
   }
 
-  .sign-diamond {
-    display: grid;
-    place-items: center;
-    flex: none;
-    border: 2px solid #17191a;
-    border-radius: 4px;
-    background: var(--paint);
-    color: #17191a;
-    transform: rotate(45deg);
+  .card,
+  .panel {
+    border: 1px solid var(--border);
+    border-radius: 1.1rem;
+    background: var(--card);
+    box-shadow: var(--shadow-soft);
   }
-  .sign-diamond > * {
-    transform: rotate(-45deg);
+  .panel {
+    overflow: hidden;
   }
 
-  /* A printed form: heavy rule on top, plain paper below. */
   .sheet {
     display: grid;
-    gap: 1rem;
-    padding: 1.25rem;
+    gap: 1.1rem;
+    padding: 1.5rem;
     border: 1px solid var(--border);
-    border-top: 4px solid var(--ink-line);
-    border-radius: 2px;
+    border-radius: 1.1rem;
     background: var(--card);
+    box-shadow: var(--shadow-soft);
   }
 
-  /* Work-order ticket with a tear-off stub. */
-  .ticket {
-    position: relative;
+  /* A card that rises when hovered. */
+  .lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .lift:hover {
+    transform: translateY(-2px);
+    border-color: #cddbf5;
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* Small all-caps label above a heading. */
+  .eyebrow {
+    font-family: var(--font-geist-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .gradient-text {
+    background: linear-gradient(92deg, #ffffff 10%, #a7f3d0 55%, #93c5fd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* An icon in a soft colored tile. */
+  .chip {
     display: grid;
-    grid-template-columns: 4.25rem minmax(0, 1fr);
-    height: 100%;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    background: var(--card);
-    transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: none;
+    border-radius: 0.75rem;
+    background: var(--chip-bg, var(--sky));
+    color: var(--chip-ink, var(--primary));
+    box-shadow: inset 0 0 0 1px rgb(11 23 41 / 5%);
   }
-  .ticket:has(.ticket-photo) {
-    grid-template-columns: 4.25rem minmax(0, 1fr) 6.5rem;
-  }
-  .ticket-photo {
-    position: relative;
-    overflow: hidden;
-    border-left: 1px solid var(--border);
-  }
-  .ticket-photo > img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  a:hover > .ticket,
-  a:focus-visible > .ticket {
-    border-color: var(--ink-line);
-    box-shadow: 5px 5px 0 var(--paint);
-    transform: translate(-2px, -2px);
-  }
-  .ticket-stub {
+
+  /* The sidebar: a floating glass panel. */
+  .side {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.9rem;
-    padding: 1.1rem 0.25rem 0.75rem;
-    border-right: 2px dashed var(--border);
+    gap: 1.25rem;
+    padding: 1rem;
+    background: rgb(255 255 255 / 80%);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(14px);
   }
-
-  /* Survey sheet around the map. */
-  .survey {
-    border: 2px solid var(--ink-line);
-    border-radius: 2px;
-    background: var(--card);
+  @media (min-width: 64rem) {
+    .side {
+      position: sticky;
+      top: 0.75rem;
+      height: calc(100dvh - 1.5rem);
+      margin: 0.75rem 0 0.75rem 0.75rem;
+      padding: 1.25rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      box-shadow: var(--shadow-soft);
+    }
   }
-  .survey-bar {
+  .side-section {
+    padding: 1rem 0.75rem 0.35rem;
+  }
+  .side-link {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.25rem 1.25rem;
-    padding: 0.5rem 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    gap: 0.7rem;
+    min-height: 2.6rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.7rem;
+    color: #44546a;
+    font-weight: 500;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .side-link:hover {
+    background: var(--muted);
+    color: var(--foreground);
+  }
+  .side-link[aria-current="page"] {
+    background: linear-gradient(90deg, #eaf1ff, #f3f7ff);
+    box-shadow: inset 0 0 0 1px #d6e3fd;
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .side-link[aria-current="page"] svg {
+    color: var(--primary);
   }
 
-  /* Muted streets, so the sign pins are what you see first. */
-  .leaflet-tile-pane {
-    filter: grayscale(1) contrast(0.95) brightness(1.03);
-  }
-  .leaflet-container {
-    font-family: var(--font-sans);
+  /* The sticky glass bar above every page. */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    background: rgb(245 247 251 / 75%);
+    backdrop-filter: blur(14px);
   }
 
-  /* The road: stages sit along the lane line. */
-  .road {
+  /* The hero: deep navy with soft aurora light from the logo colors. */
+  .command {
     position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background:
+      radial-gradient(38rem 22rem at 88% 10%, rgb(34 197 94 / 38%), transparent 60%),
+      radial-gradient(34rem 24rem at 60% 120%, rgb(59 130 246 / 45%), transparent 60%),
+      radial-gradient(30rem 20rem at 0% 0%, rgb(29 78 216 / 35%), transparent 60%),
+      linear-gradient(135deg, #07142a 0%, #0b1f3a 55%, #0e2a52 100%);
+    box-shadow: 0 30px 60px -30px rgb(11 31 58 / 55%);
+  }
+  .command::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 6%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 6%) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 70% 90% at 70% 40%, #000 30%, transparent 75%);
+  }
+  .glass {
+    border: 1px solid rgb(255 255 255 / 14%);
+    border-radius: 1.1rem;
+    background: rgb(255 255 255 / 7%);
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%);
+  }
+
+  .live-dot {
+    position: relative;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #22c55e;
+  }
+  .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: live-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+  @keyframes live-ping {
+    75%,
+    100% {
+      transform: scale(2.6);
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .live-dot::after {
+      animation: none;
+    }
+    .lift:hover {
+      transform: none;
+    }
+  }
+
+  /* The list floating over the map */
+  .attention {
+    background: var(--card);
+    border-top: 1px solid var(--border);
+  }
+  @media (min-width: 64rem) {
+    .attention {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 500;
+      width: 22rem;
+      max-height: calc(100% - 2rem);
+      overflow: auto;
+      border: 1px solid rgb(255 255 255 / 60%);
+      border-radius: 1rem;
+      background: rgb(255 255 255 / 82%);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 24px 50px -20px rgb(11 23 41 / 40%);
+    }
+  }
+
+  .quick-action {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.5rem;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 0.9rem;
+    background: var(--card);
+    color: var(--foreground);
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .quick-action:hover {
+    transform: translateY(-2px);
+    border-color: #cddbf5;
+    box-shadow: var(--shadow-lift);
+  }
+  .quick-action-main {
+    border-color: transparent;
+    background: linear-gradient(180deg, #22c55e, #16a34a);
+    color: #fff;
+  }
+
+  /* One report in a list. */
+  .report-row {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.2rem 0.85rem;
+    margin-inline: -0.6rem;
+    padding: 0.6rem;
+    border-radius: 0.8rem;
+    transition: background 0.15s ease;
+  }
+  .report-row:hover {
+    background: var(--muted);
+  }
+  .report-thumb {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: var(--sky);
+    color: var(--primary);
+  }
+  @media (min-width: 40rem) {
+    .report-row {
+      grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+    }
+  }
+
+  /* Progress steps */
+  .steps {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    align-items: center;
-    padding: 1rem 0.5rem;
-    border-radius: 2px;
   }
-  .road-mark {
+  .step {
     position: relative;
     display: grid;
     justify-items: center;
+    align-content: start;
     gap: 0.45rem;
     text-align: center;
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.25;
   }
-  .road-track {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: 100%;
-    height: 2.25rem;
-  }
-  .road-mark:not(:first-child) .road-track::before {
+  .step:not(:first-child)::before {
     content: "";
     position: absolute;
-    top: 50%;
+    top: 1.1rem;
     right: 50%;
     width: 100%;
-    height: 4px;
-    margin-top: -2px;
-    background: repeating-linear-gradient(90deg, #6a6f71 0 16px, transparent 16px 26px);
+    height: 3px;
+    margin-top: -1.5px;
+    border-radius: 3px;
+    background: var(--border);
   }
-  .road-mark[data-passed]:not(:first-child) .road-track::before {
-    background: repeating-linear-gradient(90deg, var(--paint) 0 16px, transparent 16px 26px);
+  .step[data-done]:not(:first-child)::before {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
   }
-  .road-sign {
+  .step-dot {
     position: relative;
     z-index: 1;
     display: grid;
     place-items: center;
-    min-width: 2.25rem;
-    height: 2.25rem;
-    padding-inline: 0.35rem;
-    border: 2px solid #17191a;
-    border-radius: 3px;
-    background: var(--plate);
-    color: var(--plate-ink);
-    box-shadow: 0 0 0 2px #f1eee4;
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 800;
-    line-height: 1;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    background: var(--card);
+    font-weight: 600;
   }
-  .road-mark[data-ahead] .road-sign {
-    background: var(--asphalt-raised);
-    color: #a9adaa;
-    box-shadow: 0 0 0 2px var(--asphalt-line);
+  .step[data-done] .step-dot {
+    border-color: transparent;
+    background: linear-gradient(180deg, #22c55e, #16a34a);
+    color: #fff;
   }
-  .road-mark[aria-current] .road-sign {
-    box-shadow: 0 0 0 2px #f1eee4, 0 0 0 6px color-mix(in srgb, var(--plate) 45%, transparent);
+  .step[aria-current] {
+    color: var(--foreground);
+  }
+  .step[aria-current] .step-dot {
+    box-shadow: 0 0 0 6px rgb(34 197 94 / 18%);
   }
 
-  /* Departure-board list of open work. */
-  .board {
-    border: 1px solid var(--asphalt-line);
-    border-radius: 2px;
-    background: #0f1011;
-    box-shadow: 0 0 0 4px #000;
-  }
-  .board-row {
-    display: grid;
-    grid-template-columns: 4.6rem minmax(0, 1fr) auto;
+  /* Tiles for choosing a type of problem. */
+  .choice {
+    position: relative;
+    display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.6rem 0.8rem;
-    border-top: 1px solid #26292b;
+    min-height: 3.75rem;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 0.9rem;
+    background: var(--card);
+    font-weight: 600;
+    line-height: 1.25;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  a.board-row:hover {
-    background: #1b1d1e;
+  .choice:hover {
+    border-color: #b9cdf6;
+  }
+  .choice:has(input:checked) {
+    border-color: var(--primary);
+    background: var(--sky);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 15%);
+  }
+  .choice:has(input:focus-visible) {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .ticket {
-      transition: none;
+  .leaflet-container {
+    font-family: var(--font-sans);
+  }
+
+  /* A quiet, cool-toned map, so the pins are what you notice. */
+  .leaflet-tile-pane {
+    filter: grayscale(1) contrast(0.88) brightness(1.06) sepia(0.12) hue-rotate(180deg) saturate(1.4);
+  }
+}
+
+@layer components {
+  /* The left panel of the sign-in page: deep blue, with a photo showing through when one is added. */
+  .portal-hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    min-height: 34rem;
+    overflow: hidden;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    background:
+      radial-gradient(40rem 26rem at 85% 0%, rgb(96 165 250 / 45%), transparent 60%),
+      radial-gradient(30rem 20rem at 10% 100%, rgb(34 197 94 / 20%), transparent 60%),
+      linear-gradient(135deg, #0b3aa8 0%, #1d4ed8 45%, #2563eb 100%);
+  }
+  .portal-hero[data-photo] {
+    background: #0b3aa8;
+  }
+  .portal-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(11 58 168 / 96%) 0%, rgb(29 78 216 / 82%) 42%, rgb(29 78 216 / 25%) 75%, rgb(29 78 216 / 5%) 100%);
+  }
+  .portal-hero:not([data-photo])::before {
+    background:
+      linear-gradient(rgb(255 255 255 / 5%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 5%) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 70% 80% at 70% 40%, #000 30%, transparent 75%);
+  }
+  /* The light streak across the bottom corner. */
+  .portal-hero::after {
+    content: "";
+    position: absolute;
+    right: -10%;
+    bottom: -30%;
+    z-index: -1;
+    width: 70%;
+    height: 60%;
+    background: linear-gradient(160deg, transparent 40%, rgb(147 197 253 / 35%) 41%, rgb(59 130 246 / 55%) 70%);
+    transform: skewY(-14deg);
+  }
+  @media (min-width: 64rem) {
+    .portal-hero {
+      min-height: calc(100dvh - 1.5rem);
+      padding: 2.25rem 2.75rem;
     }
+  }
+
+  .portal-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.5rem 1.25rem;
+    border-radius: 1.5rem;
+    background: linear-gradient(180deg, #f7faff 0%, #eaf1ff 100%);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 70%);
+  }
+  .portal-panel > :first-child {
+    margin-top: auto;
   }
 }

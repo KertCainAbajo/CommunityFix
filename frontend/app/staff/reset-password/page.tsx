@@ -24,7 +24,7 @@ async function ResetForm({ searchParams }: Pick<PageProps<"/staff/reset-password
 export default function ResetPasswordPage({ searchParams }: PageProps<"/staff/reset-password">) {
   return (
     <>
-      <h1 className="text-5xl">Choose a new password</h1>
+      <h1 className="text-center text-2xl">Choose a new password</h1>
       <Suspense fallback={<PageSkeleton />}>
         <ResetForm searchParams={searchParams} />
       </Suspense>

@@ -19,12 +19,20 @@ function createMap(L: Leaflet, element: HTMLElement, center: Center, zoom: numbe
   return map;
 }
 
+const PIN_SYMBOLS: Record<Status, string> = {
+  reported: '<path d="M17 9v10M17 23.5v.5" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/>',
+  acknowledged: '<circle cx="17" cy="16" r="5" fill="none" stroke="#fff" stroke-width="3"/><path d="M21 20l3.5 3.5" stroke="#fff" stroke-width="3" stroke-linecap="round"/>',
+  in_progress: '<path d="M23.5 10.5a5 5 0 0 0-6.6 6.2l-6 6 2.4 2.4 6-6a5 5 0 0 0 6.2-6.6l-3 3-2.6-.4-.4-2.6z" fill="#fff"/>',
+  resolved: '<path d="M11 17l4.2 4.2L23.5 12" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>',
+  rejected: '<path d="M12 12l10 10M22 12L12 22" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>',
+};
+
 function pin(L: Leaflet, status: Status): DivIcon {
   return L.divIcon({
     className: "",
-    html: `<span class="pin" data-status="${status}"></span>`,
-    iconSize: [22, 22],
-    iconAnchor: [11, 11],
+    html: `<svg class="map-pin" viewBox="0 0 34 44" data-status="${status}"><path d="M17 1C8.2 1 1 8 1 16.8 1 28.6 17 43 17 43s16-14.4 16-26.2C33 8 25.8 1 17 1Z" style="fill:var(--plate-solid)" stroke="#fff" stroke-width="2"/>${PIN_SYMBOLS[status]}</svg>`,
+    iconSize: [34, 44],
+    iconAnchor: [17, 43],
   });
 }
 
@@ -54,7 +62,7 @@ function useLeaflet(setup: (L: Leaflet, element: HTMLElement) => LeafletMap) {
   return element;
 }
 
-const mapClass = "z-0 rounded-sm border bg-muted";
+const mapClass = "z-0 border bg-muted";
 
 export function IssueMap({
   points,
@@ -124,13 +132,13 @@ export function LocationPicker({ center }: { center: Center }) {
 
   return (
     <fieldset className="grid min-w-0 gap-2">
-      <legend className="mb-2 text-sm font-medium">
-        Pin it on the map <span className="font-normal text-muted-foreground">(optional)</span>
+      <legend className="mb-2">
+        Show it on the map <span className="font-normal text-muted-foreground">(optional)</span>
       </legend>
       <div ref={element} className={`${mapClass} h-60`} />
       <div className="flex flex-wrap items-center gap-2.5">
-        <Button type="button" variant="outline" onClick={locate}>Use my location</Button>
-        <span aria-live="polite" className="text-sm text-muted-foreground">{message}</span>
+        <Button type="button" variant="outline" className="h-12 px-5 text-primary" onClick={locate}>Use my location</Button>
+        <span aria-live="polite" className="text-muted-foreground">{message}</span>
       </div>
       <input type="hidden" name="lat" value={position?.lat.toFixed(6) ?? ""} />
       <input type="hidden" name="lng" value={position?.lng.toFixed(6) ?? ""} />

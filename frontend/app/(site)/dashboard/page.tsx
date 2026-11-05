@@ -3,9 +3,12 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { Filters } from "@/components/filters";
-import { EmptyState, PageSkeleton, Pager, ResolutionTime, StatGrid, StatusBadge } from "@/components/issue-parts";
+import { EmptyState, IssueList, Legend, PageSkeleton, Pager, StatusBadge, mapPoints } from "@/components/issue-parts";
+import { IssueMap } from "@/components/maps";
+import { ActivityFeed, Card, FiguresBar, NeedsAttention } from "@/components/overview";
+import { buttonVariants } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getIssues, getMeta, getStats, requireStaff, toQuery } from "@/lib/api";
+import { getActivity, getIssues, getMeta, getStats, requireStaff, toQuery } from "@/lib/api";
 import { daysOpen } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -24,39 +27,45 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/dashboard">, "search
   if (!query.has("sort")) query.set("sort", "priority");
   if (!query.has("status")) query.set("open", "1");
 
-  const [meta, stats, queue] = await Promise.all([getMeta(), getStats(), getIssues(query.toString())]);
-  const most = Math.max(1, ...stats.open_by_category.map((row) => row.n));
+  const [meta, stats, queue, open, waiting, activity] = await Promise.all([
+    getMeta(),
+    getStats(),
+    getIssues(query.toString()),
+    getIssues("open=1&sort=priority"),
+    getIssues("status=reported&sort=oldest"),
+    getActivity(),
+  ]);
 
   return (
     <>
-      <StatGrid
-        stats={[
-          ["New, needs review", stats.by_status.reported],
-          ["Verified", stats.by_status.acknowledged],
-          ["In progress", stats.by_status.in_progress],
-          ["Average time to fix", <ResolutionTime key="time" stats={stats} />],
-        ]}
-      />
+      <FiguresBar stats={stats} />
 
-      {stats.open_by_category.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-3xl">Open reports by category</h2>
-          <ul className="grid gap-2">
-            {stats.open_by_category.map((row) => (
-              <li key={row.category} className="grid grid-cols-[minmax(120px,210px)_1fr_32px] items-center gap-3 text-sm">
-                <span>{meta.categories[row.category]}</span>
-                <span className="h-3.5 overflow-hidden border border-[var(--ink-line)] bg-card">
-                  <span className="block h-full bg-primary" style={{ width: `${(row.n / most) * 100}%` }} />
-                </span>
-                <span className="text-right font-semibold tabular-nums">{row.n}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <section aria-labelledby="map-title" className="card overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-3.5">
+          <h2 id="map-title" className="text-xl">Open reports</h2>
+          <Legend meta={meta} statuses={["reported", "acknowledged", "in_progress"]} />
+        </div>
+        <div className="lg:relative">
+          <IssueMap points={mapPoints(open.items)} center={meta.map_center} className="h-120 rounded-none border-x-0 border-b-0" />
+          <NeedsAttention issues={open.items} meta={meta} />
+        </div>
+      </section>
 
-      <section className="grid gap-3.5">
-        <h2 className="text-3xl">Work queue</h2>
+      <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        <Card title="Waiting for review" id="waiting-title" action={{ href: "/dashboard?status=reported", label: "View all" }}>
+          {waiting.items.length > 0 ? (
+            <IssueList issues={waiting.items.slice(0, 4)} meta={meta} />
+          ) : (
+            <EmptyState>Nothing is waiting for review.</EmptyState>
+          )}
+        </Card>
+        <Card title="Latest activity" id="activity-title">
+          <ActivityFeed items={activity.items.slice(0, 4)} meta={meta} />
+        </Card>
+      </div>
+
+      <section id="work-queue" className="grid scroll-mt-4 gap-3.5 pt-2">
+        <h2 className="text-2xl">Work queue</h2>
         <Filters
           action="/dashboard"
           values={Object.fromEntries(query)}
@@ -65,8 +74,8 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/dashboard">, "search
           sorts={SORTS}
         />
         {queue.items.length > 0 ? (
-          <div className="survey">
-            <Table className="min-w-190">
+          <div className="card overflow-hidden">
+            <Table className="min-w-170">
               <TableHeader>
                 <TableRow>
                   {["Ref", "Problem", "Status", "Priority", "Team"].map((label) => (
@@ -79,14 +88,14 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/dashboard">, "search
                 {queue.items.map((issue) => (
                   <TableRow key={issue.id}>
                     <TableCell className="align-top">
-                      <Link href={`/issues/${issue.id}`} className="link font-mono text-sm">{issue.ref}</Link>
+                      <Link href={`/issues/${issue.id}`} className="link">{issue.ref}</Link>
                     </TableCell>
                     <TableCell className="align-top whitespace-normal">
                       <Link href={`/issues/${issue.id}`} className="link">{issue.title}</Link>
                       <div className="text-muted-foreground">{issue.address}</div>
                     </TableCell>
                     <TableCell className="align-top"><StatusBadge status={issue.status} meta={meta} /></TableCell>
-                    <TableCell className={`align-top font-semibold ${issue.priority === "urgent" || issue.priority === "high" ? "text-destructive" : ""}`}>
+                    <TableCell className={`align-top font-bold ${issue.priority === "urgent" || issue.priority === "high" ? "text-destructive" : ""}`}>
                       {meta.priorities[issue.priority]}
                     </TableCell>
                     <TableCell className="align-top">
@@ -118,7 +127,10 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/dashboard">, "search
 export default function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
   return (
     <>
-      <h1 className="text-5xl">Dashboard</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl">Dashboard</h1>
+        <Link href="/dashboard?status=reported" className={buttonVariants({ className: "cta h-12 px-5" })}>Review new reports</Link>
+      </div>
       <Suspense fallback={<PageSkeleton />}>
         <Dashboard searchParams={searchParams} />
       </Suspense>

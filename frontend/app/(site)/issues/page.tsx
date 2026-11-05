@@ -27,7 +27,7 @@ async function Reports({ searchParams }: Pick<PageProps<"/issues">, "searchParam
         {data.total} {data.total === 1 ? "report" : "reports"}
       </p>
       {data.items.length > 0 ? (
-        <IssueList issues={data.items} meta={meta} />
+        <div className="card px-4.5 py-1.5"><IssueList issues={data.items} meta={meta} /></div>
       ) : (
         <EmptyState>Nothing matches those filters.</EmptyState>
       )}
@@ -47,7 +47,7 @@ async function Reports({ searchParams }: Pick<PageProps<"/issues">, "searchParam
 export default function IssuesPage({ searchParams }: PageProps<"/issues">) {
   return (
     <>
-      <h1 className="text-5xl">All reports</h1>
+      <h1 className="text-3xl">All reports</h1>
       <p className="-mt-4 text-muted-foreground">Reports appear here once staff have verified them.</p>
       <Suspense fallback={<PageSkeleton />}>
         <Reports searchParams={searchParams} />

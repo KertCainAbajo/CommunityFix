@@ -20,6 +20,11 @@ class IssueUpdate extends Model
         ];
     }
 
+    public function issue(): BelongsTo
+    {
+        return $this->belongsTo(Issue::class);
+    }
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');

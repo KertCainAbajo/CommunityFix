@@ -44,6 +44,11 @@ services:
         sync: false
       - key: MAP_CENTER
         sync: false
+      # Optional: Google sign-in for residents. Leave unset to hide the button.
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
       # PostgreSQL connection string from your database host.
       - key: DB_URL
         sync: false

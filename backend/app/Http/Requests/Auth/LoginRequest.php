@@ -2,26 +2,34 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Http\Requests\Auth\Concerns\NormalizesEmail;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class LoginRequest extends FormRequest
 {
-    use NormalizesEmail;
+    protected function prepareForValidation(): void
+    {
+        // Older clients send `email`; the sign-in page sends `login` (an email or a phone number).
+        if (! $this->has('login') && $this->has('email')) {
+            $this->merge(['login' => $this->input('email')]);
+        }
+    }
 
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string'],
-            'password' => ['required', 'string'],
+            'login' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'max:255'],
+            'portal' => ['nullable', Rule::in(['resident', 'staff'])],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'email.*' => 'Enter your email address.',
+            'login.*' => 'Enter your email or phone number.',
             'password.*' => 'Enter your password.',
+            'portal.*' => 'Choose resident or staff.',
         ];
     }
 }

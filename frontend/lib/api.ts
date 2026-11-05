@@ -5,13 +5,15 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
-import type { IssuePage, Meta, Stats, User } from "@/lib/types";
+import type { Activity, IssuePage, Meta, Stats, User } from "@/lib/types";
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000/api";
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY;
 
 // The Sanctum token lives in this httpOnly cookie, so browser code never sees it.
 export const TOKEN_COOKIE = "cf_token";
+// Holds the random value that proves a Google sign-in was started on this site.
+export const GOOGLE_STATE_COOKIE = "cf_google_state";
 
 export class ApiError extends Error {
   constructor(
@@ -67,6 +69,8 @@ export const getMeta = cache(() => api<Meta>("/meta"));
 
 export const getStats = () => api<Stats>("/stats");
 
+export const getActivity = () => api<{ items: Activity[] }>("/activity");
+
 export const getIssues = cache((query = "") => api<IssuePage>(`/issues${query && `?${query}`}`));
 
 export const getUser = cache(async (): Promise<User | null> => {
@@ -79,11 +83,35 @@ export const getUser = cache(async (): Promise<User | null> => {
   }
 });
 
-/** The signed-in staff member, or a trip to the login page. */
+export const isStaff = (user: User | null): user is User => user?.role === "staff" || user?.role === "admin";
+
+/** The signed-in staff member, or a trip to the staff login. Residents are sent there too. */
 export async function requireStaff(next: string): Promise<User> {
   const user = await getUser();
-  if (!user) redirect(`/staff/login?next=${encodeURIComponent(next)}`);
+  if (!isStaff(user)) redirect(`/staff/login?next=${encodeURIComponent(next)}`);
   return user;
+}
+
+/** Any signed-in account, or a trip to the resident sign-in. */
+export async function requireAccount(next: string): Promise<User> {
+  const user = await getUser();
+  if (!user) redirect(`/login?next=${encodeURIComponent(next)}`);
+  return user;
+}
+
+/** Where someone lands after signing in, unless a safe `next` page was asked for. */
+export function homeFor(user: User) {
+  return isStaff(user) ? "/dashboard" : "/my-reports";
+}
+
+export async function startSession(token: string) {
+  (await cookies()).set(TOKEN_COOKIE, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 14 * 86_400,
+    path: "/",
+  });
 }
 
 /** Turns Next.js search params into a query string for the API. */

@@ -1,8 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-    <img src="docs/logo-light.svg" alt="CommunityFix" width="420">
-  </picture>
+  <img src="docs/logo.png" alt="CommunityFix: issue reporting and resolution platform" width="360">
 </p>
 
 <p align="center">
@@ -54,10 +51,10 @@ CommunityFix is a community problem-to-resolution tracker. Residents report brok
 - Get an email when the status changes, if they left an address
 
 **Public**
-- Anyone can browse, search and filter verified reports and see them on a map. New reports stay hidden until staff verify them, because anyone can submit one.
+- Anyone can browse, search and filter verified reports, see them on a map, and follow the latest activity. New reports stay hidden until staff verify them, because anyone can submit one.
 
 **Staff (account required)**
-- Dashboard with a work queue of every report
+- Dashboard with live figures and 30-day trends, a map, an activity feed and a work queue
 - Verify or reject reports, and update their status with a note to the resident
 - Set priority and assign a maintenance team
 - Upload before-and-after photos and post public updates

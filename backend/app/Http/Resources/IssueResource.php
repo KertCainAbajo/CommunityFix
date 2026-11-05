@@ -13,7 +13,9 @@ class IssueResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $isStaff = (bool) $request->user('sanctum')?->isStaff();
+        $viewer = $request->user('sanctum');
+        $isStaff = (bool) $viewer?->isStaff();
+        $isOwner = $viewer && $this->user_id === $viewer->id;
 
         return [
             'id' => $this->id,
@@ -35,7 +37,7 @@ class IssueResource extends JsonResource
             'priority' => $this->priority,
             'department' => $this->department,
             // The tracking code works like a password, and contact details are private.
-            'tracking_code' => $this->when($isStaff, $this->tracking_code),
+            'tracking_code' => $this->when($isStaff || $isOwner, $this->tracking_code),
             'contact' => $this->when($isStaff, fn () => [
                 'name' => $this->contact_name,
                 'email' => $this->contact_email,
