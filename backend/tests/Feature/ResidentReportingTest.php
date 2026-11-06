@@ -23,9 +23,10 @@ class ResidentReportingTest extends TestCase
         parent::setUp();
 
         $this->withoutDefer();
+        $this->asResident();
     }
 
-    public function test_anyone_can_report_without_an_account_and_gets_a_tracking_number(): void
+    public function test_a_signed_in_resident_can_report_and_gets_a_tracking_number(): void
     {
         $response = $this->postJson('/api/issues', self::REPORT)->assertCreated();
 
@@ -141,7 +142,7 @@ class ResidentReportingTest extends TestCase
         Sanctum::actingAs($this->staff());
         $this->getJson('/api/issues')->assertJsonPath('total', 1);
         $this->move($issue, 'acknowledged')->assertOk();
-        $this->asGuest();
+        $this->asResident();
 
         $this->getJson("/api/issues/{$issue->id}")->assertOk();
         $this->getJson('/api/issues')->assertJsonPath('total', 1);
@@ -152,7 +153,7 @@ class ResidentReportingTest extends TestCase
         $issue = $this->report();
         Sanctum::actingAs($this->staff());
         $this->move($issue, 'rejected', 'Duplicate.')->assertOk();
-        $this->asGuest();
+        $this->asResident();
 
         $this->getJson("/api/issues/{$issue->id}")->assertForbidden();
         $this->getJson("/api/track/{$issue->tracking_code}")->assertOk()->assertJsonPath('timeline.1.note', 'Duplicate.');

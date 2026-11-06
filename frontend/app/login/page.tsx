@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 import { GoogleButton, LoginForm } from "@/components/forms";
 import { PageSkeleton } from "@/components/issue-parts";
-import { OrDivider, PortalTabs } from "@/components/portal";
+import { OrDivider, PortalHeading, PortalTabs } from "@/components/portal";
 import { getUser, homeFor } from "@/lib/api";
 
 export const metadata: Metadata = { title: "Sign in" };
@@ -30,13 +30,11 @@ async function ResidentSignIn({ searchParams }: Pick<PageProps<"/login">, "searc
       {notice && <p role="alert" className="rounded-lg border border-[#f5d48a] bg-[#fff8e6] px-4 py-3 text-sm text-[#7a4b00]">{notice}</p>}
       <LoginForm next={target} portal="resident" />
       <p className="text-center text-sm font-medium text-[#0b1f3a]">
-        Don&apos;t have an account? <Link href="/report" className="font-semibold text-[#1a4fd6] hover:underline">Report as Guest</Link>
+        Don&apos;t have an account? <Link href="/register" className="font-semibold text-[#1a4fd6] hover:underline">Create an account</Link>
       </p>
       <OrDivider />
       <GoogleButton />
       <p className="text-center text-sm text-muted-foreground">
-        New here? <Link href="/register" className="font-semibold text-[#1a4fd6] hover:underline">Create an account</Link>
-        {" · "}
         <Link href="/staff/forgot-password" className="font-semibold text-[#1a4fd6] hover:underline">Forgot password?</Link>
       </p>
     </>
@@ -46,8 +44,8 @@ async function ResidentSignIn({ searchParams }: Pick<PageProps<"/login">, "searc
 export default function ResidentSignInPage({ searchParams }: PageProps<"/login">) {
   return (
     <>
+      <PortalHeading title="Welcome back">Sign in to report problems and follow them until they&apos;re fixed.</PortalHeading>
       <PortalTabs active="resident" />
-      <h1 className="sr-only">Resident sign in</h1>
       <Suspense fallback={<PageSkeleton />}>
         <ResidentSignIn searchParams={searchParams} />
       </Suspense>

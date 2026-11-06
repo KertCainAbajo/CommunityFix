@@ -20,17 +20,22 @@ Route::pattern('issue', '[0-9]{1,9}');
 Route::pattern('user', '[0-9]{1,9}');
 Route::pattern('code', '[Cc][Ff]-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}');
 
-// Public: residents can report and track without an account.
+// Public: only the labels and overall figures the sign-in page shows. No report details.
 Route::get('/meta', MetaController::class);
 Route::get('/stats', StatsController::class);
-Route::get('/activity', ActivityController::class);
-Route::get('/issues', [IssueController::class, 'index']);
-Route::get('/issues/{issue}', [IssueController::class, 'show']);
-Route::post('/issues', [IssueController::class, 'store'])->middleware('throttle:reports');
 
-Route::middleware('throttle:tracking')->group(function () {
-    Route::get('/track/{code}', [TrackingController::class, 'show']);
-    Route::post('/track/{code}/reopen', [TrackingController::class, 'reopen']);
+// Everything about reports needs an account.
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/activity', ActivityController::class);
+    Route::get('/issues', [IssueController::class, 'index']);
+    Route::get('/issues/{issue}', [IssueController::class, 'show']);
+    Route::post('/issues', [IssueController::class, 'store'])->middleware('throttle:reports');
+    Route::get('/my/issues', MyIssuesController::class);
+
+    Route::middleware('throttle:tracking')->group(function () {
+        Route::get('/track/{code}', [TrackingController::class, 'show']);
+        Route::post('/track/{code}/reopen', [TrackingController::class, 'reopen']);
+    });
 });
 
 // Sign-in for staff and residents
@@ -53,9 +58,6 @@ Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
     });
 });
-
-// A signed-in resident's own reports
-Route::get('/my/issues', MyIssuesController::class)->middleware('auth:sanctum');
 
 // Staff
 Route::middleware(['auth:sanctum', 'can:staff'])->group(function () {

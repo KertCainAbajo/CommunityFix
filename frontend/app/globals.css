@@ -553,7 +553,7 @@
 }
 
 @layer components {
-  /* The left panel of the sign-in page: deep blue, with a photo showing through when one is added. */
+  /* The left panel of the sign-in page: a deep blue mesh with soft light, or a photo when one is added. */
   .portal-hero {
     position: relative;
     isolation: isolate;
@@ -561,43 +561,59 @@
     flex-direction: column;
     justify-content: space-between;
     gap: 2rem;
-    min-height: 34rem;
+    min-height: 36rem;
     overflow: hidden;
     padding: 1.5rem;
-    border-radius: 1.5rem;
+    border-radius: 1.75rem;
     background:
-      radial-gradient(40rem 26rem at 85% 0%, rgb(96 165 250 / 45%), transparent 60%),
-      radial-gradient(30rem 20rem at 10% 100%, rgb(34 197 94 / 20%), transparent 60%),
-      linear-gradient(135deg, #0b3aa8 0%, #1d4ed8 45%, #2563eb 100%);
+      radial-gradient(36rem 28rem at 78% 42%, rgb(96 165 250 / 55%), transparent 62%),
+      radial-gradient(28rem 22rem at 100% 0%, rgb(56 189 248 / 35%), transparent 60%),
+      radial-gradient(26rem 20rem at 0% 100%, rgb(34 197 94 / 26%), transparent 60%),
+      radial-gradient(30rem 24rem at 0% 0%, rgb(30 64 175 / 70%), transparent 60%),
+      linear-gradient(140deg, #071a4a 0%, #0f2f8f 38%, #1d4ed8 72%, #2563eb 100%);
+    box-shadow: 0 40px 80px -40px rgb(7 26 74 / 70%);
   }
   .portal-hero[data-photo] {
     background: #0b3aa8;
   }
+  /* A fine grid that fades out toward the edges. */
   .portal-hero::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(90deg, rgb(11 58 168 / 96%) 0%, rgb(29 78 216 / 82%) 42%, rgb(29 78 216 / 25%) 75%, rgb(29 78 216 / 5%) 100%);
+    background-image:
+      linear-gradient(rgb(255 255 255 / 7%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 7%) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 65% 75% at 72% 45%, #000 20%, transparent 72%);
   }
-  .portal-hero:not([data-photo])::before {
-    background:
-      linear-gradient(rgb(255 255 255 / 5%) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 5%) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse 70% 80% at 70% 40%, #000 30%, transparent 75%);
+  .portal-hero[data-photo]::before {
+    background: linear-gradient(90deg, rgb(7 26 74 / 95%) 0%, rgb(15 47 143 / 82%) 42%, rgb(29 78 216 / 30%) 75%, rgb(29 78 216 / 8%) 100%);
+    mask-image: none;
   }
-  /* The light streak across the bottom corner. */
+  /* The light sweep across the bottom corner. */
   .portal-hero::after {
     content: "";
     position: absolute;
-    right: -10%;
-    bottom: -30%;
+    right: -12%;
+    bottom: -32%;
     z-index: -1;
-    width: 70%;
-    height: 60%;
-    background: linear-gradient(160deg, transparent 40%, rgb(147 197 253 / 35%) 41%, rgb(59 130 246 / 55%) 70%);
+    width: 75%;
+    height: 62%;
+    background: linear-gradient(160deg, transparent 40%, rgb(147 197 253 / 22%) 41%, rgb(59 130 246 / 40%) 75%);
     transform: skewY(-14deg);
+  }
+  .portal-glow {
+    position: absolute;
+    top: 18%;
+    right: 12%;
+    z-index: -1;
+    width: 22rem;
+    height: 22rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(147 197 253 / 55%), transparent 65%);
+    filter: blur(30px);
   }
   @media (min-width: 64rem) {
     .portal-hero {
@@ -606,17 +622,94 @@
     }
   }
 
+  .portal-glass {
+    border: 1px solid rgb(255 255 255 / 18%);
+    border-radius: 1.1rem;
+    background: rgb(255 255 255 / 9%);
+    backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%);
+  }
+
+  .portal-gradient-text {
+    background: linear-gradient(95deg, #e0ecff 0%, #93c5fd 45%, #86efac 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* The white cards floating over the blue panel. */
+  .portal-card {
+    border: 1px solid rgb(255 255 255 / 70%);
+    border-radius: 1.25rem;
+    background: rgb(255 255 255 / 94%);
+    backdrop-filter: blur(16px);
+    box-shadow:
+      0 30px 60px -24px rgb(7 26 74 / 65%),
+      0 0 0 1px rgb(11 23 41 / 4%);
+  }
+
+  /* Two faint rings behind the cards. */
+  .portal-orbit {
+    border: 1px dashed rgb(255 255 255 / 22%);
+    border-radius: 50%;
+  }
+
+  .float-a { animation: portal-float 7s ease-in-out infinite; }
+  .float-b { animation: portal-float 6s ease-in-out -2s infinite; }
+  .float-c { animation: portal-float 8s ease-in-out -4s infinite; }
+  @keyframes portal-float {
+    50% { transform: translateY(-10px); }
+  }
+  .portal-rise {
+    animation: portal-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  @keyframes portal-rise {
+    from { opacity: 0; transform: translateY(14px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .float-a, .float-b, .float-c, .portal-rise {
+      animation: none;
+    }
+  }
+
+  /* The sign-in panel */
   .portal-panel {
+    position: relative;
+    isolation: isolate;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 2.5rem 1.5rem 1.25rem;
-    border-radius: 1.5rem;
-    background: linear-gradient(180deg, #f7faff 0%, #eaf1ff 100%);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 70%);
+    justify-content: space-between;
+    gap: 2rem;
+    overflow: hidden;
+    padding: 1.5rem;
+    border-radius: 1.75rem;
+    background: #fbfcff;
+    box-shadow: 0 1px 2px rgb(11 23 41 / 5%), 0 24px 50px -30px rgb(11 23 41 / 25%);
   }
-  .portal-panel > :first-child {
-    margin-top: auto;
+  .portal-panel::before {
+    content: "";
+    position: absolute;
+    inset: -30% -30% auto auto;
+    z-index: -1;
+    width: 30rem;
+    height: 30rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(59 130 246 / 12%), transparent 65%);
+  }
+  .portal-panel::after {
+    content: "";
+    position: absolute;
+    inset: auto auto -25% -25%;
+    z-index: -1;
+    width: 26rem;
+    height: 26rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(34 197 94 / 10%), transparent 65%);
+  }
+  @media (min-width: 64rem) {
+    .portal-panel {
+      padding: 2rem 2.5rem;
+    }
   }
 }

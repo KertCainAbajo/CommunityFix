@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, Eye, EyeOff, Hash, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
+import { ArrowRight, Check, Copy, Eye, EyeOff, Hash, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState, useTransition, type ChangeEvent, type ComponentProps, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
@@ -67,8 +67,8 @@ function Submit({ children, variant, cta, onDark }: { children: ReactNode; varia
 function IconInput({ icon, className, ...props }: ComponentProps<typeof Input> & { icon: ReactNode }) {
   return (
     <div className="relative">
-      <span aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-[#0b1f3a] [&_svg]:size-4.5">{icon}</span>
-      <Input {...props} className={`h-12 rounded-lg border-[#d9e2ef] bg-[#f4f7fc] pl-11 text-[0.95rem] placeholder:text-[#4b5b70] focus-visible:bg-white ${className ?? ""}`} />
+      <span aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 z-10 -translate-y-1/2 text-[#7a889b] [&_svg]:size-4.5">{icon}</span>
+      <Input {...props} className={`h-12 rounded-xl border-[#dfe6f0] bg-white pl-11 text-[0.95rem] shadow-[0_1px_2px_rgb(11_23_41/4%)] transition-shadow placeholder:text-[#7a889b] hover:border-[#c5d3e8] focus-visible:border-[#3b82f6] focus-visible:ring-4 focus-visible:ring-[#3b82f6]/15 ${className ?? ""}`} />
     </div>
   );
 }
@@ -76,8 +76,9 @@ function IconInput({ icon, className, ...props }: ComponentProps<typeof Input> &
 function WideSubmit({ children }: { children: ReactNode }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="h-12 w-full rounded-lg bg-[#1a4fd6] text-base shadow-[0_10px_24px_-12px_rgb(29_78_216/80%)] hover:bg-[#1640b0]">
-      {children}
+    <Button type="submit" disabled={pending} className="group/submit h-12 w-full gap-2 rounded-xl bg-gradient-to-b from-[#2563eb] to-[#1a4fd6] text-base shadow-[0_14px_28px_-12px_rgb(29_78_216/90%),inset_0_1px_0_rgb(255_255_255/22%)] hover:from-[#1d4ed8] hover:to-[#1640b0]">
+      {pending ? "Please wait…" : children}
+      {!pending && <ArrowRight aria-hidden className="size-4 transition-transform group-hover/submit:translate-x-0.5" />}
     </Button>
   );
 }
@@ -248,7 +249,7 @@ export function ReportForm({ meta, category }: { meta: Meta; category?: string }
 
       <Step number={4} title={<>How can we reach you? <Optional /></>}>
         <p className="text-muted-foreground">
-          Only staff can see this. Leave your email to get updates, or leave these empty to stay anonymous.
+          Only staff can see this. If you leave these empty, we&apos;ll use the details on your account.
         </p>
         <Field label="Your name" id="contact_name">
           <Input id="contact_name" name="contact_name" maxLength={80} autoComplete="name" />
@@ -420,7 +421,7 @@ function GoogleMark() {
 export function GoogleButton() {
   return (
     // A plain link: the sign-in leaves this site for Google and comes back.
-    <a href="/auth/google" className="flex h-12 items-center justify-center gap-3 rounded-lg border border-[#d9e2ef] bg-white text-[0.95rem] font-semibold text-[#0b1f3a] shadow-sm transition-colors hover:bg-[#f4f7fc]">
+    <a href="/auth/google" className="flex h-12 items-center justify-center gap-3 rounded-xl border border-[#dfe6f0] bg-white text-[0.95rem] font-semibold text-[#0b1f3a] shadow-[0_1px_2px_rgb(11_23_41/4%)] transition-all hover:-translate-y-px hover:border-[#c5d3e8] hover:shadow-[0_10px_24px_-14px_rgb(11_23_41/35%)]">
       <GoogleMark /> Continue with Google
     </a>
   );

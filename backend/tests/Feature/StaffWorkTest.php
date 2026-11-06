@@ -183,7 +183,7 @@ class StaffWorkTest extends TestCase
         Sanctum::actingAs($this->staff());
         $this->move($shown, 'acknowledged')->assertOk();
         $this->getJson('/api/activity')->assertSee('Still waiting for review');
-        $this->asGuest();
+        $this->asResident();
 
         $response = $this->getJson('/api/activity')->assertOk();
 
@@ -210,7 +210,7 @@ class StaffWorkTest extends TestCase
             ->assertCreated()
             ->assertJsonPath('user.email', 'new@example.com')
             ->assertJsonPath('user.role', 'staff');
-        $this->asGuest();
+        $this->asResident();
 
         $this->postJson('/api/auth/login', ['email' => 'new@example.com', 'password' => $response->json('password')])->assertOk();
     }
@@ -222,7 +222,7 @@ class StaffWorkTest extends TestCase
         Sanctum::actingAs(User::factory()->admin()->create());
 
         $this->patchJson("/api/staff/{$person->id}", ['is_active' => false])->assertOk()->assertJsonPath('user.is_active', false);
-        $this->asGuest();
+        $this->asResident();
 
         $this->assertSame(0, $person->tokens()->count());
         $this->postJson('/api/auth/login', ['email' => 'gone@example.com', 'password' => 'password123'])->assertUnauthorized();

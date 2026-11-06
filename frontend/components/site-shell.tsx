@@ -1,5 +1,6 @@
-import { FolderOpen, LayoutDashboard, LogIn, Phone } from "lucide-react";
+import { FolderOpen, LayoutDashboard, Phone } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
@@ -9,18 +10,10 @@ import { getUser, isStaff } from "@/lib/api";
 
 const pill = buttonVariants({ variant: "ghost", className: "hidden h-9 gap-1.5 rounded-full border bg-card px-4 text-sm font-semibold shadow-sm sm:inline-flex" });
 
-function LoginLink() {
-  return (
-    <Link href="/login" className={pill}>
-      <LogIn aria-hidden className="size-4" /> Sign in
-    </Link>
-  );
-}
-
-/** Signed-in people get a way back to their reports or their work instead of a sign-in link. */
-async function StaffLink() {
+/** A way back to the person's reports or work. It also catches a cookie whose session has ended. */
+async function AccountLink() {
   const user = await getUser();
-  if (!user) return <LoginLink />;
+  if (!user) redirect("/login");
 
   if (!isStaff(user)) {
     return (
@@ -37,7 +30,7 @@ async function StaffLink() {
   );
 }
 
-/** The sidebar, top bar and footer of the public site and the staff dashboard. */
+/** The sidebar, top bar and footer of the signed-in site. */
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className="grid flex-1 lg:grid-cols-[16.5rem_minmax(0,1fr)]">
@@ -61,7 +54,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
               <span aria-hidden className="live-dot" />
               <span><span className="font-semibold text-foreground">Live</span> · updates as staff work on reports</span>
             </p>
-            <Suspense fallback={<LoginLink />}><StaffLink /></Suspense>
+            <Suspense><AccountLink /></Suspense>
           </div>
         </header>
         <main className="page-grid flex-1">{children}</main>
@@ -69,7 +62,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <div className="container-wide flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-5 text-sm text-muted-foreground">
             <span>© CommunityFix · Issue reporting and resolution platform</span>
             <span className="flex items-center gap-1.5 lg:hidden"><Phone aria-hidden className="size-4 text-destructive" /> Emergency? Call your local hotline.</span>
-            <Link href="/staff/login" className="font-semibold text-foreground hover:text-primary">Staff login →</Link>
           </div>
         </footer>
       </div>

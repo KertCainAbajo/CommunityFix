@@ -11,7 +11,7 @@ import { getActivity, getIssues, getMeta, getStats } from "@/lib/api";
 
 const STEPS = [
   { Icon: Camera, title: "Tell us what's wrong", text: "Pick the problem, drop a pin, and add a photo if you can." },
-  { Icon: Hash, title: "Keep your tracking number", text: "You get a code like CF-7K2M-9QXD. No account needed." },
+  { Icon: Hash, title: "Keep your tracking number", text: "You get a code like CF-7K2M-9QXD, and the report is saved to your account." },
   { Icon: ShieldCheck, title: "Staff verify and assign", text: "The report is checked and sent to the right team." },
   { Icon: MapPinned, title: "Follow it until it's fixed", text: "Every update and photo shows up on your report." },
 ];
@@ -105,7 +105,7 @@ export default function HomePage() {
             </h1>
             <p className="max-w-xl text-lg text-[#b8c7db]">
               Report streetlights, roads, drainage and more in under a minute, then follow every step until it&apos;s
-              resolved. No account needed.
+              resolved.
             </p>
             <div className="flex flex-wrap items-end gap-x-5 gap-y-4 pt-1">
               <Link href="/report" className={buttonVariants({ className: "cta h-12 gap-2 px-6 text-base" })}>

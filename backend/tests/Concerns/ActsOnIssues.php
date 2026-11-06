@@ -23,6 +23,10 @@ trait ActsOnIssues
 
     protected function report(array $fields = []): Issue
     {
+        if (! auth('sanctum')->check()) {
+            $this->asResident();
+        }
+
         $response = $this->postJson('/api/issues', [...self::REPORT, ...$fields])->assertCreated();
 
         return Issue::where('tracking_code', $response->json('tracking_code'))->firstOrFail();
@@ -39,7 +43,16 @@ trait ActsOnIssues
         $this->move($issue, 'acknowledged')->assertOk();
         $this->move($issue, 'in_progress')->assertOk();
         $this->move($issue, 'resolved', 'Lamp replaced.')->assertOk();
-        $this->asGuest();
+        $this->asResident();
+    }
+
+    /** A signed-in resident with no contact details, who is neither staff nor the reporter. */
+    protected function asResident(): User
+    {
+        $resident = User::factory()->resident()->create(['email' => null]);
+        Sanctum::actingAs($resident);
+
+        return $resident;
     }
 
     /** Sanctum::actingAs persists between requests in a test; this clears it. */

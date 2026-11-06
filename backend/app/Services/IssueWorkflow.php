@@ -24,9 +24,9 @@ class IssueWorkflow
      *
      * @param  UploadedFile[]  $photos
      */
-    public function report(array $details, array $photos, ?User $owner = null): Issue
+    public function report(array $details, array $photos, User $owner): Issue
     {
-        if ($owner && ! $owner->isStaff()) {
+        if (! $owner->isStaff()) {
             $details['contact_name'] ??= $owner->name;
             $details['contact_email'] ??= $owner->email;
             $details['contact_phone'] ??= $owner->phone;
@@ -37,7 +37,7 @@ class IssueWorkflow
         try {
             $issue = DB::transaction(function () use ($details, $paths, $owner) {
                 $issue = new Issue($details);
-                $issue->user_id = $owner && ! $owner->isStaff() ? $owner->id : null;
+                $issue->user_id = $owner->isStaff() ? null : $owner->id;
                 $issue->save();
                 foreach ($paths as $path) {
                     $issue->photos()->create(['kind' => PhotoKind::Evidence, 'path' => $path, 'created_at' => now()]);

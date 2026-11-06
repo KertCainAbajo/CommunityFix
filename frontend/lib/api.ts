@@ -53,6 +53,9 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   const body = await response.json().catch(() => null);
 
+  // The cookie outlived its session. Sign-in pages handle their own 401s.
+  if (response.status === 401 && token && !path.startsWith("/auth/")) redirect("/login");
+
   if (!response.ok) {
     const { message, errors } = (body ?? {}) as ErrorBody;
     const first = errors && Object.values(errors)[0]?.[0];
@@ -67,7 +70,8 @@ export const post = <T>(path: string, data?: object) =>
 
 export const getMeta = cache(() => api<Meta>("/meta"));
 
-export const getStats = () => api<Stats>("/stats");
+// Cached per request, so pages that show the figures in two places ask the API once.
+export const getStats = cache(() => api<Stats>("/stats"));
 
 export const getActivity = () => api<{ items: Activity[] }>("/activity");
 

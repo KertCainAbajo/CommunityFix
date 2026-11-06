@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
- * Staff, admins and residents. Residents may also report as guests without an account.
+ * Staff, admins and residents. Everyone needs an account to use the site.
  */
 class User extends Authenticatable
 {

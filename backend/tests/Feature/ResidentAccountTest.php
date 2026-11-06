@@ -23,6 +23,23 @@ class ResidentAccountTest extends TestCase
         $this->withoutDefer();
     }
 
+    public function test_guests_can_only_see_overall_figures(): void
+    {
+        $code = $this->report()->tracking_code;
+        $this->asGuest();
+
+        $this->getJson('/api/meta')->assertOk();
+        $this->getJson('/api/stats')->assertOk();
+
+        $this->getJson('/api/issues')->assertUnauthorized();
+        $this->getJson('/api/issues/1')->assertUnauthorized();
+        $this->getJson('/api/activity')->assertUnauthorized();
+        $this->getJson('/api/my/issues')->assertUnauthorized();
+        $this->getJson("/api/track/{$code}")->assertUnauthorized();
+        $this->postJson("/api/track/{$code}/reopen", ['note' => 'Still broken.'])->assertUnauthorized();
+        $this->postJson('/api/issues', self::REPORT)->assertUnauthorized();
+    }
+
     public function test_residents_sign_up_with_an_email_and_get_a_working_session(): void
     {
         $token = $this->postJson('/api/auth/register', ['name' => 'Ana Cruz', 'email' => 'Ana@Example.com', 'password' => 'password123'])
@@ -99,15 +116,12 @@ class ResidentAccountTest extends TestCase
     public function test_reports_filed_while_signed_in_are_kept_on_the_account(): void
     {
         $resident = User::factory()->resident()->create(['name' => 'Ana', 'email' => 'ana@example.com', 'phone' => '+639171234567']);
-        $guestIssue = $this->report(['title' => 'Guest report']);
-
         Sanctum::actingAs($resident);
         $issue = $this->report();
 
         $this->assertSame($resident->id, $issue->user_id);
         $this->assertSame('ana@example.com', $issue->contact_email);
         $this->assertSame('+639171234567', $issue->contact_phone);
-        $this->assertNull($guestIssue->user_id);
 
         $this->getJson('/api/my/issues')
             ->assertOk()

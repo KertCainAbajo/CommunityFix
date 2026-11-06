@@ -38,7 +38,7 @@ class IssueController extends Controller
 
     public function store(StoreIssueRequest $request, IssueWorkflow $workflow): JsonResponse
     {
-        $issue = $workflow->report($request->details(), $request->file('photos', []), $request->user('sanctum'));
+        $issue = $workflow->report($request->details(), $request->file('photos', []), $request->user());
 
         return response()->json(['ref' => $issue->ref(), 'tracking_code' => $issue->tracking_code], 201);
     }

@@ -43,15 +43,19 @@ CommunityFix is a community problem-to-resolution tracker. Residents report brok
 
 ## Features
 
-**Residents (no account needed)**
+**Residents (account required)**
+- Sign up with an email or phone number and a password, or with Google
+- See every report they filed under My reports
 - Report a problem with a category, description, location, map pin and up to 3 photos
 - Optionally leave a name, email or phone number, which only staff can see
 - Get a tracking number like `CF-7K2M-9QXD`, and an email confirmation if they left an address
 - Track progress with that number, and reopen a resolved report if it isn't really fixed
 - Get an email when the status changes, if they left an address
 
-**Public**
-- Anyone can browse, search and filter verified reports, see them on a map, and follow the latest activity. New reports stay hidden until staff verify them, because anyone can submit one.
+**Everyone signed in**
+- Browse, search and filter verified reports, see them on a map, and follow the latest activity. New reports stay hidden until staff verify them.
+
+Visitors who aren't signed in only see the sign-in page, which shows overall figures and no report details.
 
 **Staff (account required)**
 - Dashboard with live figures and 30-day trends, a map, an activity feed and a work queue

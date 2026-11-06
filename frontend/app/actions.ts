@@ -90,7 +90,7 @@ export async function register(_: FormState, form: FormData): Promise<FormState>
 export async function logout() {
   await attempt(() => post("/auth/logout"));
   (await cookies()).delete(TOKEN_COOKIE);
-  redirect("/");
+  redirect("/login");
 }
 
 export async function forgotPassword(_: NoticeState, form: FormData): Promise<NoticeState> {

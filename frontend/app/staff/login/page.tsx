@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 import { ForgotLink, LoginForm } from "@/components/forms";
 import { PageSkeleton } from "@/components/issue-parts";
-import { PortalTabs } from "@/components/portal";
+import { PortalHeading, PortalTabs } from "@/components/portal";
 import { getUser, isStaff } from "@/lib/api";
 
 export const metadata: Metadata = { title: "Staff login" };
@@ -32,8 +32,8 @@ async function Login({ searchParams }: Pick<PageProps<"/staff/login">, "searchPa
 export default function StaffLoginPage({ searchParams }: PageProps<"/staff/login">) {
   return (
     <>
+      <PortalHeading title="Staff sign in">Verify, assign and resolve community reports.</PortalHeading>
       <PortalTabs active="staff" />
-      <h1 className="sr-only">Staff login</h1>
       <Suspense fallback={<PageSkeleton />}>
         <Login searchParams={searchParams} />
       </Suspense>
