@@ -41,6 +41,10 @@ CommunityFix is a community problem-to-resolution tracker. Residents report brok
 |          | Laravel Sanctum 4.3                              | Login tokens                                 |
 | Database | PostgreSQL 18                                    | Accounts, reports and update history         |
 
+## Image credits
+
+The sign-in page photo is [Barangay Hall of Poblacion, Alubijid](https://commons.wikimedia.org/wiki/File:Barangay_Hall_of_Poblacion,_Alubijid.jpg) by Ahri.boy, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It was resized and is cropped on the page.
+
 ## Features
 
 **Residents (account required)**

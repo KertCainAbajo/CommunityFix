@@ -76,7 +76,7 @@ function IconInput({ icon, className, ...props }: ComponentProps<typeof Input> &
 function WideSubmit({ children }: { children: ReactNode }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="group/submit h-12 w-full gap-2 rounded-xl bg-gradient-to-b from-[#2563eb] to-[#1a4fd6] text-base shadow-[0_14px_28px_-12px_rgb(29_78_216/90%),inset_0_1px_0_rgb(255_255_255/22%)] hover:from-[#1d4ed8] hover:to-[#1640b0]">
+    <Button type="submit" disabled={pending} className="group/submit h-12 w-full gap-2 rounded-xl bg-gradient-to-r from-[#1a4fd6] to-[#16a34a] text-base shadow-[0_14px_28px_-12px_rgb(22_120_120/90%),inset_0_1px_0_rgb(255_255_255/22%)] hover:from-[#1640b0] hover:to-[#15803d]">
       {pending ? "Please wait…" : children}
       {!pending && <ArrowRight aria-hidden className="size-4 transition-transform group-hover/submit:translate-x-0.5" />}
     </Button>

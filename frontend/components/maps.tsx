@@ -55,6 +55,7 @@ function useLeaflet(setup: (L: Leaflet, element: HTMLElement) => LeafletMap) {
 
     return () => {
       cancelled = true;
+      map?.stop();
       map?.remove();
     };
   }, []);
@@ -85,7 +86,8 @@ export function IssueMap({
         .addTo(map);
     }
     if (points.length > 1) {
-      map.fitBounds(points.map(({ lat, lng }) => [lat, lng]), { padding: [32, 32] });
+      // No animation: leaving the page mid-zoom makes Leaflet throw after the map is gone.
+      map.fitBounds(points.map(({ lat, lng }) => [lat, lng]), { padding: [32, 32], animate: false });
     }
     return map;
   });
@@ -124,7 +126,7 @@ export function LocationPicker({ center }: { center: Center }) {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         place(coords.latitude, coords.longitude);
-        leaflet.current?.map.setView([coords.latitude, coords.longitude], 17);
+        leaflet.current?.map.setView([coords.latitude, coords.longitude], 17, { animate: false });
       },
       () => setMessage("Could not get your location. Tap the map instead."),
     );

@@ -1,17 +1,32 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { ArrowRight, CircleCheckBig, Clock3, LoaderCircle, LockKeyhole, ShieldCheck, Sparkles, UserRound, Users } from "lucide-react";
+import { ArrowRight, CircleCheckBig, Clock3, Construction, Droplets, Lightbulb, LockKeyhole, ShieldCheck, Trash2, UserRound, Users, Waves } from "lucide-react";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 
+import { CommunityScene, RooftopStrip } from "@/components/community-scene";
 import { STAGES } from "@/components/issue-parts";
 import { getMeta, getStats } from "@/lib/api";
 import type { Meta, Stats } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-/** Put a photo at frontend/public/portal-hero.jpg (for example, your barangay hall) and it fills the left panel. */
+/** Swap frontend/public/portal-hero.jpg for a photo of your own barangay, then update or remove the credit below. */
 const HERO_PHOTO = "portal-hero.jpg";
+
+// The license (CC BY 4.0) requires this credit to stay on the page while this photo is used.
+const HERO_CREDIT = {
+  text: "Photo: Ahri.boy, CC BY 4.0, cropped",
+  href: "https://commons.wikimedia.org/wiki/File:Barangay_Hall_of_Poblacion,_Alubijid.jpg",
+};
+
+const FIXES = [
+  { Icon: Lightbulb, label: "Streetlights", color: "#d97706", bg: "#fff4dc" },
+  { Icon: Construction, label: "Roads", color: "#1a4fd6", bg: "#e6eeff" },
+  { Icon: Waves, label: "Drainage", color: "#0891b2", bg: "#e0f6fa" },
+  { Icon: Trash2, label: "Waste", color: "#16a34a", bg: "#e3f8ea" },
+  { Icon: Droplets, label: "Water", color: "#2563eb", bg: "#e6eeff" },
+];
 
 function hasHeroPhoto() {
   return fs.existsSync(path.join(process.cwd(), "public", HERO_PHOTO));
@@ -28,15 +43,15 @@ function StatsStrip({ stats }: { stats: Stats }) {
   ];
 
   return (
-    <dl className="portal-glass grid w-fit grid-cols-3 divide-x divide-white/15 py-3">
+    <dl className="portal-glass portal-strip grid w-fit grid-cols-3 divide-x divide-white/15 py-2.5">
       {items.map(({ Icon, value, label }) => (
-        <div key={label} className="flex items-center gap-3 px-4 sm:px-6">
-          <span className="hidden size-10 place-items-center rounded-xl bg-white/12 sm:grid">
+        <div key={label} className="flex items-center gap-3 px-4 min-[1680px]:px-6">
+          <span className="hidden size-10 place-items-center rounded-xl bg-white/12 min-[1680px]:grid">
             <Icon aria-hidden className="size-5 text-white" />
           </span>
           <div className="leading-tight">
-            <dd className="font-heading text-xl font-extrabold text-white sm:text-2xl">{value}</dd>
-            <dt className="text-xs text-[#c9dbff] sm:text-sm">{label}</dt>
+            <dd className="font-heading text-xl font-extrabold text-white min-[1680px]:text-2xl">{value}</dd>
+            <dt className="text-xs text-[#dbe7ff]">{label}</dt>
           </div>
         </div>
       ))}
@@ -49,8 +64,8 @@ function PipelineCard({ stats, meta }: { stats: Stats; meta: Meta }) {
   const most = Math.max(...STAGES.map((stage) => stats.by_status[stage]), 1);
 
   return (
-    <div className="portal-card float-a w-80 p-5">
-      <p className="text-xs text-[#5b6b80]">Community reports</p>
+    <div className="portal-card float-a w-76 p-5">
+      <p className="text-xs text-[#5b6b80]">Live from your community</p>
       <p className="font-heading text-lg font-extrabold text-[#0b1729]">Where reports stand</p>
       <dl className="mt-4 grid gap-3">
         {STAGES.map((stage) => (
@@ -69,59 +84,13 @@ function PipelineCard({ stats, meta }: { stats: Stats; meta: Meta }) {
   );
 }
 
-function OpenNowCard({ stats }: { stats: Stats }) {
-  return (
-    <div className="portal-card float-b flex w-64 items-center gap-3 p-3.5">
-      <span className="grid size-10 flex-none place-items-center rounded-full bg-gradient-to-b from-[#60a5fa] to-[#2563eb] text-white shadow-[0_6px_16px_-6px_rgb(37_99_235/80%)]">
-        <LoaderCircle aria-hidden className="size-5" />
-      </span>
-      <div>
-        <p className="text-xs font-semibold text-[#1a4fd6]">Being worked on</p>
-        <p className="font-heading text-base font-extrabold text-[#0b1729]">{stats.open} open {stats.open === 1 ? "report" : "reports"}</p>
-      </div>
-    </div>
-  );
-}
-
-function FixRing({ stats }: { stats: Stats }) {
-  const percent = stats.total > 0 ? Math.round((stats.by_status.resolved / stats.total) * 100) : 0;
-  const circumference = 2 * Math.PI * 22;
-
-  return (
-    <div className="portal-card float-c flex items-center gap-3 p-3.5 pr-5">
-      <div className="relative size-14">
-        <svg viewBox="0 0 52 52" aria-hidden className="size-full -rotate-90">
-          <circle cx="26" cy="26" r="22" fill="none" stroke="#e4e9f1" strokeWidth="6" />
-          <circle cx="26" cy="26" r="22" fill="none" stroke="url(#ring-fill)" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${(percent / 100) * circumference} ${circumference}`} />
-          <defs>
-            <linearGradient id="ring-fill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3b82f6" /><stop offset="1" stopColor="#22c55e" /></linearGradient>
-          </defs>
-        </svg>
-        <span className="absolute inset-0 grid place-items-center text-xs font-bold text-[#0b1729]">{percent}%</span>
-      </div>
-      <div>
-        <p className="text-xs text-[#5b6b80]">Community progress</p>
-        <p className="font-heading text-base font-extrabold text-[#0b1729]">{stats.by_status.resolved} problems fixed</p>
-      </div>
-    </div>
-  );
-}
-
-/** Live community figures, floating beside the headline on wide screens. */
-async function Showcase() {
+/** The live figures: a card beside the headline on wide screens, and the strip over the road. */
+async function Showcase({ photo }: { photo: boolean }) {
   const [meta, stats] = await Promise.all([getMeta(), getStats()]);
 
   return (
     <>
-      <div className="pointer-events-none absolute top-1/2 right-[6%] hidden -translate-y-[58%] min-[1680px]:block">
-        <div className="relative h-[26rem] w-[26rem]">
-          <span aria-hidden className="portal-orbit absolute inset-0" />
-          <span aria-hidden className="portal-orbit absolute inset-14" />
-          <div className="pointer-events-auto absolute top-10 left-8"><PipelineCard stats={stats} meta={meta} /></div>
-          <div className="pointer-events-auto absolute -top-6 -right-10"><OpenNowCard stats={stats} /></div>
-          <div className="pointer-events-auto absolute -bottom-2 -left-14"><FixRing stats={stats} /></div>
-        </div>
-      </div>
+      {!photo && <div className="absolute top-28 right-11 hidden min-[1680px]:block"><PipelineCard stats={stats} meta={meta} /></div>}
       <StatsStrip stats={stats} />
     </>
   );
@@ -132,8 +101,8 @@ function Hero() {
 
   return (
     <section className="portal-hero" data-photo={photo ? "" : undefined} aria-label="About CommunityFix">
-      {photo && <img src={`/${HERO_PHOTO}`} alt="" className="absolute inset-0 -z-20 size-full object-cover" />}
-      <span aria-hidden className="portal-glow" />
+      {photo && <img src={`/${HERO_PHOTO}`} alt="" fetchPriority="high" className="portal-photo" />}
+      {!photo && <CommunityScene className="portal-scene" />}
 
       <header className="relative flex flex-wrap items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3" aria-label="CommunityFix home">
@@ -142,7 +111,7 @@ function Hero() {
           </span>
           <span className="grid leading-tight">
             <span className="font-heading text-2xl font-extrabold tracking-tight text-white">CommunityFix</span>
-            <span className="text-xs tracking-wide text-[#c9dbff]">Report • Track • Resolve</span>
+            <span className="text-xs tracking-wide text-[#c9dbff]">Your barangay, fixed together</span>
           </span>
         </Link>
         <Link href="/register" className="flex items-center gap-1.5 rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#1a4fd6] shadow-md transition-transform hover:-translate-y-px">
@@ -150,12 +119,11 @@ function Hero() {
         </Link>
       </header>
 
-      <div className="portal-rise relative grid max-w-xl gap-6 py-10 lg:py-0">
+      <div className="portal-rise relative grid max-w-xl gap-5 pt-8 pb-44 lg:mb-auto lg:pt-[4vh] lg:pb-0">
         <p className="portal-glass flex w-fit items-center gap-2 rounded-full px-3.5 py-1.5 text-sm text-[#dbe7ff]">
-          <span aria-hidden className="live-dot" /> Live in your barangay
-          <Sparkles aria-hidden className="size-3.5 text-[#93c5fd]" />
+          <span aria-hidden className="live-dot" /> Report <ArrowRight aria-hidden className="size-3.5" /> Track <ArrowRight aria-hidden className="size-3.5" /> Resolve
         </p>
-        <h2 className="font-heading text-5xl leading-[1.02] font-extrabold tracking-[-0.035em] text-white sm:text-6xl 2xl:text-7xl">
+        <h2 className="font-heading text-5xl leading-[1.02] font-extrabold tracking-[-0.035em] text-white sm:text-6xl min-[1680px]:text-7xl">
           A Better
           <span className="portal-gradient-text block">Community</span>
           <span className="portal-gradient-text block">Together</span>
@@ -171,8 +139,13 @@ function Hero() {
       </div>
 
       <Suspense fallback={<div className="portal-glass h-18 w-96" />}>
-        <Showcase />
+        <Showcase photo={photo} />
       </Suspense>
+      {photo && (
+        <a href={HERO_CREDIT.href} target="_blank" rel="noreferrer" className="absolute right-4 bottom-2 text-[0.68rem] text-white/85 [text-shadow:0_1px_3px_rgb(0_0_0/70%)] hover:underline">
+          {HERO_CREDIT.text}
+        </a>
+      )}
     </section>
   );
 }
@@ -249,9 +222,20 @@ export function PortalShell({ children }: { children: ReactNode }) {
 
         <div className="portal-form portal-rise grid w-full max-w-[25rem] gap-4">{children}</div>
 
-        <p className="text-center text-xs text-[#8a97a8]">
-          A cleaner, safer, and more responsive community.
-        </p>
+        <div className="w-full max-w-[25rem]">
+          <p className="text-center text-xs font-medium text-[#5b6b80]">Report anything that needs fixing</p>
+          <ul className="mt-2.5 flex justify-between gap-1">
+            {FIXES.map(({ Icon, label, color, bg }) => (
+              <li key={label} className="grid justify-items-center gap-1 text-[0.7rem] font-medium text-[#44546a]">
+                <span className="grid size-10 place-items-center rounded-xl" style={{ background: bg, color }}>
+                  <Icon aria-hidden className="size-5" />
+                </span>
+                {label}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <RooftopStrip className="absolute inset-x-0 bottom-0 -z-10 h-11 w-full opacity-60" />
       </main>
     </div>
   );
