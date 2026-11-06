@@ -1,9 +1,9 @@
-import { ArrowRight, CircleCheckBig, Clock3, MailWarning, MapPin, Megaphone, Newspaper, Wrench } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CircleHelp, Clock3, FolderOpen, MailWarning, MapPin, Megaphone, Newspaper, Siren, Wrench } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import { TrackForm } from "@/components/forms";
-import { EmptyState, IssueList, Legend, PageSkeleton, mapPoints } from "@/components/issue-parts";
+import { CATEGORY_ICONS, EmptyState, IssueList, Legend, PageSkeleton, mapPoints } from "@/components/issue-parts";
 import { IssueMap } from "@/components/maps";
 import { Card, NeedsAttention } from "@/components/overview";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,74 +17,108 @@ async function Greeting() {
   return <>Hello, {user?.name.split(" ")[0] ?? "neighbor"}</>;
 }
 
-function Announcements({ items }: { items: Announcement[] }) {
-  if (items.length === 0) return null;
+function FixedRing({ percent }: { percent: number }) {
+  const circumference = 2 * Math.PI * 22;
 
   return (
-    <section aria-labelledby="news-title" className="card grid gap-3 border-l-4 border-l-primary p-5">
-      <h2 id="news-title" className="flex items-center gap-2 text-lg">
-        <Newspaper aria-hidden className="size-5 text-primary" /> From your barangay
-      </h2>
-      <ul className="grid gap-3">
-        {items.slice(0, 3).map((item) => (
-          <li key={item.id} className="[overflow-wrap:anywhere]">
-            <p className="font-semibold">{item.title} <span className="text-xs font-normal text-muted-foreground">· {timeAgo(item.created_at)}</span></p>
-            <p className="whitespace-pre-wrap text-muted-foreground">{item.body}</p>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <span className="relative grid size-14 flex-none place-items-center">
+      <svg viewBox="0 0 52 52" aria-hidden className="absolute inset-0 size-full -rotate-90">
+        <circle cx="26" cy="26" r="22" fill="none" stroke="#e4e9f1" strokeWidth="6" />
+        <circle cx="26" cy="26" r="22" fill="none" stroke="#16a34a" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${(percent / 100) * circumference} ${circumference}`} />
+      </svg>
+      <span className="text-xs font-bold">{percent}%</span>
+    </span>
   );
 }
 
-function ProblemTiles({ meta }: { meta: Meta }) {
+function Figure({ visual, value, label }: { visual: ReactNode; value: string; label: string }) {
   return (
-    <section aria-labelledby="choose-title" className="grid gap-3">
-      <h2 id="choose-title" className="text-xl">What would you like to report?</h2>
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 2xl:grid-cols-7">
-        {Object.entries(meta.categories).map(([key, label]) => (
-          <li key={key}>
-            <Link href={`/report?category=${key}`} className="photo-tile group">
-              <img src={categoryPhoto(key)} alt="" loading="lazy" />
-              <span>{label}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <div className="flex min-w-0 items-center gap-2.5 px-3 py-4 sm:gap-4 sm:px-7 sm:py-6">
+      {visual}
+      <div className="min-w-0 leading-tight">
+        <p className="font-heading text-xl font-extrabold whitespace-nowrap sm:text-2xl">{value}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
+      </div>
+    </div>
   );
 }
 
-function CommunityProgress({ stats }: { stats: Stats }) {
+const chip = (Icon: typeof Wrench, color: string, background: string) => (
+  <span className="grid size-12 flex-none place-items-center rounded-2xl" style={{ color, background }}>
+    <Icon aria-hidden className="size-6" />
+  </span>
+);
+
+/** The figures, floating over the bottom edge of the banner. */
+function FigureBar({ stats, mine }: { stats: Stats; mine: IssuePage | null }) {
   const fixed = stats.by_status.resolved;
   const percent = stats.total > 0 ? Math.round((fixed / stats.total) * 100) : 0;
-  const rows = [
-    { Icon: CircleCheckBig, label: "Fixed so far", value: `${fixed} of ${stats.total} reports`, color: "#16a34a" },
-    { Icon: Wrench, label: "Still open", value: `${stats.open} ${stats.open === 1 ? "report" : "reports"}`, color: "#1a4fd6" },
-    {
-      Icon: Clock3,
-      label: "Average time to fix",
-      value: stats.avg_resolution_days === null ? "Not yet known" : `${stats.avg_resolution_days} days`,
-      color: "#d97706",
-    },
-  ];
 
   return (
-    <Card title="Your community so far" id="progress-title">
-      <div aria-hidden className="h-2.5 overflow-hidden rounded-full bg-muted">
-        <div className="h-full rounded-full bg-brand-green" style={{ width: `${percent}%` }} />
+    <section aria-label="Community figures" className="figure-bar">
+      <Figure visual={<FixedRing percent={percent} />} value={`${fixed} of ${stats.total}`} label="Reports fixed" />
+      <Figure visual={chip(Wrench, "#1a4fd6", "#e6eeff")} value={String(stats.open)} label="Still open" />
+      <Figure
+        visual={chip(Clock3, "#d97706", "#fff4dc")}
+        value={stats.avg_resolution_days === null ? "Not yet" : `${stats.avg_resolution_days} days`}
+        label="Average fix time"
+      />
+      {mine ? (
+        <Figure visual={chip(FolderOpen, "#16a34a", "#e3f8ea")} value={String(mine.total)} label="Your reports" />
+      ) : (
+        <Figure visual={chip(Siren, "#dc2626", "#fdecec")} value={String(stats.overdue)} label="Overdue" />
+      )}
+    </section>
+  );
+}
+
+function ProblemMosaic({ meta }: { meta: Meta }) {
+  return (
+    <section aria-labelledby="choose-title" className="reveal grid gap-5">
+      <div>
+        <h2 id="choose-title" className="text-2xl">What would you like to report?</h2>
+        <p className="text-muted-foreground">Choose a problem and we&apos;ll take you straight to the form.</p>
       </div>
-      <p className="mt-1.5 text-sm text-muted-foreground">{percent}% of reports have been fixed</p>
-      <dl className="mt-3 divide-y">
-        {rows.map(({ Icon, label, value, color }) => (
-          <div key={label} className="flex items-center gap-3 py-3">
-            <Icon aria-hidden className="size-5 flex-none" style={{ color }} />
-            <dt className="flex-1 text-muted-foreground">{label}</dt>
-            <dd className="font-semibold">{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </Card>
+      <ul className="mosaic">
+        {Object.entries(meta.categories).map(([key, label]) => {
+          const Icon = CATEGORY_ICONS[key] ?? CircleHelp;
+
+          return (
+            <li key={key}>
+              <Link href={`/report?category=${key}`} className="photo-tile">
+                <img src={categoryPhoto(key)} alt="" loading="lazy" />
+                <span className="photo-tile-icon"><Icon aria-hidden className="size-5" /></span>
+                <ArrowUpRight aria-hidden className="photo-tile-arrow" />
+                <span className="photo-tile-label">{label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function Announcements({ items }: { items: Announcement[] }) {
+  return (
+    <section aria-labelledby="news-title" className="news-card">
+      <h2 id="news-title" className="flex items-center gap-2 text-lg text-white">
+        <Newspaper aria-hidden className="size-5 text-[#86efac]" /> From your barangay
+      </h2>
+      {items.length === 0 ? (
+        <p className="text-[#c9d6e8]">No announcements right now. Notices from staff will appear here.</p>
+      ) : (
+        <ul className="grid gap-3">
+          {items.slice(0, 3).map((item) => (
+            <li key={item.id} className="rounded-xl bg-white/8 p-3 [overflow-wrap:anywhere]">
+              <p className="font-semibold text-white">{item.title}</p>
+              <p className="whitespace-pre-wrap text-sm text-[#c9d6e8]">{item.body}</p>
+              <p className="mt-1 text-xs text-[#9fb3cc]">{timeAgo(item.created_at)}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -132,21 +166,28 @@ async function CommunityHome() {
 
   return (
     <>
+      <FigureBar stats={stats} mine={mine} />
+
       {user?.email && !user.email_verified && (
         <Link href="/account" className="flex items-center gap-2 rounded-xl border border-[#f5d48a] bg-[#fff8e6] px-4 py-3 font-medium text-[#7a4b00]">
           <MailWarning aria-hidden className="size-5 flex-none" /> Please confirm your email so we can send you updates. <span className="underline">Go to My account</span>
         </Link>
       )}
-      <Announcements items={news.items} />
-      <ProblemTiles meta={meta} />
 
-      <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <ProblemMosaic meta={meta} />
+
+      <div className="reveal grid items-stretch gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         {mine ? (
           <Card title="Your reports" id="mine-title" action={{ href: "/my-reports", label: "View all" }}>
             {mine.items.length > 0 ? (
               <IssueList issues={mine.items.slice(0, 3)} meta={meta} ownReports />
             ) : (
-              <EmptyState>You haven&apos;t reported anything yet. When you do, you can follow it here.</EmptyState>
+              <div className="grid justify-items-center gap-3 py-6 text-center">
+                <EmptyState>You haven&apos;t reported anything yet. When you do, you can follow it here.</EmptyState>
+                <Link href="/report" className={buttonVariants({ className: "cta -mt-6 h-11 gap-2 px-5" })}>
+                  <Megaphone aria-hidden className="size-4.5" /> File your first report
+                </Link>
+              </div>
             )}
           </Card>
         ) : (
@@ -154,10 +195,10 @@ async function CommunityHome() {
             <IssueList issues={recent.items.slice(0, 3)} meta={meta} />
           </Card>
         )}
-        <CommunityProgress stats={stats} />
+        <Announcements items={news.items} />
       </div>
 
-      <section id="community-map" aria-labelledby="map-title" className="card scroll-mt-20 overflow-hidden">
+      <section id="community-map" aria-labelledby="map-title" className="card reveal scroll-mt-20 overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 py-4">
           <h2 id="map-title" className="text-xl">Problems near you</h2>
           <Legend meta={meta} />
@@ -169,14 +210,14 @@ async function CommunityHome() {
       </section>
 
       {recent.items.length > 0 && (
-        <section aria-labelledby="latest-title" className="grid gap-3">
+        <section aria-labelledby="latest-title" className="reveal grid gap-5">
           <div className="flex items-center justify-between gap-3">
-            <h2 id="latest-title" className="text-xl">Latest in your community</h2>
+            <h2 id="latest-title" className="text-2xl">Latest in your community</h2>
             <Link href="/issues" className="flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
               See all reports <ArrowRight aria-hidden className="size-3.5" />
             </Link>
           </div>
-          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             {recent.items.slice(0, 4).map((issue) => <CommunityReport key={issue.id} issue={issue} meta={meta} />)}
           </ul>
         </section>
@@ -190,19 +231,27 @@ export default function HomePage() {
     <>
       <section className="home-hero">
         <img src="/photos/home.jpg" alt="A street in a Philippine town with a tricycle and parked motorcycles" fetchPriority="high" />
-        <div className="relative grid max-w-2xl gap-4 p-6 sm:p-9">
-          <p className="text-lg font-semibold text-white">
-            <Suspense fallback="Hello"><Greeting /></Suspense>
-          </p>
-          <h1 className="text-4xl text-balance text-white sm:text-5xl">What needs fixing in your barangay today?</h1>
-          <p className="max-w-lg text-lg text-white/90">
-            Tell us about a problem on your street, and follow it until it&apos;s fixed.
-          </p>
-          <div className="flex flex-wrap items-end gap-x-5 gap-y-4 pt-1">
-            <Link href="/report" className={buttonVariants({ className: "cta h-12 gap-2 px-6 text-base" })}>
-              <Megaphone aria-hidden className="size-4.5" /> Report a problem
-            </Link>
-            <div className="w-full max-w-sm"><TrackForm dark /></div>
+        <div className="portal-rise relative grid w-full items-end gap-8 p-6 pb-24 sm:p-10 sm:pb-28 xl:grid-cols-[minmax(0,1fr)_24rem] xl:p-14 xl:pb-32">
+          <div className="grid max-w-3xl gap-5">
+            <p className="flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 font-semibold text-white backdrop-blur">
+              <span aria-hidden className="live-dot" />
+              <Suspense fallback="Hello"><Greeting /></Suspense>
+            </p>
+            <h1 className="text-4xl text-balance text-white sm:text-6xl 2xl:text-7xl">
+              What needs fixing in <span className="text-[#86efac]">your barangay</span> today?
+            </h1>
+            <p className="max-w-xl text-lg text-white/90">
+              Tell us about a problem on your street, and follow it until it&apos;s fixed.
+            </p>
+            <div className="pt-1">
+              <Link href="/report" className={buttonVariants({ className: "cta h-13 gap-2 px-7 text-lg" })}>
+                <Megaphone aria-hidden className="size-5" /> Report a problem
+              </Link>
+            </div>
+          </div>
+          <div className="track-panel">
+            <TrackForm dark />
+            <p className="text-sm text-[#c9d6e8]">Use the number you got when you sent your report.</p>
           </div>
         </div>
       </section>

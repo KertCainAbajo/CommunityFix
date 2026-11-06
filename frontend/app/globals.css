@@ -118,10 +118,10 @@
   /* Pages sit in the middle column; .full-bleed spans the whole window. */
   .page-grid {
     display: grid;
-    grid-template-columns: 1fr min(84rem, calc(100% - 2rem)) 1fr;
+    grid-template-columns: 1fr min(112rem, calc(100% - 2rem)) 1fr;
     align-content: start;
-    row-gap: 1.25rem;
-    padding-block: 1.25rem 3rem;
+    row-gap: 2.25rem;
+    padding-block: 1.25rem 3.5rem;
   }
   .page-grid > * {
     grid-column: 2;
@@ -135,8 +135,16 @@
   }
 
   .container-wide {
-    width: min(84rem, calc(100% - 2rem));
+    width: min(112rem, calc(100% - 2rem));
     margin-inline: auto;
+  }
+  @media (min-width: 64rem) {
+    .page-grid {
+      grid-template-columns: 1fr min(112rem, calc(100% - 4rem)) 1fr;
+    }
+    .container-wide {
+      width: min(112rem, calc(100% - 4rem));
+    }
   }
 
   .link {
@@ -253,15 +261,15 @@
     box-shadow: inset 0 0 0 1px rgb(11 23 41 / 5%);
   }
 
-  /* The sidebar: a floating glass panel. */
+  /* The sidebar: deep navy, matching the sign-in page. */
   .side {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
     padding: 1rem;
-    background: rgb(255 255 255 / 80%);
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(14px);
+    background:
+      radial-gradient(16rem 14rem at 0% 100%, rgb(34 197 94 / 16%), transparent 70%),
+      linear-gradient(180deg, #0b1f3a 0%, #0e2a52 100%);
   }
   @media (min-width: 64rem) {
     .side {
@@ -270,10 +278,12 @@
       height: calc(100dvh - 1.5rem);
       margin: 0.75rem 0 0.75rem 0.75rem;
       padding: 1.25rem 0.9rem;
-      border: 1px solid var(--border);
       border-radius: 1.25rem;
-      box-shadow: var(--shadow-soft);
+      box-shadow: 0 24px 48px -28px rgb(11 31 58 / 70%);
     }
+  }
+  .side .eyebrow {
+    color: #8ba2bf;
   }
   .side-section {
     padding: 1rem 0.75rem 0.35rem;
@@ -285,22 +295,26 @@
     min-height: 2.6rem;
     padding: 0.4rem 0.75rem;
     border-radius: 0.7rem;
-    color: #44546a;
+    color: #c4d2e4;
     font-weight: 500;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+  }
+  .side-link svg {
+    color: inherit !important;
   }
   .side-link:hover {
-    background: var(--muted);
-    color: var(--foreground);
+    padding-left: 1rem;
+    background: rgb(255 255 255 / 8%);
+    color: #fff;
   }
   .side-link[aria-current="page"] {
-    background: linear-gradient(90deg, #eaf1ff, #f3f7ff);
-    box-shadow: inset 0 0 0 1px #d6e3fd;
-    color: var(--primary);
+    background: rgb(255 255 255 / 13%);
+    box-shadow: inset 3px 0 0 #4ade80;
+    color: #fff;
     font-weight: 600;
   }
-  .side-link[aria-current="page"] svg {
-    color: var(--primary);
+  .side :focus-visible {
+    outline-color: #fff;
   }
 
   /* The sticky glass bar above every page. */
@@ -312,16 +326,17 @@
     backdrop-filter: blur(14px);
   }
 
-  /* The home page banner: a real street, with the text on a dark fade. */
+  /* The home page banner: a real street that drifts slowly, with the text on a dark fade. */
   .home-hero {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    min-height: 23rem;
     display: flex;
     align-items: center;
-    border-radius: 1rem;
-    background: #10263f;
+    min-height: 38rem;
+    border-radius: 1.75rem;
+    background: #0b1f3a;
+    box-shadow: 0 30px 60px -36px rgb(11 31 58 / 70%);
   }
   .home-hero > img {
     position: absolute;
@@ -331,55 +346,171 @@
     height: 100%;
     object-fit: cover;
     object-position: 50% 62%;
+    animation: portal-drift 30s ease-in-out infinite alternate;
   }
   .home-hero::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(90deg, rgb(8 24 48 / 88%) 0%, rgb(8 24 48 / 68%) 42%, rgb(8 24 48 / 8%) 78%);
+    background:
+      linear-gradient(0deg, rgb(8 24 48 / 72%) 0%, transparent 34%),
+      linear-gradient(90deg, rgb(8 24 48 / 92%) 0%, rgb(8 24 48 / 70%) 40%, rgb(8 24 48 / 6%) 76%);
   }
   @media (max-width: 48rem) {
     .home-hero::before {
-      background: rgb(8 24 48 / 68%);
+      background: rgb(8 24 48 / 70%);
     }
   }
 
-  /* A problem type, shown as a real photo. */
+  /* The tracking panel on the banner */
+  .track-panel {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.4rem;
+    border: 1px solid rgb(255 255 255 / 20%);
+    border-radius: 1.25rem;
+    background: rgb(8 24 48 / 58%);
+    backdrop-filter: blur(16px);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 24px 50px -28px rgb(0 0 0 / 70%);
+  }
+
+  /* The figures that float over the bottom edge of the banner. */
+  .figure-bar {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: -6.75rem 1rem 0;
+    border: 1px solid rgb(255 255 255 / 70%);
+    border-radius: 1.25rem;
+    background: rgb(255 255 255 / 97%);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 24px 50px -24px rgb(11 31 58 / 45%);
+    animation: portal-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  @media (min-width: 64rem) {
+    .figure-bar {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-inline: 3.5rem;
+    }
+    .figure-bar > * + * {
+      border-left: 1px solid var(--border);
+    }
+  }
+
+  /* The problem types: one large photo and six smaller ones. */
+  .mosaic {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 10rem;
+    gap: 1rem;
+  }
+  .mosaic > :first-child {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  @media (min-width: 64rem) {
+    .mosaic {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-auto-rows: 13rem;
+      gap: 1.25rem;
+    }
+  }
   .photo-tile {
     position: relative;
     display: block;
+    height: 100%;
     overflow: hidden;
-    aspect-ratio: 4 / 3;
-    border-radius: 0.8rem;
+    border-radius: 1.1rem;
     background: var(--muted);
     box-shadow: var(--shadow-soft);
-    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
   }
   .photo-tile img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    transition: transform 0.6s ease;
   }
-  .photo-tile span {
+  .photo-tile-icon {
+    position: absolute;
+    top: 0.65rem;
+    left: 0.65rem;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid rgb(255 255 255 / 30%);
+    border-radius: 0.75rem;
+    background: rgb(8 24 48 / 45%);
+    backdrop-filter: blur(8px);
+    color: #fff;
+  }
+  .photo-tile-arrow {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    color: #fff;
+    opacity: 0;
+    transform: translate(-4px, 4px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .photo-tile-label {
     position: absolute;
     inset: auto 0 0;
-    padding: 2rem 0.75rem 0.6rem;
-    background: linear-gradient(0deg, rgb(8 24 48 / 88%), transparent);
+    padding: 2.5rem 0.85rem 0.7rem;
+    background: linear-gradient(0deg, rgb(8 24 48 / 90%), transparent);
     color: #fff;
-    font-weight: 600;
+    font-family: var(--font-jakarta);
+    font-weight: 700;
     line-height: 1.2;
   }
+  .mosaic > :first-child .photo-tile-label {
+    padding: 4rem 1.25rem 1.1rem;
+    font-size: 1.5rem;
+  }
   .photo-tile:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-lift);
   }
   .photo-tile:hover img {
-    transform: scale(1.06);
+    transform: scale(1.07);
   }
+  .photo-tile:hover .photo-tile-arrow {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* The barangay notices */
+  .news-card {
+    display: grid;
+    align-content: start;
+    gap: 0.9rem;
+    padding: 1.5rem;
+    border-radius: 1.1rem;
+    background:
+      radial-gradient(18rem 12rem at 100% 0%, rgb(34 197 94 / 24%), transparent 70%),
+      linear-gradient(150deg, #0b1f3a, #123a78);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* Sections glide in as they scroll into view, in browsers that support it. */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: portal-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 28%;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .photo-tile, .photo-tile img {
+    .home-hero > img, .figure-bar, .reveal {
+      animation: none;
+    }
+    .photo-tile, .photo-tile img, .photo-tile-arrow, .side-link {
       transition: none;
     }
     .photo-tile:hover, .photo-tile:hover img {

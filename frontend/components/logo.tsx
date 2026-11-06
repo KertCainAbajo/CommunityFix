@@ -5,10 +5,10 @@ export function Logo() {
         <img src="/logo-mark.png" alt="" className="size-full object-contain" />
       </span>
       <span className="grid leading-none">
-        <span className="font-heading text-lg font-extrabold tracking-tight text-foreground">
-          Community<span className="text-brand-green">Fix</span>
+        <span className="font-heading text-lg font-extrabold tracking-tight text-white">
+          Community<span className="text-[#4ade80]">Fix</span>
         </span>
-        <span className="mt-1 text-xs text-muted-foreground">Report · Track · Resolve</span>
+        <span className="mt-1 text-xs text-[#9fb3cc]">Report · Track · Resolve</span>
       </span>
     </span>
   );
