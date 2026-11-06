@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
         $admin = User::create(['name' => 'Dana Reyes', 'email' => 'staff@example.com', 'password' => $password]);
         $admin->forceFill(['role' => 'admin'])->save();
         User::create(['name' => 'Rey Lim', 'email' => 'team@example.com', 'password' => $password]);
+        $resident = User::create(['name' => 'Maria Santos', 'email' => 'resident@example.com', 'phone' => '+639170000001', 'password' => $password]);
+        $resident->forceFill(['role' => 'resident', 'email_verified_at' => now()])->save();
 
         $center = config('communityfix.map_center');
 

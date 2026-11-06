@@ -12,7 +12,7 @@ export default function ForgotPasswordPage() {
       <p className="text-sm text-muted-foreground">Enter your email and we&apos;ll send you a link to choose a new one.</p>
       <ForgotPasswordForm />
       <p className="text-center text-sm">
-        <Link href="/staff/login" className="link">Back to staff login</Link>
+        <Link href="/login" className="link">Back to sign in</Link>
       </p>
     </>
   );

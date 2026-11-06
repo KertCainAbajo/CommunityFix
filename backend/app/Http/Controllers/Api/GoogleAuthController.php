@@ -55,6 +55,14 @@ class GoogleAuthController extends Controller
             // Staff sign in with their password, so a Google account can't take one over.
             abort_if($user->isStaff(), 403, 'Staff accounts sign in with email and password on the Staff tab.');
             abort_unless($user->is_active, 403, 'This account has been turned off.');
+
+            // The address was never confirmed, so whoever signed up may not own it. Google proves
+            // this person does, so anything the first person set up is locked out.
+            if (! $user->google_id && ! $user->hasVerifiedEmail()) {
+                $user->tokens()->delete();
+                $user->forceFill(['password' => null, 'email_verified_at' => now()]);
+            }
+
             $user->forceFill(['google_id' => $google->getId()])->save();
         } else {
             $user = User::create(['name' => Str::limit($google->getName() ?: 'Resident', 80, ''), 'email' => $email ?: null]);

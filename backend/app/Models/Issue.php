@@ -8,6 +8,8 @@ use App\Enums\IssueStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Issue extends Model
@@ -19,7 +21,7 @@ class Issue extends Model
 
     protected $fillable = [
         'title', 'description', 'category', 'address', 'lat', 'lng', 'status', 'priority', 'department',
-        'contact_name', 'contact_email', 'contact_phone', 'resolved_at',
+        'contact_name', 'contact_email', 'contact_phone', 'resolved_at', 'feedback_rating', 'feedback_note',
     ];
 
     protected $attributes = [
@@ -56,6 +58,17 @@ class Issue extends Model
         ];
     }
 
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /** Neighbors who said "Me too". */
+    public function supporters(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'issue_supports');
+    }
+
     public function updates(): HasMany
     {
         return $this->hasMany(IssueUpdate::class)->orderBy('id');
@@ -71,7 +84,7 @@ class Issue extends Model
         return 'CF-'.str_pad((string) $this->id, 4, '0', STR_PAD_LEFT);
     }
 
-    /** A null author means the resident who filed the report. */
+    /** A null author means the resident who filed the report, before they could have an account. */
     public function addUpdate(?User $author, ?string $note = null, ?IssueStatus $from = null, ?IssueStatus $to = null): void
     {
         $this->updates()->create([

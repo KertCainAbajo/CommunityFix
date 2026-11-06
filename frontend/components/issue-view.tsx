@@ -44,13 +44,14 @@ function Progress({ status, meta }: { status: Status; meta: Meta }) {
 
 function Update({ entry, meta }: { entry: TimelineEntry; meta: Meta }) {
   const who = entry.author ? `${entry.author} (${entry.author_role})` : entry.author_role;
+  const posted = entry.author_role === "Resident" ? "added a message" : "posted an update";
 
   return (
     <li className="relative grid gap-0.5 pb-5 pl-5">
       <span aria-hidden className="absolute top-2 -left-[8px] size-3.5 rounded-full border-2 border-card bg-brand-green" />
       <p>
         <strong>{who}</strong>{" "}
-        {!entry.to_status && "posted an update"}
+        {!entry.to_status && posted}
         {entry.to_status && !entry.from_status && "filed this report"}
         {entry.to_status && entry.from_status && (
           <>moved this to <StatusBadge status={entry.to_status} meta={meta} /></>
@@ -145,6 +146,11 @@ export function IssueView({
               <Fact label="Location">{issue.address}</Fact>
               <Fact label="Reported">{formatDate(issue.created_at)}</Fact>
               <Fact label="Maintenance team">{issue.department ?? "Not assigned yet"}</Fact>
+              {!!issue.supporters && (
+                <Fact label="Also affected">
+                  {issue.supporters} {issue.supporters === 1 ? "neighbor" : "neighbors"} said me too
+                </Fact>
+              )}
               {issue.resolved_at && <Fact label="Resolved">{formatDate(issue.resolved_at)}</Fact>}
               {facts}
             </dl>

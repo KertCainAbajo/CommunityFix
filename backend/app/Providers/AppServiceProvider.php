@@ -5,11 +5,13 @@ namespace App\Providers;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 
@@ -21,6 +23,11 @@ class AppServiceProvider extends ServiceProvider
 
         ResetPassword::createUrlUsing(fn (User $user, string $token) => config('communityfix.frontend_url')
             .'/staff/reset-password?'.http_build_query(['token' => $token, 'email' => $user->email]));
+
+        VerifyEmail::createUrlUsing(fn (User $user) => URL::temporarySignedRoute('verification.verify', now()->addDays(3), [
+            'user' => $user->id,
+            'hash' => sha1($user->email),
+        ]));
 
         Gate::define('staff', fn (User $user) => $user->isStaff()
             ? Response::allow()

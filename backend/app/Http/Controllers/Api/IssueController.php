@@ -23,6 +23,7 @@ class IssueController extends Controller
     {
         $page = Issue::query()
             ->with('photos')
+            ->withCount('supporters')
             ->visibleTo($request->user('sanctum'))
             ->filter($request->filters())
             ->sortBy($request->validated('sort'))

@@ -43,14 +43,21 @@ class IssueResource extends JsonResource
                 'email' => $this->contact_email,
                 'phone' => $this->contact_phone,
             ]),
+            'supporters' => $this->whenCounted('supporters'),
+            'supported' => $this->whenLoaded('updates', fn () => $viewer && $this->supporters()->whereKey($viewer->id)->exists()),
+            'mine' => (bool) $isOwner,
+            'feedback' => $this->when(($isStaff || $isOwner) && $this->feedback_rating !== null, fn () => [
+                'rating' => $this->feedback_rating,
+                'note' => $this->feedback_note,
+            ]),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'resolved_at' => $this->resolved_at,
             'timeline' => $this->whenLoaded('updates', fn () => $this->updates->map(
                 fn (IssueUpdate $update) => [
                     'id' => $update->id,
-                    'author' => $update->author?->name,
-                    'author_role' => $update->author_id ? 'Staff' : 'Resident',
+                    'author' => $update->author?->isStaff() ? $update->author->name : null,
+                    'author_role' => $update->author?->isStaff() ? 'Staff' : 'Resident',
                     'from_status' => $update->from_status,
                     'to_status' => $update->to_status,
                     'note' => $update->note,

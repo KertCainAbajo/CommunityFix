@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
-/** A resident signing up with an email address, a phone number, or both. */
+/** A resident signing up. The email is required because it's how a lost password is recovered. */
 class RegisterRequest extends FormRequest
 {
     protected function prepareForValidation(): void
@@ -26,8 +26,8 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:2', 'max:80'],
-            'email' => ['nullable', 'required_without:phone', 'email', 'max:255', Rule::unique('users', 'email')],
-            'phone' => ['nullable', 'required_without:email', 'string', 'regex:/^\+\d{10,15}$/', Rule::unique('users', 'phone')],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
+            'phone' => ['nullable', 'string', 'regex:/^\+\d{10,15}$/', Rule::unique('users', 'phone')],
             'password' => ['required', 'string', 'min:8', 'max:72'],
         ];
     }
@@ -36,8 +36,6 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name.*' => 'Enter your name.',
-            'email.required_without' => 'Enter an email address or a phone number.',
-            'phone.required_without' => 'Enter an email address or a phone number.',
             'email.unique' => 'That email already has an account. Try signing in.',
             'phone.unique' => 'That phone number already has an account. Try signing in.',
             'email.*' => 'Enter a valid email address.',

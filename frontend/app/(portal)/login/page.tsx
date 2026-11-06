@@ -17,7 +17,7 @@ const GOOGLE_NOTICES: Record<string, string> = {
 };
 
 async function ResidentSignIn({ searchParams }: Pick<PageProps<"/login">, "searchParams">) {
-  const { next, google } = await searchParams;
+  const { next, google, reset } = await searchParams;
   const user = await getUser();
   const target = typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : "";
 
@@ -27,6 +27,11 @@ async function ResidentSignIn({ searchParams }: Pick<PageProps<"/login">, "searc
 
   return (
     <>
+      {reset && (
+        <p role="status" className="rounded-xl border border-[#bbe5c8] bg-[#ecfbf1] px-4 py-3 text-sm text-[#166534]">
+          Your password has been changed. You can sign in now.
+        </p>
+      )}
       {notice && <p role="alert" className="rounded-lg border border-[#f5d48a] bg-[#fff8e6] px-4 py-3 text-sm text-[#7a4b00]">{notice}</p>}
       <LoginForm next={target} portal="resident" />
       <p className="text-center text-sm font-medium text-[#0b1f3a]">

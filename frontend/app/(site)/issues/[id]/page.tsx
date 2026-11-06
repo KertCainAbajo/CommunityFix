@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { StaffNoteForm, StaffPanel } from "@/components/forms";
 import { PageSkeleton } from "@/components/issue-parts";
 import { Fact, IssueView } from "@/components/issue-view";
+import { SupportButton } from "@/components/support-button";
 import { buttonVariants } from "@/components/ui/button";
 import { ApiError, api, getMeta, getUser, isStaff } from "@/lib/api";
 import type { Issue } from "@/lib/types";
@@ -41,12 +42,31 @@ function PrivateReport({ id }: { id: string }) {
   );
 }
 
+function NeighborPanel({ issue }: { issue: Issue }) {
+  if (issue.mine) {
+    return (
+      <Link href={`/track/${issue.tracking_code}`} className="sheet font-semibold text-primary hover:underline">
+        This is your report. Manage it here.
+      </Link>
+    );
+  }
+  if (issue.status === "resolved") return null;
+
+  return (
+    <section className="sheet">
+      <h2 className="text-xl">Does this affect you too?</h2>
+      <p className="text-muted-foreground">Tap Me too so staff know how many people need this fixed. You&apos;ll get its updates.</p>
+      <SupportButton issueId={issue.id} supported={!!issue.supported} />
+    </section>
+  );
+}
+
 async function IssueDetail({ params }: Pick<PageProps<"/issues/[id]">, "params">) {
   const { id } = await params;
   const [issue, meta, user] = await Promise.all([loadIssue(id), getMeta(), getUser()]);
 
   if (!issue) return <PrivateReport id={id} />;
-  if (!isStaff(user)) return <IssueView issue={issue} meta={meta} />;
+  if (!isStaff(user)) return <IssueView issue={issue} meta={meta} aside={<NeighborPanel issue={issue} />} />;
 
   const { name, email, phone } = issue.contact ?? {};
   const hasContact = name || email || phone;
@@ -62,6 +82,11 @@ async function IssueDetail({ params }: Pick<PageProps<"/issues/[id]">, "params">
           <Fact label="Resident contact">
             {hasContact ? [name, email, phone].filter(Boolean).join(" · ") : "None left"}
           </Fact>
+          {issue.feedback && (
+            <Fact label="Resident rating">
+              {issue.feedback.rating} of 5{issue.feedback.note ? `: ${issue.feedback.note}` : ""}
+            </Fact>
+          )}
         </>
       }
       aside={<StaffPanel issue={issue} meta={meta} />}

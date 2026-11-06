@@ -8,8 +8,9 @@ import { IssueMap } from "@/components/maps";
 import { ActivityFeed, Card, FiguresBar, NeedsAttention } from "@/components/overview";
 import { buttonVariants } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getActivity, getIssues, getMeta, getStats, requireStaff, toQuery } from "@/lib/api";
-import { daysOpen } from "@/lib/format";
+import { AnnouncementForm, DeleteAnnouncement } from "@/components/resident-forms";
+import { getActivity, getAnnouncements, getIssues, getMeta, getStats, requireStaff, toQuery } from "@/lib/api";
+import { daysOpen, timeAgo } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -27,13 +28,14 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/dashboard">, "search
   if (!query.has("sort")) query.set("sort", "priority");
   if (!query.has("status")) query.set("open", "1");
 
-  const [meta, stats, queue, open, waiting, activity] = await Promise.all([
+  const [meta, stats, queue, open, waiting, activity, news] = await Promise.all([
     getMeta(),
     getStats(),
     getIssues(query.toString()),
     getIssues("open=1&sort=priority"),
     getIssues("status=reported&sort=oldest"),
     getActivity(),
+    getAnnouncements(),
   ]);
 
   return (
@@ -64,6 +66,28 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/dashboard">, "search
         </Card>
       </div>
 
+      <Card title="Announcements to residents" id="news-title">
+        <div className="grid gap-5 lg:grid-cols-2">
+          <AnnouncementForm />
+          {news.items.length > 0 ? (
+            <ul className="divide-y">
+              {news.items.map((item) => (
+                <li key={item.id} className="flex items-start justify-between gap-3 py-2.5 [overflow-wrap:anywhere]">
+                  <div className="min-w-0">
+                    <p className="font-semibold">{item.title}</p>
+                    <p className="text-sm text-muted-foreground">{item.body}</p>
+                    <p className="text-xs text-muted-foreground">{timeAgo(item.created_at)}</p>
+                  </div>
+                  <DeleteAnnouncement id={item.id} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState>Nothing posted yet. Announcements appear on every resident&apos;s home page.</EmptyState>
+          )}
+        </div>
+      </Card>
+
       <section id="work-queue" className="grid scroll-mt-4 gap-3.5 pt-2">
         <h2 className="text-2xl">Work queue</h2>
         <Filters
@@ -93,6 +117,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/dashboard">, "search
                     <TableCell className="align-top whitespace-normal">
                       <Link href={`/issues/${issue.id}`} className="link">{issue.title}</Link>
                       <div className="text-muted-foreground">{issue.address}</div>
+                      {!!issue.supporters && <div className="text-sm font-semibold text-primary">+{issue.supporters} also affected</div>}
                     </TableCell>
                     <TableCell className="align-top"><StatusBadge status={issue.status} meta={meta} /></TableCell>
                     <TableCell className={`align-top font-bold ${issue.priority === "urgent" || issue.priority === "high" ? "text-destructive" : ""}`}>

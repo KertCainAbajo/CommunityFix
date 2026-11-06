@@ -11,7 +11,7 @@ trait RespondsWithIssue
     /** The full issue, with its timeline and photos. */
     protected function issueResponse(Issue $issue, int $status = 200): JsonResponse
     {
-        $issue->load(['photos', 'updates.author']);
+        $issue->load(['photos', 'updates.author'])->loadCount('supporters');
 
         return IssueResource::make($issue)->response()->setStatusCode($status);
     }

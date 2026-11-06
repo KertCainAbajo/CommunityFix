@@ -18,8 +18,7 @@ export default function ReportPage({ searchParams }: PageProps<"/report">) {
     <div className="mx-auto grid w-full max-w-2xl gap-3.5">
       <h1 className="text-4xl">Report a problem</h1>
       <p className="text-lg text-muted-foreground">
-        You don&apos;t need an account. Answer the questions below and you&apos;ll get a tracking number to follow your
-        report until it&apos;s fixed.
+        Answer the questions below and you&apos;ll get a tracking number to follow your report until it&apos;s fixed.
       </p>
       <Suspense fallback={<PageSkeleton />}>
         <Report searchParams={searchParams} />

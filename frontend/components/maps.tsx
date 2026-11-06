@@ -95,13 +95,14 @@ export function IssueMap({
   return <div ref={element} className={`${mapClass} ${className}`} />;
 }
 
-export function LocationPicker({ center }: { center: Center }) {
+export function LocationPicker({ center, onPlace }: { center: Center; onPlace?: (position: Center) => void }) {
   const [position, setPosition] = useState<Center | null>(null);
   const [message, setMessage] = useState("Tap the map to drop a pin.");
   const leaflet = useRef<{ L: Leaflet; map: LeafletMap; marker?: Marker } | null>(null);
 
   const place = (lat: number, lng: number) => {
     setPosition({ lat, lng });
+    onPlace?.({ lat, lng });
     setMessage("Pin placed. Tap again to move it.");
 
     const current = leaflet.current;

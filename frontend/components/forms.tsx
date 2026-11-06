@@ -2,7 +2,7 @@
 
 import { ArrowRight, Check, Copy, Eye, EyeOff, Hash, LoaderCircle, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useState, useTransition, type ChangeEvent, type ComponentProps, type ReactNode } from "react";
+import { useActionState, useEffect, useState, useTransition, type ChangeEvent, type ComponentProps, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 
 import {
@@ -12,6 +12,7 @@ import {
   changeStatus,
   createIssue,
   createStaff,
+  findNearby,
   findReport,
   forgotPassword,
   login,
@@ -22,6 +23,7 @@ import {
 } from "@/app/actions";
 import { CATEGORY_ICONS } from "@/components/issue-parts";
 import { LocationPicker } from "@/components/maps";
+import { SupportButton } from "@/components/support-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,7 +36,7 @@ const MAX_PHOTOS = 3;
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 const MAX_PHOTO_EDGE = 1600;
 
-function Field({ label, id, children }: { label: ReactNode; id: string; children: ReactNode }) {
+export function Field({ label, id, children }: { label: ReactNode; id: string; children: ReactNode }) {
   return (
     <div className="grid gap-1.5">
       <Label htmlFor={id}>{label}</Label>
@@ -45,7 +47,12 @@ function Field({ label, id, children }: { label: ReactNode; id: string; children
 
 const Optional = () => <span className="font-sans text-base font-normal text-muted-foreground">(optional)</span>;
 
-function FormError({ state }: { state: FormState | NoticeState | NewStaffState }) {
+export function FormNotice({ state }: { state: NoticeState }) {
+  if (!state || !("notice" in state)) return null;
+  return <p role="status" className="font-medium text-brand-green">{state.notice}</p>;
+}
+
+export function FormError({ state }: { state: FormState | NoticeState | NewStaffState }) {
   if (!state || !("error" in state)) return null;
   return (
     <Alert variant="destructive" role="alert">
@@ -54,7 +61,7 @@ function FormError({ state }: { state: FormState | NoticeState | NewStaffState }
   );
 }
 
-function Submit({ children, variant, cta, onDark }: { children: ReactNode; variant?: "default" | "outline"; cta?: boolean; onDark?: boolean }) {
+export function Submit({ children, variant, cta, onDark }: { children: ReactNode; variant?: "default" | "outline"; cta?: boolean; onDark?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" variant={variant} disabled={pending} className={cta ? "cta h-14 px-6 text-lg" : onDark ? "h-12 rounded-xl bg-white px-5 text-[#0b1f3a] shadow-[0_8px_20px_-8px_rgb(255_255_255/45%)] hover:bg-[#e6eefc]" : "h-12 px-5"}>
@@ -135,7 +142,7 @@ async function shrinkPhoto(file: File): Promise<File> {
 }
 
 /** Shrinks what was chosen, then puts the smaller files back in the input. */
-function usePhotos(limit: number) {
+export function usePhotos(limit: number) {
   const [previews, setPreviews] = useState<string[]>([]);
   const [error, setError] = useState<FormState>(null);
 
@@ -168,7 +175,7 @@ function usePhotos(limit: number) {
   return { choose, previews, error };
 }
 
-function Previews({ urls }: { urls: string[] }) {
+export function Previews({ urls }: { urls: string[] }) {
   if (urls.length === 0) return null;
   return (
     <div className="grid grid-cols-3 gap-2">
@@ -195,14 +202,53 @@ function Step({ number, title, children }: { number: number; title: ReactNode; c
   );
 }
 
+/** Reports already filed close to the pin, so neighbors can back one instead of filing it again. */
+function SimilarReports({ issues, meta }: { issues: Issue[]; meta: Meta }) {
+  if (issues.length === 0) return null;
+
+  return (
+    <section aria-label="Similar reports nearby" className="grid gap-3 rounded-xl border border-[#f5d48a] bg-[#fff8e6] p-4">
+      <div>
+        <h3 className="text-lg">Is it one of these?</h3>
+        <p className="text-sm text-[#7a4b00]">Already reported nearby. If it&apos;s the same problem, tap Me too to get its updates. You don&apos;t need to send a new report.</p>
+      </div>
+      <ul className="grid gap-2">
+        {issues.map((issue) => (
+          <li key={issue.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-card p-3">
+            <div className="min-w-0 flex-1 basis-48 [overflow-wrap:anywhere]">
+              <Link href={`/issues/${issue.id}`} target="_blank" className="font-semibold hover:underline">{issue.title}</Link>
+              <p className="text-sm text-muted-foreground">{issue.address} · {meta.statuses[issue.status]}</p>
+            </div>
+            {!issue.mine && <SupportButton issueId={issue.id} supported={false} />}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function ReportForm({ meta, category }: { meta: Meta; category?: string }) {
   const [state, action] = useActionState(createIssue, null);
   const { choose, previews, error } = usePhotos(MAX_PHOTOS);
+  const [chosen, setChosen] = useState(category ?? "");
+  const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
+  const [similar, setSimilar] = useState<Issue[]>([]);
+
+  useEffect(() => {
+    if (!chosen || !pin) return;
+    let stale = false;
+    findNearby(pin.lat, pin.lng, chosen).then((issues) => {
+      if (!stale) setSimilar(issues);
+    });
+    return () => {
+      stale = true;
+    };
+  }, [chosen, pin]);
 
   return (
     <form action={action} className="sheet gap-6!">
       <Step number={1} title="What is the problem?">
-        <fieldset className="grid gap-2">
+        <fieldset className="grid gap-2" onChange={(event) => setChosen((event.target as EventTarget as HTMLInputElement).value)}>
           <legend className="mb-2">Choose the type of problem</legend>
           <div className="grid gap-2.5 sm:grid-cols-2">
             {Object.entries(meta.categories).map(([key, label]) => {
@@ -237,7 +283,8 @@ export function ReportForm({ meta, category }: { meta: Meta; category?: string }
         <Field label="Street and nearest landmark" id="address">
           <Input id="address" name="address" required minLength={3} maxLength={200} placeholder="For example: Mabini St., near the chapel" />
         </Field>
-        <LocationPicker center={meta.map_center} />
+        <LocationPicker center={meta.map_center} onPlace={setPin} />
+        <SimilarReports issues={similar} meta={meta} />
       </Step>
 
       <Step number={3} title={<>Add photos <Optional /></>}>
@@ -250,7 +297,7 @@ export function ReportForm({ meta, category }: { meta: Meta; category?: string }
 
       <Step number={4} title={<>How can we reach you? <Optional /></>}>
         <p className="text-muted-foreground">
-          Only staff can see this. If you leave these empty, we&apos;ll use the details on your account.
+          Only staff can see this. Leave it empty to use the details on your account.
         </p>
         <Field label="Your name" id="contact_name">
           <Input id="contact_name" name="contact_name" maxLength={80} autoComplete="name" />
@@ -390,13 +437,13 @@ export function RegisterForm({ next }: { next: string }) {
       </div>
       <div>
         <QuietLabel htmlFor="email">Email address</QuietLabel>
-        <IconInput icon={<Mail />} id="email" type="email" name="email" maxLength={255} autoComplete="email" placeholder="Email Address" />
+        <IconInput icon={<Mail />} id="email" type="email" name="email" required maxLength={255} autoComplete="email" placeholder="Email Address" />
       </div>
       <div>
         <QuietLabel htmlFor="phone">Phone number</QuietLabel>
-        <IconInput icon={<Phone />} id="phone" type="tel" name="phone" maxLength={20} autoComplete="tel" placeholder="Phone Number (e.g. 0917 123 4567)" />
+        <IconInput icon={<Phone />} id="phone" type="tel" name="phone" maxLength={20} autoComplete="tel" placeholder="Phone Number (optional)" />
       </div>
-      <p className="-mt-1.5 text-xs text-muted-foreground">Give an email, a phone number, or both. You&apos;ll sign in with either.</p>
+      <p className="-mt-1.5 text-xs text-muted-foreground">We use your email to confirm it&apos;s you and to recover your password. You can sign in with your phone too.</p>
       <div>
         <QuietLabel htmlFor="password">Password (at least 8 characters)</QuietLabel>
         <PasswordInput autoComplete="new-password" minLength={8} />

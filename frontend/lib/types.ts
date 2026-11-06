@@ -8,6 +8,8 @@ export type User = {
   phone: string | null;
   role: "staff" | "admin" | "resident";
   is_active: boolean;
+  email_verified: boolean;
+  has_password: boolean;
 };
 
 export type TimelineEntry = {
@@ -44,11 +46,27 @@ export type Issue = {
   // Only staff receive these two.
   tracking_code?: string;
   contact?: { name: string | null; email: string | null; phone: string | null };
+  supporters?: number;
+  supported?: boolean;
+  mine: boolean;
+  // Only the reporter and staff receive this.
+  feedback?: { rating: number; note: string | null };
   created_at: string;
   updated_at: string;
   resolved_at: string | null;
   timeline?: TimelineEntry[];
 };
+
+export type Notice = {
+  id: string;
+  title: string;
+  message: string;
+  href: string;
+  read: boolean;
+  created_at: string;
+};
+
+export type Announcement = { id: number; title: string; body: string; created_at: string };
 
 export type IssuePage = {
   items: Issue[];

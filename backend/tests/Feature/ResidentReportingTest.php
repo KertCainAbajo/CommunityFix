@@ -216,7 +216,8 @@ class ResidentReportingTest extends TestCase
         Sanctum::actingAs($this->staff());
         $this->move($issue, 'acknowledged')->assertOk();
 
-        Notification::assertNothingSent();
+        Notification::assertSentOnDemandTimes(ReportReceived::class, 0);
+        Notification::assertSentOnDemandTimes(IssueStatusChanged::class, 0);
     }
 
     public function test_a_mail_failure_does_not_lose_a_report(): void

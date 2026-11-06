@@ -1,4 +1,4 @@
-import { ArrowRight, CircleCheckBig, Clock3, MapPin, Megaphone, Wrench } from "lucide-react";
+import { ArrowRight, CircleCheckBig, Clock3, MailWarning, MapPin, Megaphone, Newspaper, Wrench } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -7,14 +7,34 @@ import { EmptyState, IssueList, Legend, PageSkeleton, mapPoints } from "@/compon
 import { IssueMap } from "@/components/maps";
 import { Card, NeedsAttention } from "@/components/overview";
 import { buttonVariants } from "@/components/ui/button";
-import { api, getIssues, getMeta, getStats, getUser, isStaff } from "@/lib/api";
+import { api, getAnnouncements, getIssues, getMeta, getStats, getUser, isStaff } from "@/lib/api";
 import { timeAgo } from "@/lib/format";
 import { PHOTO_CREDITS, categoryPhoto } from "@/lib/photos";
-import type { Issue, IssuePage, Meta, Stats } from "@/lib/types";
+import type { Announcement, Issue, IssuePage, Meta, Stats } from "@/lib/types";
 
 async function Greeting() {
   const user = await getUser();
   return <>Hello, {user?.name.split(" ")[0] ?? "neighbor"}</>;
+}
+
+function Announcements({ items }: { items: Announcement[] }) {
+  if (items.length === 0) return null;
+
+  return (
+    <section aria-labelledby="news-title" className="card grid gap-3 border-l-4 border-l-primary p-5">
+      <h2 id="news-title" className="flex items-center gap-2 text-lg">
+        <Newspaper aria-hidden className="size-5 text-primary" /> From your barangay
+      </h2>
+      <ul className="grid gap-3">
+        {items.slice(0, 3).map((item) => (
+          <li key={item.id} className="[overflow-wrap:anywhere]">
+            <p className="font-semibold">{item.title} <span className="text-xs font-normal text-muted-foreground">· {timeAgo(item.created_at)}</span></p>
+            <p className="whitespace-pre-wrap text-muted-foreground">{item.body}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 function ProblemTiles({ meta }: { meta: Meta }) {
@@ -101,16 +121,23 @@ function CommunityReport({ issue, meta }: { issue: Issue; meta: Meta }) {
 async function CommunityHome() {
   const user = await getUser();
   const resident = user && !isStaff(user);
-  const [meta, stats, recent, open, mine] = await Promise.all([
+  const [meta, stats, recent, open, mine, news] = await Promise.all([
     getMeta(),
     getStats(),
     getIssues("sort=newest"),
     getIssues("open=1&sort=priority"),
     resident ? api<IssuePage>("/my/issues") : null,
+    getAnnouncements(),
   ]);
 
   return (
     <>
+      {user?.email && !user.email_verified && (
+        <Link href="/account" className="flex items-center gap-2 rounded-xl border border-[#f5d48a] bg-[#fff8e6] px-4 py-3 font-medium text-[#7a4b00]">
+          <MailWarning aria-hidden className="size-5 flex-none" /> Please confirm your email so we can send you updates. <span className="underline">Go to My account</span>
+        </Link>
+      )}
+      <Announcements items={news.items} />
       <ProblemTiles meta={meta} />
 
       <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">

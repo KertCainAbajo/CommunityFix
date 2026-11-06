@@ -7,6 +7,7 @@ use App\Enums\PhotoKind;
 use App\Models\Issue;
 use App\Models\User;
 use App\Notifications\IssueStatusChanged;
+use App\Notifications\ReportActivity;
 use App\Notifications\ReportReceived;
 use Closure;
 use Illuminate\Http\UploadedFile;
@@ -28,7 +29,8 @@ class IssueWorkflow
     {
         if (! $owner->isStaff()) {
             $details['contact_name'] ??= $owner->name;
-            $details['contact_email'] ??= $owner->email;
+            // Unconfirmed addresses may belong to someone else, who shouldn't get these emails.
+            $details['contact_email'] ??= $owner->hasVerifiedEmail() ? $owner->email : null;
             $details['contact_phone'] ??= $owner->phone;
         }
 
@@ -68,6 +70,13 @@ class IssueWorkflow
         });
 
         $this->notifyReporter($issue, new IssueStatusChanged($issue, $to, $note));
+        $this->tellFollowers($issue, "Now: {$to->label()}.".($note ? " {$note}" : ''));
+    }
+
+    public function postUpdate(Issue $issue, User $staff, string $note): void
+    {
+        $issue->addUpdate($staff, $note);
+        $this->tellFollowers($issue, "New update from staff: {$note}");
     }
 
     public function reopen(Issue $issue, string $note): void
@@ -77,18 +86,18 @@ class IssueWorkflow
         });
     }
 
-    public function addPhoto(Issue $issue, UploadedFile $photo, PhotoKind $kind, User $staff): void
+    public function addPhoto(Issue $issue, UploadedFile $photo, PhotoKind $kind, User $by): void
     {
         $path = $photo->store('issues');
 
-        DB::transaction(function () use ($issue, $path, $kind, $staff) {
+        DB::transaction(function () use ($issue, $path, $kind, $by) {
             $issue->photos()->create([
                 'kind' => $kind,
                 'path' => $path,
-                'uploaded_by' => $staff->id,
+                'uploaded_by' => $by->id,
                 'created_at' => now(),
             ]);
-            $issue->addUpdate($staff, "Added a photo: {$kind->label()}");
+            $issue->addUpdate($by, "Added a photo: {$kind->label()}");
         });
     }
 
@@ -106,6 +115,17 @@ class IssueWorkflow
             ]);
             $current->addUpdate($actor, $note, $from, $to);
         });
+    }
+
+    /** The bell for the person who reported it and everyone who said "Me too". */
+    private function tellFollowers(Issue $issue, string $message): void
+    {
+        $followers = $issue->supporters()->where('is_active', true)->get();
+        if ($issue->owner?->is_active) {
+            $followers->push($issue->owner);
+        }
+
+        rescue(fn () => Notification::send($followers->unique('id'), new ReportActivity($issue, $message)));
     }
 
     // Sent after the response, and a mail failure must never undo the work.

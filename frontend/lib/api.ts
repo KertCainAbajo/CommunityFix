@@ -5,7 +5,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
-import type { Activity, IssuePage, Meta, Stats, User } from "@/lib/types";
+import type { Activity, Announcement, IssuePage, Meta, Notice, Stats, User } from "@/lib/types";
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000/api";
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY;
@@ -72,6 +72,10 @@ export const getMeta = cache(() => api<Meta>("/meta"));
 
 // Cached per request, so pages that show the figures in two places ask the API once.
 export const getStats = cache(() => api<Stats>("/stats"));
+
+export const getNotifications = cache(() => api<{ unread: number; items: Notice[] }>("/notifications"));
+
+export const getAnnouncements = () => api<{ items: Announcement[] }>("/announcements");
 
 export const getActivity = () => api<{ items: Activity[] }>("/activity");
 

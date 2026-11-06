@@ -1,10 +1,10 @@
-import { BarChart3, ClipboardList, FolderOpen, Hash, LayoutDashboard, LogOut, Megaphone, Radar, Users } from "lucide-react";
+import { BarChart3, Bell, ClipboardList, FolderOpen, Hash, LayoutDashboard, LogOut, Megaphone, Radar, Settings, Users } from "lucide-react";
 import Link from "next/link";
 
 import { logout } from "@/app/actions";
 import { NavLink } from "@/components/nav-link";
 import { buttonVariants } from "@/components/ui/button";
-import { getUser, isStaff } from "@/lib/api";
+import { getNotifications, getUser, isStaff } from "@/lib/api";
 
 const icon = "size-[1.15rem] flex-none text-muted-foreground";
 
@@ -44,6 +44,7 @@ export function SiteNavFallback() {
 
 export async function SiteNav() {
   const user = await getUser();
+  const notices = user ? await getNotifications() : null;
 
   return (
     <nav aria-label="Main" className="flex flex-wrap gap-1 lg:grid">
@@ -67,6 +68,8 @@ export async function SiteNav() {
       )}
       {user && (
         <>
+          <NavLink href="/notifications" icon={<Bell aria-hidden className={icon} />} count={notices?.unread}>Notifications</NavLink>
+          <NavLink href="/account" icon={<Settings aria-hidden className={icon} />}>My account</NavLink>
           <form action={logout}>
             <button type="submit" className="side-link w-full cursor-pointer">
               <LogOut aria-hidden className={icon} /> Log out

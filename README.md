@@ -50,7 +50,13 @@ The home page photos come from Wikimedia Commons. Those that need a credit are l
 ## Features
 
 **Residents (account required)**
-- Sign up with an email or phone number and a password, or with Google
+- Sign up with an email and password, or with Google, and optionally add a phone number to sign in with
+- Confirm their email, recover a forgotten password, update their details, and delete their account
+- Get notifications in the site when their reports change
+- Edit or cancel a report until staff review it, and add messages and photos later
+- Say "Me too" on a report instead of filing it again, and get its updates
+- Rate the fix once a report is resolved
+- Read announcements from staff
 - See every report they filed under My reports
 - Report a problem with a category, description, location, map pin and up to 3 photos
 - Optionally leave a name, email or phone number, which only staff can see
@@ -68,6 +74,7 @@ Visitors who aren't signed in only see the sign-in page, which shows overall fig
 - Verify or reject reports, and update their status with a note to the resident
 - Set priority and assign a maintenance team
 - Upload before-and-after photos and post public updates
+- Post announcements to all residents, and see how many neighbors each report affects
 - View analytics by month, category and team
 
 **Admins**

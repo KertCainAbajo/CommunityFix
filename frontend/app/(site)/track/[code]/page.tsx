@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { CopyCode, ReopenForm, TrackForm } from "@/components/forms";
+import { AddPhotoForm, CancelReportForm, EditReportForm, FeedbackForm, ReplyForm } from "@/components/resident-forms";
 import { PageSkeleton } from "@/components/issue-parts";
 import { IssueView } from "@/components/issue-view";
 import { ApiError, api, getMeta } from "@/lib/api";
@@ -66,7 +67,16 @@ async function Tracked({ params, searchParams }: Pick<PageProps<"/track/[code]">
       <IssueView
         issue={issue}
         meta={meta}
-        aside={issue.status === "resolved" ? <ReopenForm code={code} /> : undefined}
+        belowTimeline={issue.mine ? <ReplyForm issueId={issue.id} /> : undefined}
+        aside={
+          <>
+            {issue.mine && issue.status === "resolved" && <FeedbackForm issue={issue} />}
+            {issue.status === "resolved" && <ReopenForm code={code} />}
+            {issue.mine && issue.status === "reported" && <EditReportForm issue={issue} meta={meta} />}
+            {issue.mine && issue.status !== "rejected" && issue.status !== "resolved" && <AddPhotoForm issueId={issue.id} />}
+            {issue.mine && issue.status === "reported" && <CancelReportForm issueId={issue.id} />}
+          </>
+        }
       />
     </>
   );

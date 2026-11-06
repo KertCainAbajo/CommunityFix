@@ -39,6 +39,7 @@ class AuthController extends Controller
     {
         $user = User::create($request->account());
         $user->forceFill(['role' => 'resident'])->save();
+        defer(fn () => rescue(fn () => $user->sendEmailVerificationNotification()));
 
         return $this->startSession($user->refresh(), 201);
     }

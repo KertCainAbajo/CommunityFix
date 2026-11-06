@@ -12,7 +12,7 @@ class MyIssuesController extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
-        $page = $request->user()->issues()->with('photos')->latest()->orderByDesc('id')->paginate(20);
+        $page = $request->user()->issues()->with('photos')->withCount('supporters')->latest()->orderByDesc('id')->paginate(20);
 
         return response()->json([
             'items' => IssueResource::collection($page->items()),
