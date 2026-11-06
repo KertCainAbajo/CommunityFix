@@ -20,7 +20,7 @@ async function SignUp() {
       <OrDivider />
       <GoogleButton />
       <p className="text-center text-sm font-medium text-[#0b1f3a]">
-        Already have an account? <Link href="/login" className="font-semibold text-[#1a4fd6] hover:underline">Sign in</Link>
+        Already have an account? <Link href="/login" className="portal-link font-semibold text-[#1a4fd6]">Sign in</Link>
       </p>
     </>
   );

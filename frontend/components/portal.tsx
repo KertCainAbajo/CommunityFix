@@ -160,17 +160,16 @@ export function PortalTabs({ active }: { active: "resident" | "staff" }) {
   ] as const;
 
   return (
-    <nav aria-label="Sign in as" className="grid grid-cols-2 gap-1 rounded-2xl bg-[#eef2f8] p-1.5 shadow-[inset_0_1px_2px_rgb(11_23_41/6%)]">
+    <nav aria-label="Sign in as" className="relative grid grid-cols-2 gap-1 rounded-2xl bg-[#eef2f8] p-1.5 shadow-[inset_0_1px_2px_rgb(11_23_41/6%)]">
+      <span aria-hidden className="portal-tab-pill" data-side={active} />
       {tabs.map(({ key, href, label, Icon }) => (
         <Link
           key={key}
           href={href}
           aria-current={active === key ? "page" : undefined}
           className={cn(
-            "flex h-11 items-center justify-center gap-2 rounded-xl text-[0.95rem] font-semibold transition-all",
-            active === key
-              ? "bg-gradient-to-b from-[#2563eb] to-[#1a4fd6] text-white shadow-[0_8px_20px_-8px_rgb(29_78_216/85%),inset_0_1px_0_rgb(255_255_255/25%)]"
-              : "text-[#44546a] hover:bg-white hover:text-[#0b1f3a]",
+            "relative z-10 flex h-11 items-center justify-center gap-2 rounded-xl text-[0.95rem] font-semibold transition-colors duration-300",
+            active === key ? "text-white" : "text-[#44546a] hover:bg-white/70 hover:text-[#0b1f3a]",
           )}
         >
           <Icon aria-hidden className="size-4.5" /> {label}
@@ -220,11 +219,11 @@ export function PortalShell({ children }: { children: ReactNode }) {
           </span>
         </div>
 
-        <div className="portal-form portal-rise grid w-full max-w-[25rem] gap-4">{children}</div>
+        <div className="portal-form grid w-full max-w-[25rem] gap-4">{children}</div>
 
         <div className="w-full max-w-[25rem]">
           <p className="text-center text-xs font-medium text-[#5b6b80]">Report anything that needs fixing</p>
-          <ul className="mt-2.5 flex justify-between gap-1">
+          <ul className="portal-fixes mt-2.5 flex justify-between gap-1">
             {FIXES.map(({ Icon, label, color, bg }) => (
               <li key={label} className="grid justify-items-center gap-1 text-[0.7rem] font-medium text-[#44546a]">
                 <span className="grid size-10 place-items-center rounded-xl" style={{ background: bg, color }}>

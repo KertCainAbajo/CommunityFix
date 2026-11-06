@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, Copy, Eye, EyeOff, Hash, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
+import { ArrowRight, Check, Copy, Eye, EyeOff, Hash, LoaderCircle, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState, useTransition, type ChangeEvent, type ComponentProps, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
@@ -66,9 +66,9 @@ function Submit({ children, variant, cta, onDark }: { children: ReactNode; varia
 /** An input with an icon inside it, used on the sign-in panel. */
 function IconInput({ icon, className, ...props }: ComponentProps<typeof Input> & { icon: ReactNode }) {
   return (
-    <div className="relative">
-      <span aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 z-10 -translate-y-1/2 text-[#7a889b] [&_svg]:size-4.5">{icon}</span>
-      <Input {...props} className={`h-12 rounded-xl border-[#dfe6f0] bg-white pl-11 text-[0.95rem] shadow-[0_1px_2px_rgb(11_23_41/4%)] transition-shadow placeholder:text-[#7a889b] hover:border-[#c5d3e8] focus-visible:border-[#3b82f6] focus-visible:ring-4 focus-visible:ring-[#3b82f6]/15 ${className ?? ""}`} />
+    <div className="portal-field relative">
+      <span aria-hidden className="portal-field-icon pointer-events-none absolute top-1/2 left-3.5 z-10 -translate-y-1/2 [&_svg]:size-4.5">{icon}</span>
+      <Input {...props} className={`h-12 rounded-xl border-[#dfe6f0] bg-white pl-11 text-[0.95rem] shadow-[0_1px_2px_rgb(11_23_41/4%)] transition-[border-color,box-shadow] duration-200 placeholder:text-[#7a889b] hover:border-[#c5d3e8] focus-visible:border-[#3b82f6] focus-visible:ring-4 focus-visible:ring-[#3b82f6]/15 ${className ?? ""}`} />
     </div>
   );
 }
@@ -76,9 +76,10 @@ function IconInput({ icon, className, ...props }: ComponentProps<typeof Input> &
 function WideSubmit({ children }: { children: ReactNode }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="group/submit h-12 w-full gap-2 rounded-xl bg-gradient-to-r from-[#1a4fd6] to-[#16a34a] text-base shadow-[0_14px_28px_-12px_rgb(22_120_120/90%),inset_0_1px_0_rgb(255_255_255/22%)] hover:from-[#1640b0] hover:to-[#15803d]">
+    <Button type="submit" disabled={pending} className="portal-submit group/submit h-12 w-full gap-2 rounded-xl text-base">
+      {pending ? <LoaderCircle aria-hidden className="size-4.5 animate-spin" /> : null}
       {pending ? "Please wait…" : children}
-      {!pending && <ArrowRight aria-hidden className="size-4 transition-transform group-hover/submit:translate-x-0.5" />}
+      {!pending && <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover/submit:translate-x-1" />}
     </Button>
   );
 }
@@ -110,9 +111,9 @@ function PasswordInput({ autoComplete, minLength }: { autoComplete: string; minL
         onClick={() => setShown(!shown)}
         aria-label={shown ? "Hide password" : "Show password"}
         aria-pressed={shown}
-        className="absolute top-1/2 right-2 grid size-9 -translate-y-1/2 place-items-center rounded-lg text-[#0b1f3a] hover:bg-[#eef3fe]"
+        className="absolute top-1/2 right-2 grid size-9 -translate-y-1/2 place-items-center rounded-lg text-[#0b1f3a] transition-[background-color,scale] duration-200 hover:bg-[#eef3fe] active:scale-90"
       >
-        {shown ? <EyeOff aria-hidden className="size-4.5" /> : <Eye aria-hidden className="size-4.5" />}
+        {shown ? <EyeOff key="hide" aria-hidden className="portal-pop size-4.5" /> : <Eye key="show" aria-hidden className="portal-pop size-4.5" />}
       </button>
     </div>
   );
@@ -421,7 +422,7 @@ function GoogleMark() {
 export function GoogleButton() {
   return (
     // A plain link: the sign-in leaves this site for Google and comes back.
-    <a href="/auth/google" className="flex h-12 items-center justify-center gap-3 rounded-xl border border-[#dfe6f0] bg-white text-[0.95rem] font-semibold text-[#0b1f3a] shadow-[0_1px_2px_rgb(11_23_41/4%)] transition-all hover:-translate-y-px hover:border-[#c5d3e8] hover:shadow-[0_10px_24px_-14px_rgb(11_23_41/35%)]">
+    <a href="/auth/google" className="flex h-12 items-center justify-center gap-3 rounded-xl border border-[#dfe6f0] bg-white text-[0.95rem] font-semibold text-[#0b1f3a] shadow-[0_1px_2px_rgb(11_23_41/4%)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#c5d3e8] hover:shadow-[0_14px_28px_-16px_rgb(11_23_41/40%)] active:translate-y-0 active:scale-[0.99]">
       <GoogleMark /> Continue with Google
     </a>
   );
@@ -622,7 +623,7 @@ export function StaffRow({ person, isSelf }: { person: User; isSelf: boolean }) 
 export function ForgotLink() {
   return (
     <p className="text-center text-sm">
-      <Link href="/staff/forgot-password" className="font-semibold text-[#1d4ed8] hover:underline">Forgot your password?</Link>
+      <Link href="/staff/forgot-password" className="portal-link font-semibold text-[#1a4fd6]">Forgot your password?</Link>
     </p>
   );
 }

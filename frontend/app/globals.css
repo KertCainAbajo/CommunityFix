@@ -703,9 +703,141 @@
     from { opacity: 0; transform: translateY(14px); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .float-a, .float-b, .float-c, .portal-rise, .scene-pin, .scene-ping, .scene-glow, .scene-star, .scene-car {
+    .float-a, .float-b, .float-c, .portal-rise, .scene-pin, .scene-ping, .scene-glow, .scene-star, .scene-car,
+    .portal-form > *, .portal-tab-pill, .portal-pop, .portal-fixes li, .portal-photo, .portal-form [role="alert"] {
       animation: none;
     }
+    .portal-submit, .portal-submit::after, .portal-link, .portal-field-icon, .portal-fixes span {
+      transition: none;
+    }
+  }
+
+  /* The sign-in form: everything settles in one after another. */
+  .portal-form > * {
+    animation: portal-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .portal-form > :nth-child(2) { animation-delay: 0.06s; }
+  .portal-form > :nth-child(3) { animation-delay: 0.12s; }
+  .portal-form > :nth-child(4) { animation-delay: 0.18s; }
+  .portal-form > :nth-child(5) { animation-delay: 0.24s; }
+  .portal-form > :nth-child(6) { animation-delay: 0.3s; }
+  .portal-form > :nth-child(n + 7) { animation-delay: 0.36s; }
+
+  /* The highlight that slides between Resident and Staff. */
+  .portal-tab-pill {
+    position: absolute;
+    top: 0.375rem;
+    bottom: 0.375rem;
+    left: 0.375rem;
+    width: calc(50% - 0.5rem);
+    border-radius: 0.75rem;
+    background: linear-gradient(180deg, #2563eb, #1a4fd6);
+    box-shadow: 0 8px 20px -8px rgb(29 78 216 / 85%), inset 0 1px 0 rgb(255 255 255 / 25%);
+    animation: pill-from-staff 0.42s cubic-bezier(0.3, 1.25, 0.5, 1) both;
+  }
+  .portal-tab-pill[data-side="staff"] {
+    left: calc(50% + 0.125rem);
+    animation-name: pill-from-resident;
+  }
+  @keyframes pill-from-staff {
+    from { transform: translateX(calc(100% + 0.25rem)); }
+  }
+  @keyframes pill-from-resident {
+    from { transform: translateX(calc(-100% - 0.25rem)); }
+  }
+
+  /* A field wakes up when you click into it. */
+  .portal-field-icon {
+    color: #7a889b;
+    transition: color 0.2s ease, scale 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .portal-field:focus-within .portal-field-icon {
+    color: #1a4fd6;
+    scale: 1.12;
+  }
+
+  /* The main button: its colors drift on hover, a shine crosses it, and it presses in. */
+  .portal-submit {
+    position: relative;
+    overflow: hidden;
+    background-color: #1a4fd6;
+    background-image: linear-gradient(100deg, #1a4fd6 0%, #1a4fd6 25%, #0f8f7a 62%, #16a34a 100%);
+    background-size: 170% 100%;
+    background-position: 0% 0%;
+    box-shadow: 0 14px 28px -12px rgb(22 120 120 / 85%), inset 0 1px 0 rgb(255 255 255 / 22%);
+    transition: background-position 0.6s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  }
+  .portal-submit::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 -40%;
+    width: 30%;
+    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 32%), transparent);
+    transform: skewX(-18deg);
+    transition: left 0.75s ease;
+  }
+  .portal-submit:hover:not(:disabled) {
+    background-position: 100% 0%;
+    box-shadow: 0 18px 32px -12px rgb(22 140 100 / 90%), inset 0 1px 0 rgb(255 255 255 / 22%);
+    transform: translateY(-1px);
+  }
+  .portal-submit:hover:not(:disabled)::after {
+    left: 115%;
+  }
+  .portal-submit:active:not(:disabled) {
+    transform: translateY(0) scale(0.985);
+  }
+
+  /* Links draw their underline from the left. */
+  .portal-link {
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat;
+    transition: background-size 0.3s ease;
+  }
+  .portal-link:hover {
+    background-size: 100% 1.5px;
+  }
+
+  .portal-pop {
+    animation: portal-pop 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  @keyframes portal-pop {
+    from { opacity: 0; transform: scale(0.6); }
+  }
+
+  /* A gentle "no" when sign-in fails. */
+  .portal-form [role="alert"] {
+    animation: portal-shake 0.45s ease both;
+  }
+  @keyframes portal-shake {
+    0% { opacity: 0; transform: translateX(0); }
+    25% { opacity: 1; transform: translateX(-6px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+  }
+
+  /* The row of problem types */
+  .portal-fixes li {
+    animation: portal-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 0.35s both;
+  }
+  .portal-fixes li:nth-child(2) { animation-delay: 0.41s; }
+  .portal-fixes li:nth-child(3) { animation-delay: 0.47s; }
+  .portal-fixes li:nth-child(4) { animation-delay: 0.53s; }
+  .portal-fixes li:nth-child(5) { animation-delay: 0.59s; }
+  .portal-fixes span {
+    transition: transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .portal-fixes li:hover span {
+    transform: translateY(-3px) scale(1.06);
+  }
+
+  /* The photo drifts very slowly, so the panel feels alive. */
+  .portal-photo {
+    animation: portal-drift 26s ease-in-out infinite alternate;
+  }
+  @keyframes portal-drift {
+    from { transform: scale(1.02); }
+    to { transform: scale(1.09) translateX(-1%); }
   }
 
   /* The sign-in panel */

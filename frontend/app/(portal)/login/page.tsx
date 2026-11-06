@@ -30,12 +30,12 @@ async function ResidentSignIn({ searchParams }: Pick<PageProps<"/login">, "searc
       {notice && <p role="alert" className="rounded-lg border border-[#f5d48a] bg-[#fff8e6] px-4 py-3 text-sm text-[#7a4b00]">{notice}</p>}
       <LoginForm next={target} portal="resident" />
       <p className="text-center text-sm font-medium text-[#0b1f3a]">
-        Don&apos;t have an account? <Link href="/register" className="font-semibold text-[#1a4fd6] hover:underline">Create an account</Link>
+        Don&apos;t have an account? <Link href="/register" className="portal-link font-semibold text-[#1a4fd6]">Create an account</Link>
       </p>
       <OrDivider />
       <GoogleButton />
       <p className="text-center text-sm text-muted-foreground">
-        <Link href="/staff/forgot-password" className="font-semibold text-[#1a4fd6] hover:underline">Forgot password?</Link>
+        <Link href="/staff/forgot-password" className="portal-link font-semibold text-[#1a4fd6]">Forgot password?</Link>
       </p>
     </>
   );

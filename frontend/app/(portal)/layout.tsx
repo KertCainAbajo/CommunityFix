@@ -1,5 +1,5 @@
 import { PortalShell } from "@/components/portal";
 
-export default function RegisterLayout({ children }: LayoutProps<"/register">) {
+export default function PortalLayout({ children }: { children: React.ReactNode }) {
   return <PortalShell>{children}</PortalShell>;
 }
