@@ -45,6 +45,8 @@ CommunityFix is a community problem-to-resolution tracker. Residents report brok
 
 The sign-in page photo is [Barangay Hall of Poblacion, Alubijid](https://commons.wikimedia.org/wiki/File:Barangay_Hall_of_Poblacion,_Alubijid.jpg) by Ahri.boy, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It was resized and is cropped on the page.
 
+The home page photos come from Wikimedia Commons. Those that need a credit are listed under "Photo credits" at the bottom of the home page and in `frontend/lib/photos.ts`. The others are public domain or CC0.
+
 ## Features
 
 **Residents (account required)**

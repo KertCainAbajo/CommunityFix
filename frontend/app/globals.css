@@ -240,13 +240,6 @@
     color: var(--muted-foreground);
   }
 
-  .gradient-text {
-    background: linear-gradient(92deg, #ffffff 10%, #a7f3d0 55%, #93c5fd 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
   /* An icon in a soft colored tile. */
   .chip {
     display: grid;
@@ -319,36 +312,79 @@
     backdrop-filter: blur(14px);
   }
 
-  /* The hero: deep navy with soft aurora light from the logo colors. */
-  .command {
+  /* The home page banner: a real street, with the text on a dark fade. */
+  .home-hero {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    border-radius: 1.5rem;
-    background:
-      radial-gradient(38rem 22rem at 88% 10%, rgb(34 197 94 / 38%), transparent 60%),
-      radial-gradient(34rem 24rem at 60% 120%, rgb(59 130 246 / 45%), transparent 60%),
-      radial-gradient(30rem 20rem at 0% 0%, rgb(29 78 216 / 35%), transparent 60%),
-      linear-gradient(135deg, #07142a 0%, #0b1f3a 55%, #0e2a52 100%);
-    box-shadow: 0 30px 60px -30px rgb(11 31 58 / 55%);
+    min-height: 23rem;
+    display: flex;
+    align-items: center;
+    border-radius: 1rem;
+    background: #10263f;
   }
-  .command::before {
+  .home-hero > img {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 62%;
+  }
+  .home-hero::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background-image:
-      linear-gradient(rgb(255 255 255 / 6%) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 6%) 1px, transparent 1px);
-    background-size: 44px 44px;
-    mask-image: radial-gradient(ellipse 70% 90% at 70% 40%, #000 30%, transparent 75%);
+    background: linear-gradient(90deg, rgb(8 24 48 / 88%) 0%, rgb(8 24 48 / 68%) 42%, rgb(8 24 48 / 8%) 78%);
   }
-  .glass {
-    border: 1px solid rgb(255 255 255 / 14%);
-    border-radius: 1.1rem;
-    background: rgb(255 255 255 / 7%);
-    backdrop-filter: blur(10px);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%);
+  @media (max-width: 48rem) {
+    .home-hero::before {
+      background: rgb(8 24 48 / 68%);
+    }
+  }
+
+  /* A problem type, shown as a real photo. */
+  .photo-tile {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: 0.8rem;
+    background: var(--muted);
+    box-shadow: var(--shadow-soft);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+  .photo-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .photo-tile span {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 2rem 0.75rem 0.6rem;
+    background: linear-gradient(0deg, rgb(8 24 48 / 88%), transparent);
+    color: #fff;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .photo-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+  .photo-tile:hover img {
+    transform: scale(1.06);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .photo-tile, .photo-tile img {
+      transition: none;
+    }
+    .photo-tile:hover, .photo-tile:hover img {
+      transform: none;
+    }
   }
 
   .live-dot {
@@ -402,30 +438,6 @@
       backdrop-filter: blur(16px);
       box-shadow: 0 24px 50px -20px rgb(11 23 41 / 40%);
     }
-  }
-
-  .quick-action {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-height: 3.5rem;
-    padding: 0.6rem 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: 0.9rem;
-    background: var(--card);
-    color: var(--foreground);
-    font-weight: 600;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  }
-  .quick-action:hover {
-    transform: translateY(-2px);
-    border-color: #cddbf5;
-    box-shadow: var(--shadow-lift);
-  }
-  .quick-action-main {
-    border-color: transparent;
-    background: linear-gradient(180deg, #22c55e, #16a34a);
-    color: #fff;
   }
 
   /* One report in a list. */

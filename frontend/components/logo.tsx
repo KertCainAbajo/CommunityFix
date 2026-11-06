@@ -8,7 +8,7 @@ export function Logo() {
         <span className="font-heading text-lg font-extrabold tracking-tight text-foreground">
           Community<span className="text-brand-green">Fix</span>
         </span>
-        <span className="mt-1 font-mono text-[0.65rem] tracking-[0.14em] text-muted-foreground uppercase">Civic tracker</span>
+        <span className="mt-1 text-xs text-muted-foreground">Report · Track · Resolve</span>
       </span>
     </span>
   );

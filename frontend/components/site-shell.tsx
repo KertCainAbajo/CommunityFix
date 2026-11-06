@@ -48,12 +48,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="topbar">
+        <header className="topbar max-sm:hidden">
           <div className="container-wide flex items-center justify-between gap-4 py-3">
-            <p className="flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-sm text-muted-foreground shadow-sm">
-              <span aria-hidden className="live-dot" />
-              <span><span className="font-semibold text-foreground">Live</span> · updates as staff work on reports</span>
-            </p>
+            <p className="font-semibold text-muted-foreground">Barangay Community Portal</p>
             <Suspense><AccountLink /></Suspense>
           </div>
         </header>
