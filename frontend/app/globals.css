@@ -363,6 +363,125 @@
     }
   }
 
+  /* The banner on inner pages */
+  .page-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    min-height: 21rem;
+    border-radius: 1.75rem;
+    background: #0b1f3a;
+    box-shadow: 0 30px 60px -36px rgb(11 31 58 / 70%);
+  }
+  .page-hero > img {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 32%;
+    animation: portal-drift 30s ease-in-out infinite alternate;
+  }
+  .page-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(8 24 48 / 92%) 0%, rgb(8 24 48 / 72%) 42%, rgb(8 24 48 / 14%) 80%);
+  }
+  @media (max-width: 48rem) {
+    .page-hero::before {
+      background: rgb(8 24 48 / 70%);
+    }
+  }
+
+  /* The filters, floating over the bottom edge of the banner. */
+  .filter-card {
+    position: relative;
+    z-index: 1;
+    margin: -5.75rem 1rem 0;
+    padding: 1.25rem 1.4rem;
+    border: 1px solid rgb(255 255 255 / 70%);
+    border-radius: 1.25rem;
+    background: rgb(255 255 255 / 97%);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 24px 50px -24px rgb(11 31 58 / 45%);
+    animation: portal-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  @media (min-width: 64rem) {
+    .filter-card {
+      margin-inline: 3.5rem;
+    }
+  }
+
+  /* Status tabs with a count */
+  .status-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    padding: 0 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--muted-foreground);
+    font-weight: 600;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .status-tab:hover {
+    border-color: #b9cdf6;
+    color: var(--foreground);
+  }
+  .status-tab-count {
+    display: grid;
+    place-items: center;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    padding: 0 0.3rem;
+    border-radius: 999px;
+    background: var(--muted);
+    color: var(--foreground);
+    font-size: 0.78rem;
+  }
+  .status-tab[aria-current="page"] {
+    border-color: #0e2a52;
+    background: #0e2a52;
+    color: #fff;
+  }
+  .status-tab[aria-current="page"] .status-tab-count {
+    background: rgb(255 255 255 / 18%);
+    color: #fff;
+  }
+
+  /* Cards or map */
+  .view-switch {
+    display: flex;
+    gap: 0.2rem;
+    padding: 0.2rem;
+    border: 1px solid var(--border);
+    border-radius: 0.8rem;
+    background: var(--card);
+  }
+  .view-switch a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.1rem;
+    padding: 0 0.75rem;
+    border-radius: 0.6rem;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .view-switch a[aria-current="page"] {
+    background: var(--sky);
+    color: var(--primary);
+  }
+
   /* The tracking panel on the banner */
   .track-panel {
     display: grid;
@@ -507,7 +626,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .home-hero > img, .figure-bar, .reveal {
+    .home-hero > img, .page-hero > img, .figure-bar, .filter-card, .reveal {
       animation: none;
     }
     .photo-tile, .photo-tile img, .photo-tile-arrow, .side-link {

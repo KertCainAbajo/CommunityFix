@@ -1,5 +1,6 @@
 import { CircleAlert, CircleCheckBig } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 
 import { PageSkeleton } from "@/components/issue-parts";
@@ -55,6 +56,9 @@ async function Account({ searchParams }: Pick<PageProps<"/account">, "searchPara
           </div>
         </Card>
       )}
+      <p className="text-center text-sm">
+        <Link href="/credits" className="text-muted-foreground underline hover:text-primary">Photo credits</Link>
+      </p>
     </div>
   );
 }

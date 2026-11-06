@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, CircleHelp, Clock3, FolderOpen, MailWarning, MapPin, Megaphone, Newspaper, Siren, Wrench } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CircleHelp, Clock3, FolderOpen, MailWarning, Megaphone, Newspaper, Siren, Wrench } from "lucide-react";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 
@@ -6,11 +6,12 @@ import { TrackForm } from "@/components/forms";
 import { CATEGORY_ICONS, EmptyState, IssueList, Legend, PageSkeleton, mapPoints } from "@/components/issue-parts";
 import { IssueMap } from "@/components/maps";
 import { Card, NeedsAttention } from "@/components/overview";
+import { ReportCard } from "@/components/report-card";
 import { buttonVariants } from "@/components/ui/button";
 import { api, getAnnouncements, getIssues, getMeta, getStats, getUser, isStaff } from "@/lib/api";
 import { timeAgo } from "@/lib/format";
-import { PHOTO_CREDITS, categoryPhoto } from "@/lib/photos";
-import type { Announcement, Issue, IssuePage, Meta, Stats } from "@/lib/types";
+import { categoryPhoto } from "@/lib/photos";
+import type { Announcement, IssuePage, Meta, Stats } from "@/lib/types";
 
 async function Greeting() {
   const user = await getUser();
@@ -122,36 +123,6 @@ function Announcements({ items }: { items: Announcement[] }) {
   );
 }
 
-function CommunityReport({ issue, meta }: { issue: Issue; meta: Meta }) {
-  return (
-    <li>
-      <Link href={`/issues/${issue.id}`} className="card lift group block h-full overflow-hidden">
-        <span className="relative block aspect-[16/10] overflow-hidden bg-muted">
-          {!issue.photo_url && (
-            <span className="absolute top-2 left-2 z-10 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">Sample photo</span>
-          )}
-          <img
-            src={issue.photo_url ?? categoryPhoto(issue.category)}
-            alt=""
-            loading="lazy"
-            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </span>
-        <span className="grid gap-2 p-4">
-          <span className="flex items-center justify-between gap-2">
-            <span className="plate" data-status={issue.status}>{meta.statuses[issue.status]}</span>
-            <span className="text-xs text-muted-foreground">{timeAgo(issue.updated_at)}</span>
-          </span>
-          <span className="font-heading leading-snug font-bold [overflow-wrap:anywhere]">{issue.title}</span>
-          <span className="flex items-start gap-1 text-sm text-muted-foreground [overflow-wrap:anywhere]">
-            <MapPin aria-hidden className="mt-0.5 size-3.5 flex-none" /> {issue.address}
-          </span>
-        </span>
-      </Link>
-    </li>
-  );
-}
-
 async function CommunityHome() {
   const user = await getUser();
   const resident = user && !isStaff(user);
@@ -218,7 +189,7 @@ async function CommunityHome() {
             </Link>
           </div>
           <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-            {recent.items.slice(0, 4).map((issue) => <CommunityReport key={issue.id} issue={issue} meta={meta} />)}
+            {recent.items.slice(0, 4).map((issue) => <ReportCard key={issue.id} issue={issue} meta={meta} />)}
           </ul>
         </section>
       )}
@@ -260,17 +231,6 @@ export default function HomePage() {
         <CommunityHome />
       </Suspense>
 
-      <details className="text-xs text-muted-foreground">
-        <summary className="cursor-pointer">Photo credits</summary>
-        <ul className="mt-2 grid gap-1">
-          {PHOTO_CREDITS.map((photo) => (
-            <li key={photo.href}>
-              <a href={photo.href} target="_blank" rel="noreferrer" className="underline">{photo.title}</a> by {photo.author}, {photo.license}, resized and cropped
-            </li>
-          ))}
-          <li>Other photos are public domain or CC0, from Wikimedia Commons.</li>
-        </ul>
-      </details>
     </>
   );
 }

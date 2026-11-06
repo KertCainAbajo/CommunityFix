@@ -40,28 +40,32 @@ export function Filters({
   statuses,
   categories,
   sorts,
+  keep = {},
 }: {
   action: string;
   values: Record<string, string | undefined>;
-  statuses: Options;
+  statuses?: Options;
   categories: Options;
   sorts: Options;
+  /** Settings chosen elsewhere on the page, carried along with each search. */
+  keep?: Record<string, string>;
 }) {
   return (
     <Form
       key={JSON.stringify(values)}
       action={action}
       role="search"
-      className="grid grid-cols-2 gap-3 md:grid-cols-[2fr_1fr_1fr_1fr]"
+      className={`grid grid-cols-2 gap-3 ${statuses ? "md:grid-cols-[2fr_1fr_1fr_1fr]" : "md:grid-cols-[2fr_1fr_1fr]"}`}
       onChange={(event) => {
         if (event.target instanceof HTMLSelectElement) event.currentTarget.requestSubmit();
       }}
     >
+      {Object.entries(keep).map(([name, value]) => value && <input key={name} type="hidden" name={name} value={value} />)}
       <div className="col-span-2 grid gap-1.5 md:col-span-1">
         <Label htmlFor="filter-q">Search</Label>
         <Input id="filter-q" type="search" name="q" defaultValue={values.q} placeholder="Street, keyword…" />
       </div>
-      <Select label="Status" name="status" value={values.status} options={statuses} anyLabel="Any status" />
+      {statuses && <Select label="Status" name="status" value={values.status} options={statuses} anyLabel="Any status" />}
       <Select label="Category" name="category" value={values.category} options={categories} anyLabel="Any category" />
       <Select label="Sort by" name="sort" value={values.sort} options={sorts} />
     </Form>

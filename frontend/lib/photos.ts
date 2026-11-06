@@ -4,6 +4,12 @@ export const categoryPhoto = (category: string) => `/photos/${["streetlight", "r
 // These licenses require the credit to stay visible while the photo is used.
 export const PHOTO_CREDITS = [
   {
+    "title": "Barangay Hall of Poblacion, Alubijid",
+    "author": "Ahri.boy",
+    "license": "CC BY 4.0",
+    "href": "https://commons.wikimedia.org/wiki/File:Barangay_Hall_of_Poblacion,_Alubijid.jpg"
+  },
+  {
     "title": "Philippines - Siay, Zamboanga Sibugay - Zamboanga-Pagadian Road in Barangay Kimos (2019-10-22)",
     "author": "Jayvee Enaguas (The Harvett Vault)",
     "license": "CC BY 4.0",
