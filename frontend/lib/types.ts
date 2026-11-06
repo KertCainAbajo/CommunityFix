@@ -73,6 +73,8 @@ export type IssuePage = {
   total: number;
   page: number;
   pages: number;
+  // Only a resident's own list has these.
+  counts?: Partial<Record<Status, number>>;
 };
 
 export type Meta = {

@@ -1,4 +1,4 @@
-import { AlarmClock, ArrowRight, ArrowUpRight, CircleCheckBig, Inbox, LoaderCircle, TrendingDown, TrendingUp } from "lucide-react";
+import { AlarmClock, ArrowRight, ArrowUpRight, CircleCheckBig, Inbox, LoaderCircle, TrendingDown, TrendingUp, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 
@@ -85,6 +85,27 @@ export function FiguresBar({ stats }: { stats: Stats }) {
         );
       })}
     </div>
+  );
+}
+
+/** One number in a figure bar. */
+export function Figure({ visual, value, label }: { visual: ReactNode; value: string; label: string }) {
+  return (
+    <div className="flex min-w-0 items-center gap-2.5 px-3 py-4 sm:gap-4 sm:px-7 sm:py-6">
+      {visual}
+      <div className="min-w-0 leading-tight">
+        <p className="font-heading text-xl font-extrabold whitespace-nowrap sm:text-2xl">{value}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+export function figureChip(Icon: LucideIcon, color: string, background: string) {
+  return (
+    <span className="grid size-12 flex-none place-items-center rounded-2xl" style={{ color, background }}>
+      <Icon aria-hidden className="size-6" />
+    </span>
   );
 }
 

@@ -1,11 +1,11 @@
 import { ArrowRight, ArrowUpRight, CircleHelp, Clock3, FolderOpen, MailWarning, Megaphone, Newspaper, Siren, Wrench } from "lucide-react";
 import Link from "next/link";
-import { Suspense, type ReactNode } from "react";
+import { Suspense } from "react";
 
 import { TrackForm } from "@/components/forms";
 import { CATEGORY_ICONS, EmptyState, IssueList, Legend, PageSkeleton, mapPoints } from "@/components/issue-parts";
 import { IssueMap } from "@/components/maps";
-import { Card, NeedsAttention } from "@/components/overview";
+import { Card, Figure, NeedsAttention, figureChip } from "@/components/overview";
 import { ReportCard } from "@/components/report-card";
 import { buttonVariants } from "@/components/ui/button";
 import { api, getAnnouncements, getIssues, getMeta, getStats, getUser, isStaff } from "@/lib/api";
@@ -32,24 +32,6 @@ function FixedRing({ percent }: { percent: number }) {
   );
 }
 
-function Figure({ visual, value, label }: { visual: ReactNode; value: string; label: string }) {
-  return (
-    <div className="flex min-w-0 items-center gap-2.5 px-3 py-4 sm:gap-4 sm:px-7 sm:py-6">
-      {visual}
-      <div className="min-w-0 leading-tight">
-        <p className="font-heading text-xl font-extrabold whitespace-nowrap sm:text-2xl">{value}</p>
-        <p className="text-sm text-muted-foreground">{label}</p>
-      </div>
-    </div>
-  );
-}
-
-const chip = (Icon: typeof Wrench, color: string, background: string) => (
-  <span className="grid size-12 flex-none place-items-center rounded-2xl" style={{ color, background }}>
-    <Icon aria-hidden className="size-6" />
-  </span>
-);
-
 /** The figures, floating over the bottom edge of the banner. */
 function FigureBar({ stats, mine }: { stats: Stats; mine: IssuePage | null }) {
   const fixed = stats.by_status.resolved;
@@ -58,16 +40,16 @@ function FigureBar({ stats, mine }: { stats: Stats; mine: IssuePage | null }) {
   return (
     <section aria-label="Community figures" className="figure-bar">
       <Figure visual={<FixedRing percent={percent} />} value={`${fixed} of ${stats.total}`} label="Reports fixed" />
-      <Figure visual={chip(Wrench, "#1a4fd6", "#e6eeff")} value={String(stats.open)} label="Still open" />
+      <Figure visual={figureChip(Wrench, "#1a4fd6", "#e6eeff")} value={String(stats.open)} label="Still open" />
       <Figure
-        visual={chip(Clock3, "#d97706", "#fff4dc")}
+        visual={figureChip(Clock3, "#d97706", "#fff4dc")}
         value={stats.avg_resolution_days === null ? "Not yet" : `${stats.avg_resolution_days} days`}
         label="Average fix time"
       />
       {mine ? (
-        <Figure visual={chip(FolderOpen, "#16a34a", "#e3f8ea")} value={String(mine.total)} label="Your reports" />
+        <Figure visual={figureChip(FolderOpen, "#16a34a", "#e3f8ea")} value={String(mine.total)} label="Your reports" />
       ) : (
-        <Figure visual={chip(Siren, "#dc2626", "#fdecec")} value={String(stats.overdue)} label="Overdue" />
+        <Figure visual={figureChip(Siren, "#dc2626", "#fdecec")} value={String(stats.overdue)} label="Overdue" />
       )}
     </section>
   );

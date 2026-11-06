@@ -272,6 +272,24 @@ class ResidentFeaturesTest extends TestCase
         $this->getJson("/api/issues/{$issue->id}")->assertOk()->assertJsonMissingPath('feedback');
     }
 
+    public function test_my_reports_counts_every_status_and_can_filter(): void
+    {
+        $owner = $this->resident();
+        $first = $this->report();
+        $this->report(['title' => 'A second report']);
+        $this->verifyAs('acknowledged', $first);
+
+        Sanctum::actingAs($owner);
+        $this->getJson('/api/my/issues?status=acknowledged')->assertOk()
+            ->assertJsonCount(1, 'items')
+            ->assertJsonPath('counts.acknowledged', 1)
+            ->assertJsonPath('counts.reported', 1);
+        $this->getJson('/api/my/issues?status=nonsense')->assertUnprocessable();
+
+        $this->asResident();
+        $this->getJson('/api/my/issues')->assertOk()->assertJson(['counts' => []]);
+    }
+
     // Me too
 
     public function test_nearby_finds_verified_open_reports_of_the_same_type_only(): void
