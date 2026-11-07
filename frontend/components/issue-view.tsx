@@ -154,7 +154,7 @@ export function IssueView({
               {issue.resolved_at && <Fact label="Resolved">{formatDate(issue.resolved_at)}</Fact>}
               {facts}
             </dl>
-            {points.length > 0 && <IssueMap points={points} center={points[0]} zoom={16} />}
+            {points.length > 0 && <IssueMap points={points} center={points[0]} zoom={16} title={issue.title} labels={meta.statuses} />}
           </section>
           {aside}
         </aside>

@@ -834,14 +834,73 @@
     outline-offset: 3px;
   }
 
+  /* The larger map: a card over the dimmed page. */
+  .map-card {
+    width: calc(100vw - 2rem);
+    max-width: none;
+    height: calc(100dvh - 2rem);
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 1.5rem;
+    background: var(--card);
+    box-shadow: 0 40px 90px -30px rgb(8 24 48 / 70%);
+    animation: map-card-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .map-card::backdrop {
+    background: rgb(8 24 48 / 62%);
+    backdrop-filter: blur(5px);
+  }
+  @keyframes map-card-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  }
+  .map-card-inner {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 100%;
+  }
+  .map-card-body {
+    display: grid;
+    min-height: 0;
+  }
+  .map-card-split {
+    grid-template-rows: minmax(0, 1fr) 13rem;
+  }
+  @media (min-width: 64rem) {
+    .map-card-split {
+      grid-template-rows: none;
+      grid-template-columns: minmax(0, 1fr) 21rem;
+    }
+  }
+  html:has(.map-card[open]) {
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map-card {
+      animation: none;
+    }
+  }
+
+  .map-tool {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 2px;
+    background: #fff;
+    color: #0b1729;
+    cursor: pointer;
+  }
+  .map-tool:hover {
+    background: #f4f4f4;
+  }
+
   .leaflet-container {
     font-family: var(--font-sans);
   }
 
-  /* A quiet, cool-toned map, so the pins are what you notice. */
-  .leaflet-tile-pane {
-    filter: grayscale(1) contrast(0.88) brightness(1.06) sepia(0.12) hue-rotate(180deg) saturate(1.4);
-  }
 }
 
 @layer components {

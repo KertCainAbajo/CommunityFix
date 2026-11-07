@@ -48,7 +48,7 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/dashboard">, "search
           <Legend meta={meta} statuses={["reported", "acknowledged", "in_progress"]} />
         </div>
         <div className="lg:relative">
-          <IssueMap points={mapPoints(open.items)} center={meta.map_center} className="h-120 rounded-none border-x-0 border-b-0" />
+          <IssueMap points={mapPoints(open.items)} center={meta.map_center} labels={meta.statuses} title="Open reports" className="h-120 rounded-none border-x-0 border-b-0" />
           <NeedsAttention issues={open.items} meta={meta} />
         </div>
       </section>

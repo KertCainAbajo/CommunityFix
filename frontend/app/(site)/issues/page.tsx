@@ -82,7 +82,7 @@ async function Reports({ searchParams }: Pick<PageProps<"/issues">, "searchParam
       ) : showMap ? (
         <section aria-label="Reports on a map" className="card overflow-hidden">
           <div className="px-6 py-4"><Legend meta={meta} statuses={PUBLIC_STATUSES} /></div>
-          <IssueMap points={mapPoints(data.items)} center={meta.map_center} className="h-140 rounded-none border-x-0 border-b-0" />
+          <IssueMap points={mapPoints(data.items)} center={meta.map_center} labels={meta.statuses} title="All reports" className="h-[44rem] rounded-none border-x-0 border-b-0" />
         </section>
       ) : (
         <ul className={cn("grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4")}>

@@ -157,7 +157,7 @@ async function CommunityHome() {
           <Legend meta={meta} />
         </div>
         <div className="lg:relative">
-          <IssueMap points={mapPoints(open.items)} center={meta.map_center} className="h-120 rounded-none border-x-0 border-b-0" />
+          <IssueMap points={mapPoints(open.items)} center={meta.map_center} labels={meta.statuses} title="Problems near you" className="h-[40rem] rounded-none border-x-0 border-b-0" />
           <NeedsAttention issues={open.items} meta={meta} />
         </div>
       </section>
