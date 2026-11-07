@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check, Copy, Eye, EyeOff, Hash, LoaderCircle, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
+import { ArrowRight, Check, CircleCheck, Circle, Copy, Eye, EyeOff, Hash, LoaderCircle, LockKeyhole, Mail, Phone, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useEffect, useState, useTransition, type ChangeEvent, type ComponentProps, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { categoryPhoto } from "@/lib/photos";
 import type { FormState, Issue, Meta, NewStaffState, NoticeState, Status, User } from "@/lib/types";
 
 const MAX_PHOTOS = 3;
@@ -64,7 +65,7 @@ export function FormError({ state }: { state: FormState | NoticeState | NewStaff
 export function Submit({ children, variant, cta, onDark }: { children: ReactNode; variant?: "default" | "outline"; cta?: boolean; onDark?: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant={variant} disabled={pending} className={cta ? "cta h-14 px-6 text-lg" : onDark ? "h-12 rounded-xl bg-white px-5 text-[#0b1f3a] shadow-[0_8px_20px_-8px_rgb(255_255_255/45%)] hover:bg-[#e6eefc]" : "h-12 px-5"}>
+    <Button type="submit" variant={variant} disabled={pending} className={cta ? "cta h-14 gap-2 px-6 text-lg" : onDark ? "h-12 rounded-xl bg-white px-5 text-[#0b1f3a] shadow-[0_8px_20px_-8px_rgb(255_255_255/45%)] hover:bg-[#e6eefc]" : "h-12 px-5"}>
       {children}
     </Button>
   );
@@ -190,9 +191,9 @@ export function Previews({ urls }: { urls: string[] }) {
 
 function Step({ number, title, children }: { number: number; title: ReactNode; children: ReactNode }) {
   return (
-    <section className={`grid gap-4 ${number > 1 ? "border-t pt-5" : ""}`}>
+    <section className="sheet gap-5! sm:p-7!">
       <h2 className="flex items-center gap-3 text-2xl">
-        <span aria-hidden className="grid size-9 flex-none place-items-center rounded-full bg-primary font-sans text-lg text-white">
+        <span aria-hidden className="grid size-9 flex-none place-items-center rounded-xl bg-gradient-to-br from-[#1a4fd6] to-[#16a34a] font-heading text-lg text-white">
           {number}
         </span>
         <span>{title}</span>
@@ -227,12 +228,58 @@ function SimilarReports({ issues, meta }: { issues: Issue[]; meta: Meta }) {
   );
 }
 
+/** The report as it will look, filling in while the resident types. */
+function ReportPreview({
+  meta,
+  category,
+  title,
+  address,
+  photo,
+  checks,
+}: {
+  meta: Meta;
+  category: string;
+  title: string;
+  address: string;
+  photo?: string;
+  checks: { label: string; done: boolean }[];
+}) {
+  const required = checks.filter((check) => !check.label.includes("optional"));
+  const left = required.filter((check) => !check.done).length;
+
+  return (
+    <div className="card overflow-hidden">
+      <div className="relative aspect-[2/1] bg-muted">
+        <img src={photo ?? categoryPhoto(category)} alt="" className="size-full object-cover" />
+        {!photo && <span className="absolute top-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">Sample photo</span>}
+      </div>
+      <div className="grid gap-1 p-5 [overflow-wrap:anywhere]">
+        <p className="text-sm font-semibold text-primary">{meta.categories[category] ?? "Choose a problem"}</p>
+        <p className="font-heading text-lg leading-snug font-bold">{title || "Your title will show here"}</p>
+        <p className="text-sm text-muted-foreground">{address || "The location will show here"}</p>
+      </div>
+      <ul className="grid gap-2 border-t p-5">
+        {checks.map(({ label, done }) => (
+          <li key={label} className={`flex items-center gap-2 text-sm ${done ? "font-medium" : "text-muted-foreground"}`}>
+            {done ? <CircleCheck aria-hidden className="size-4.5 flex-none text-brand-green" /> : <Circle aria-hidden className="size-4.5 flex-none text-input" />}
+            {label}
+          </li>
+        ))}
+      </ul>
+      <p aria-live="polite" className="border-t bg-muted/50 px-5 py-3 text-sm font-medium">
+        {left === 0 ? "Ready to send." : `${left} more ${left === 1 ? "step" : "steps"} to go.`}
+      </p>
+    </div>
+  );
+}
+
 export function ReportForm({ meta, category }: { meta: Meta; category?: string }) {
   const [state, action] = useActionState(createIssue, null);
   const { choose, previews, error } = usePhotos(MAX_PHOTOS);
   const [chosen, setChosen] = useState(category ?? "");
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
   const [similar, setSimilar] = useState<Issue[]>([]);
+  const [typed, setTyped] = useState({ title: "", description: "", address: "" });
 
   useEffect(() => {
     if (!chosen || !pin) return;
@@ -245,80 +292,104 @@ export function ReportForm({ meta, category }: { meta: Meta; category?: string }
     };
   }, [chosen, pin]);
 
+  const type = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setTyped((current) => ({ ...current, [name]: value }));
+  };
+
+  const checks = [
+    { label: "Type of problem", done: !!chosen },
+    { label: "A short title", done: typed.title.trim().length >= 5 },
+    { label: "What you saw", done: typed.description.trim().length >= 10 },
+    { label: "Where it is", done: typed.address.trim().length >= 3 },
+    { label: "Map pin (optional)", done: !!pin },
+    { label: "Photos (optional)", done: previews.length > 0 },
+  ];
+
   return (
-    <form action={action} className="sheet gap-6!">
-      <Step number={1} title="What is the problem?">
-        <fieldset className="grid gap-2" onChange={(event) => setChosen((event.target as EventTarget as HTMLInputElement).value)}>
-          <legend className="mb-2">Choose the type of problem</legend>
-          <div className="grid gap-2.5 sm:grid-cols-2">
-            {Object.entries(meta.categories).map(([key, label]) => {
-              const Icon = CATEGORY_ICONS[key];
-              return (
-                <label key={key} className="choice">
-                  <input type="radio" name="category" value={key} required defaultChecked={key === category} className="size-5 accent-primary" />
-                  {Icon && <Icon aria-hidden className="size-6 flex-none text-primary" />}
-                  {label}
-                </label>
-              );
-            })}
+    <form action={action} className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="grid min-w-0 gap-6">
+        <Step number={1} title="What is the problem?">
+          <fieldset onChange={(event) => setChosen((event.target as EventTarget as HTMLInputElement).value)}>
+            <legend className="mb-3">Choose the type of problem</legend>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+              {Object.entries(meta.categories).map(([key, label]) => {
+                const Icon = CATEGORY_ICONS[key];
+                return (
+                  <label key={key} className="choice-photo">
+                    <input type="radio" name="category" value={key} required defaultChecked={key === category} className="sr-only" />
+                    <img src={categoryPhoto(key)} alt="" loading="lazy" />
+                    {Icon && <span className="photo-tile-icon"><Icon aria-hidden className="size-5" /></span>}
+                    <span aria-hidden className="choice-photo-check"><Check className="size-4" strokeWidth={3} /></span>
+                    <span className="photo-tile-label">{label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+          <Field label="Give it a short title" id="title">
+            <Input id="title" name="title" required minLength={5} maxLength={120} onChange={type} placeholder="For example: Streetlight out near the covered court" />
+          </Field>
+          <Field label="Tell us more" id="description">
+            <Textarea
+              id="description"
+              name="description"
+              rows={4}
+              required
+              minLength={10}
+              maxLength={2000}
+              onChange={type}
+              placeholder="What did you see? How long has it been like this? Is anyone at risk?"
+            />
+          </Field>
+        </Step>
+
+        <Step number={2} title="Where is it?">
+          <Field label="Street and nearest landmark" id="address">
+            <Input id="address" name="address" required minLength={3} maxLength={200} onChange={type} placeholder="For example: Mabini St., near the chapel" />
+          </Field>
+          <LocationPicker center={meta.map_center} onPlace={setPin} />
+          <SimilarReports issues={similar} meta={meta} />
+        </Step>
+
+        <Step number={3} title={<>Add photos <Optional /></>}>
+          <p className="text-muted-foreground">Photos help staff understand the problem. You can add up to {MAX_PHOTOS}.</p>
+          <Field label="Choose photos" id="photos">
+            <Input id="photos" type="file" name="photos[]" multiple accept="image/jpeg,image/png,image/webp" onChange={choose} className="h-auto py-2.5" />
+          </Field>
+          <Previews urls={previews} />
+        </Step>
+
+        <details className="sheet sm:p-7!">
+          <summary className="cursor-pointer font-heading text-lg font-bold">Use different contact details <Optional /></summary>
+          <div className="grid gap-4 pt-4">
+            <p className="text-muted-foreground">Only staff can see this. Leave it empty to use the details on your account.</p>
+            <Field label="Your name" id="contact_name">
+              <Input id="contact_name" name="contact_name" maxLength={80} autoComplete="name" />
+            </Field>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Email" id="contact_email">
+                <Input id="contact_email" type="email" name="contact_email" maxLength={255} autoComplete="email" />
+              </Field>
+              <Field label="Phone" id="contact_phone">
+                <Input id="contact_phone" type="tel" name="contact_phone" maxLength={30} autoComplete="tel" />
+              </Field>
+            </div>
           </div>
-        </fieldset>
-        <Field label="Give it a short title" id="title">
-          <Input id="title" name="title" required minLength={5} maxLength={120} placeholder="For example: Streetlight out near the covered court" />
-        </Field>
-        <Field label="Tell us more" id="description">
-          <Textarea
-            id="description"
-            name="description"
-            rows={4}
-            required
-            minLength={10}
-            maxLength={2000}
-            placeholder="What did you see? How long has it been like this? Is anyone at risk?"
-          />
-        </Field>
-      </Step>
+        </details>
+      </div>
 
-      <Step number={2} title="Where is it?">
-        <Field label="Street and nearest landmark" id="address">
-          <Input id="address" name="address" required minLength={3} maxLength={200} placeholder="For example: Mabini St., near the chapel" />
-        </Field>
-        <LocationPicker center={meta.map_center} onPlace={setPin} />
-        <SimilarReports issues={similar} meta={meta} />
-      </Step>
-
-      <Step number={3} title={<>Add photos <Optional /></>}>
-        <p className="text-muted-foreground">Photos help staff understand the problem. You can add up to {MAX_PHOTOS}.</p>
-        <Field label="Choose photos" id="photos">
-          <Input id="photos" type="file" name="photos[]" multiple accept="image/jpeg,image/png,image/webp" onChange={choose} className="h-auto py-2.5" />
-        </Field>
-        <Previews urls={previews} />
-      </Step>
-
-      <Step number={4} title={<>How can we reach you? <Optional /></>}>
-        <p className="text-muted-foreground">
-          Only staff can see this. Leave it empty to use the details on your account.
-        </p>
-        <Field label="Your name" id="contact_name">
-          <Input id="contact_name" name="contact_name" maxLength={80} autoComplete="name" />
-        </Field>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Email" id="contact_email">
-            <Input id="contact_email" type="email" name="contact_email" maxLength={255} autoComplete="email" />
-          </Field>
-          <Field label="Phone" id="contact_phone">
-            <Input id="contact_phone" type="tel" name="contact_phone" maxLength={30} autoComplete="tel" />
-          </Field>
-        </div>
-      </Step>
+      <aside aria-label="Your report so far" className="grid gap-4 lg:sticky lg:top-20">
+        <ReportPreview meta={meta} category={chosen} title={typed.title} address={typed.address} photo={previews[0]} checks={checks} />
+        <FormError state={error ?? state} />
+        <Submit cta>Send my report <ArrowRight aria-hidden className="size-5" /></Submit>
+        <p className="text-center text-sm text-muted-foreground">You&apos;ll get a tracking number right after you send it.</p>
+      </aside>
 
       {/* People never see this field. Bots fill it in, and the API refuses them. */}
       <div aria-hidden className="absolute -left-[9999px]">
         <label>Website <input type="text" name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
-
-      <FormError state={error ?? state} />
-      <Submit cta>Send my report</Submit>
     </form>
   );
 }

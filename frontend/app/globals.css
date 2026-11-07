@@ -398,6 +398,10 @@
     }
   }
 
+  .page-hero-slim {
+    min-height: 13rem;
+  }
+
   /* The filters, floating over the bottom edge of the banner. */
   .filter-card {
     position: relative;
@@ -629,7 +633,7 @@
     .home-hero > img, .page-hero > img, .figure-bar, .filter-card, .reveal {
       animation: none;
     }
-    .photo-tile, .photo-tile img, .photo-tile-arrow, .side-link {
+    .photo-tile, .photo-tile img, .photo-tile-arrow, .side-link, .choice-photo, .choice-photo img, .choice-photo-check {
       transition: none;
     }
     .photo-tile:hover, .photo-tile:hover img {
@@ -775,33 +779,59 @@
     box-shadow: 0 0 0 6px rgb(34 197 94 / 18%);
   }
 
-  /* Tiles for choosing a type of problem. */
-  .choice {
+  /* Photo tiles for choosing a type of problem. */
+  .choice-photo {
     position: relative;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-height: 3.75rem;
-    padding: 0.6rem 0.85rem;
-    border: 1px solid var(--border);
-    border-radius: 0.9rem;
-    background: var(--card);
-    font-weight: 600;
-    line-height: 1.25;
+    display: block;
+    height: 8.5rem;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: var(--muted);
     cursor: pointer;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 0 0 0 transparent;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
-  .choice:hover {
-    border-color: #b9cdf6;
+  .choice-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
   }
-  .choice:has(input:checked) {
-    border-color: var(--primary);
-    background: var(--sky);
-    box-shadow: 0 0 0 3px rgb(37 99 235 / 15%);
+  .choice-photo .photo-tile-label {
+    padding: 2rem 0.7rem 0.55rem;
+    font-size: 0.92rem;
   }
-  .choice:has(input:focus-visible) {
+  .choice-photo-check {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--brand-green);
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .choice-photo:hover {
+    transform: translateY(-2px);
+  }
+  .choice-photo:hover img {
+    transform: scale(1.06);
+  }
+  .choice-photo:has(input:checked) {
+    box-shadow: 0 0 0 3px var(--brand-green), 0 14px 26px -14px rgb(22 163 74 / 70%);
+  }
+  .choice-photo:has(input:checked) .choice-photo-check {
+    opacity: 1;
+    transform: none;
+  }
+  .choice-photo:has(input:focus-visible) {
     outline: 2px solid var(--ring);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 
   .leaflet-container {
