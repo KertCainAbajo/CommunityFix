@@ -119,7 +119,7 @@ function PasswordInput({ autoComplete, minLength }: { autoComplete: string; minL
         onClick={() => setShown(!shown)}
         aria-label={shown ? "Hide password" : "Show password"}
         aria-pressed={shown}
-        className="absolute top-1/2 right-2 grid size-9 -translate-y-1/2 place-items-center rounded-lg text-[#0b1f3a] transition-[background-color,scale] duration-200 hover:bg-[#eef3fe] active:scale-90"
+        className="absolute top-1/2 right-1 grid size-11 -translate-y-1/2 place-items-center rounded-lg text-[#0b1f3a] transition-[background-color,scale] duration-200 hover:bg-[#eef3fe] active:scale-90"
       >
         {shown ? <EyeOff key="hide" aria-hidden className="portal-pop size-4.5" /> : <Eye key="show" aria-hidden className="portal-pop size-4.5" />}
       </button>

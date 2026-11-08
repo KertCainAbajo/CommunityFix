@@ -43,19 +43,17 @@ function StatsStrip({ stats }: { stats: Stats }) {
   ];
 
   return (
-    <dl className="portal-glass portal-strip grid w-fit grid-cols-3 divide-x divide-white/15 py-2.5">
+    <ul className="portal-glass portal-strip grid w-fit grid-cols-3 divide-x divide-white/15 py-2.5">
       {items.map(({ Icon, value, label }) => (
-        <div key={label} className="flex items-center gap-3 px-4 min-[1680px]:px-6">
-          <span className="hidden size-10 place-items-center rounded-xl bg-white/12 min-[1680px]:grid">
+        <li key={label} className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 px-4 leading-tight min-[1680px]:px-6">
+          <span className="row-span-2 hidden size-10 place-items-center rounded-xl bg-white/12 min-[1680px]:grid">
             <Icon aria-hidden className="size-5 text-white" />
           </span>
-          <div className="leading-tight">
-            <dd className="font-heading text-xl font-extrabold text-white min-[1680px]:text-2xl">{value}</dd>
-            <dt className="text-xs text-[#dbe7ff]">{label}</dt>
-          </div>
-        </div>
+          <span className="order-2 self-start text-xs text-[#dbe7ff]">{label}</span>
+          <span className="order-1 self-end font-heading text-xl font-extrabold text-white min-[1680px]:text-2xl">{value}</span>
+        </li>
       ))}
-    </dl>
+    </ul>
   );
 }
 
@@ -67,19 +65,19 @@ function PipelineCard({ stats, meta }: { stats: Stats; meta: Meta }) {
     <div className="portal-card float-a w-76 p-5">
       <p className="text-xs text-[#5b6b80]">Live from your community</p>
       <p className="font-heading text-lg font-extrabold text-[#0b1729]">Where reports stand</p>
-      <dl className="mt-4 grid gap-3">
+      <ul className="mt-4 grid gap-3">
         {STAGES.map((stage) => (
-          <div key={stage} data-status={stage} className="grid gap-1.5">
+          <li key={stage} data-status={stage} className="grid gap-1.5">
             <div className="flex items-center justify-between text-sm">
-              <dt className="text-[#44546a]">{meta.statuses[stage]}</dt>
-              <dd className="font-semibold text-[#0b1729] tabular-nums">{stats.by_status[stage]}</dd>
+              <span className="text-[#44546a]">{meta.statuses[stage]}</span>
+              <span className="font-semibold text-[#0b1729] tabular-nums">{stats.by_status[stage]}</span>
             </div>
             <span aria-hidden className="block h-1.5 overflow-hidden rounded-full bg-[#e4e9f1]">
               <span className="block h-full rounded-full" style={{ width: `${(stats.by_status[stage] / most) * 100}%`, background: "var(--plate-solid)" }} />
             </span>
-          </div>
+        </li>
         ))}
-      </dl>
+      </ul>
     </div>
   );
 }
@@ -114,7 +112,7 @@ function Hero() {
             <span className="text-xs tracking-wide text-[#c9dbff]">Your barangay, fixed together</span>
           </span>
         </Link>
-        <Link href="/register" className="flex items-center gap-1.5 rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#1a4fd6] shadow-md transition-transform hover:-translate-y-px">
+        <Link href="/register" className="flex min-h-11 items-center gap-1.5 rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#1a4fd6] shadow-md transition-transform hover:-translate-y-px">
           Get Started <ArrowRight aria-hidden className="size-3.5" />
         </Link>
       </header>

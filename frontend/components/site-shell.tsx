@@ -4,17 +4,32 @@ import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
+import { MobileMenu } from "@/components/mobile-menu";
 import { SiteNav, SiteNavFallback } from "@/components/site-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { getNotifications, getUser, isStaff } from "@/lib/api";
 
-const pill = buttonVariants({ variant: "ghost", className: "hidden h-9 gap-1.5 rounded-full border bg-card px-4 text-sm font-semibold shadow-sm sm:inline-flex" });
+const pill = buttonVariants({ variant: "ghost", className: "hidden h-11 gap-1.5 rounded-full border bg-card px-4 text-sm font-semibold shadow-sm sm:inline-flex" });
+
+async function BellLink({ onDark = false }: { onDark?: boolean }) {
+  const { unread } = await getNotifications();
+
+  return (
+    <Link
+      href="/notifications"
+      aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+      className={`relative grid size-11 place-items-center rounded-full border transition-colors ${onDark ? "border-white/25 text-white hover:bg-white/10" : "bg-card shadow-sm hover:bg-muted"}`}
+    >
+      <Bell aria-hidden className="size-5" />
+      {unread > 0 && <span aria-hidden className="absolute top-0.5 right-0.5 size-3 rounded-full bg-destructive ring-2 ring-card" />}
+    </Link>
+  );
+}
 
 /** The bell, a shortcut and the avatar. It also catches a cookie whose session has ended. */
 async function AccountLink() {
   const user = await getUser();
   if (!user) redirect("/login");
-  const { unread } = await getNotifications();
   const staff = isStaff(user);
 
   return (
@@ -23,11 +38,8 @@ async function AccountLink() {
         {staff ? <LayoutDashboard aria-hidden className="size-4" /> : <FolderOpen aria-hidden className="size-4" />}
         {staff ? "Dashboard" : "My reports"}
       </Link>
-      <Link href="/notifications" aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"} className="relative grid size-9 place-items-center rounded-full border bg-card shadow-sm transition-colors hover:bg-muted">
-        <Bell aria-hidden className="size-4.5" />
-        {unread > 0 && <span aria-hidden className="absolute top-0 right-0 size-2.5 rounded-full bg-destructive ring-2 ring-card" />}
-      </Link>
-      <Link href="/account" aria-label="My account" title={user.name} className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-[#1a4fd6] to-[#16a34a] font-heading font-bold text-white shadow-sm transition-transform hover:scale-105">
+      <BellLink />
+      <Link href="/account" aria-label="My account" title={user.name} className="grid size-11 place-items-center rounded-full bg-gradient-to-br from-[#1a4fd6] to-[#15803d] font-heading font-bold text-white shadow-sm transition-transform hover:scale-105">
         {user.name.charAt(0).toUpperCase()}
       </Link>
     </div>
@@ -38,11 +50,16 @@ async function AccountLink() {
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className="grid flex-1 lg:grid-cols-[16.5rem_minmax(0,1fr)]">
+      <a href="#main" className="skip-link">Skip to main content</a>
       <aside className="side">
-        <Link href="/" aria-label="CommunityFix home" className="px-1.5"><Logo /></Link>
-        <Suspense fallback={<SiteNavFallback />}>
-          <SiteNav />
-        </Suspense>
+        <MobileMenu
+          logo={<Link href="/" aria-label="CommunityFix home" className="px-1.5"><Logo /></Link>}
+          actions={<Suspense><BellLink onDark /></Suspense>}
+        >
+          <Suspense fallback={<SiteNavFallback />}>
+            <SiteNav />
+          </Suspense>
+        </MobileMenu>
         <div className="mt-auto hidden rounded-2xl border border-white/10 bg-white/8 p-4 lg:block">
           <p className="flex items-center gap-2 text-sm font-semibold text-white">
             <Phone aria-hidden className="size-4 text-[#fca5a5]" /> Emergency?
@@ -68,10 +85,10 @@ export function SiteShell({ children }: { children: ReactNode }) {
             <Suspense><AccountLink /></Suspense>
           </div>
         </header>
-        <main className="page-grid flex-1">{children}</main>
-        <p className="flex items-center justify-center gap-1.5 px-4 pb-5 text-sm text-muted-foreground lg:hidden">
+        <main id="main" tabIndex={-1} className="page-grid flex-1 outline-none">{children}</main>
+        <footer className="flex items-center justify-center gap-1.5 px-4 pb-5 text-sm text-muted-foreground lg:hidden">
           <Phone aria-hidden className="size-4 text-destructive" /> Emergency? Call your local hotline.
-        </p>
+        </footer>
       </div>
     </div>
   );

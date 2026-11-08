@@ -4,12 +4,11 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { TrackForm } from "@/components/forms";
-import { CATEGORY_ICONS, EmptyState, PageSkeleton, STAGES, StatusBadge } from "@/components/issue-parts";
+import { PageSkeleton, STAGES } from "@/components/issue-parts";
 import { Card } from "@/components/overview";
+import { TrackedReport } from "@/components/tracked-report";
 import { buttonVariants } from "@/components/ui/button";
-import { api, getMeta, getUser, isStaff } from "@/lib/api";
-import type { Issue, IssuePage, Meta } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { getMeta, getMyIssues, getUser, isStaff } from "@/lib/api";
 
 export const metadata: Metadata = { title: "Track your report" };
 
@@ -27,37 +26,10 @@ const HELP = [
   { Icon: RotateCcw, title: "Still not fixed?", text: "Open your resolved report and reopen it so staff take another look.", href: "/my-reports", link: "Find your report" },
 ];
 
-function TrackedReport({ issue, meta }: { issue: Issue; meta: Meta }) {
-  const Icon = CATEGORY_ICONS[issue.category] ?? CATEGORY_ICONS.other;
-  const current = STAGES.indexOf(issue.status);
-
-  return (
-    <li>
-      <Link href={`/track/${issue.tracking_code}`} className="grid gap-3 rounded-xl p-3 transition-colors hover:bg-muted">
-        <span className="flex items-center gap-3">
-          <span className="grid size-11 flex-none place-items-center rounded-xl bg-sky text-primary"><Icon aria-hidden className="size-5" /></span>
-          <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
-            <span className="block font-heading font-bold">{issue.title}</span>
-            <span className="font-mono text-xs text-muted-foreground">{issue.tracking_code}</span>
-          </span>
-          <StatusBadge status={issue.status} meta={meta} />
-        </span>
-        {issue.status !== "rejected" && (
-          <span aria-hidden className="grid grid-cols-4 gap-1.5">
-            {STAGES.map((stage, index) => (
-              <span key={stage} className={cn("h-1.5 rounded-full", index <= current ? "bg-brand-green" : "bg-muted")} />
-            ))}
-          </span>
-        )}
-      </Link>
-    </li>
-  );
-}
-
 async function TrackHelp() {
   const user = await getUser();
   const resident = user && !isStaff(user);
-  const [meta, mine] = await Promise.all([getMeta(), resident ? api<IssuePage>("/my/issues") : null]);
+  const [meta, mine] = await Promise.all([getMeta(), resident ? getMyIssues() : null]);
 
   return (
     <>
@@ -69,9 +41,9 @@ async function TrackHelp() {
                 {mine.items.slice(0, 4).map((issue) => <TrackedReport key={issue.id} issue={issue} meta={meta} />)}
               </ul>
             ) : (
-              <div className="grid justify-items-center gap-3 py-6 text-center">
-                <EmptyState>You haven&apos;t filed a report yet. Reports you file will show their progress here.</EmptyState>
-                <Link href="/report" className={buttonVariants({ className: "cta -mt-6 h-11 gap-2 px-5" })}>
+              <div className="grid justify-items-center gap-4 py-8 text-center">
+                <p className="text-lg text-muted-foreground">You haven&apos;t filed a report yet. Reports you file will show their progress here.</p>
+                <Link href="/report" className={buttonVariants({ className: "cta h-11 gap-2 px-5" })}>
                   <Megaphone aria-hidden className="size-4.5" /> Report a problem
                 </Link>
               </div>

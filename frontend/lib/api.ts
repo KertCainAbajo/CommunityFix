@@ -73,6 +73,8 @@ export const getMeta = cache(() => api<Meta>("/meta"));
 // Cached per request, so pages that show the figures in two places ask the API once.
 export const getStats = cache(() => api<Stats>("/stats"));
 
+export const getMyIssues = cache(() => api<IssuePage>("/my/issues"));
+
 export const getNotifications = cache(() => api<{ unread: number; items: Notice[] }>("/notifications"));
 
 export const getAnnouncements = () => api<{ items: Announcement[] }>("/announcements");

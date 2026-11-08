@@ -130,7 +130,7 @@ export function Card({
           <h2 id={id} className="text-lg">{title}</h2>
         </div>
         {action && (
-          <Link href={action.href} className="flex flex-none items-center gap-1 rounded-full border px-3 py-1 text-sm font-semibold transition-colors hover:border-primary hover:text-primary">
+          <Link href={action.href} className="flex min-h-11 flex-none items-center gap-1 rounded-full border px-4 text-sm font-semibold transition-colors hover:border-primary hover:text-primary">
             {action.label} <ArrowRight aria-hidden className="size-3.5" />
           </Link>
         )}
@@ -143,7 +143,7 @@ export function Card({
 /** The most urgent open reports, shown over the map. */
 export function NeedsAttention({ issues, meta }: { issues: Issue[]; meta: Meta }) {
   return (
-    <aside aria-labelledby="attention-title" className="attention">
+    <section aria-labelledby="attention-title" className="attention">
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
         <h3 id="attention-title" className="text-base">Needs attention</h3>
         <span className="eyebrow">Most urgent</span>
@@ -165,7 +165,7 @@ export function NeedsAttention({ issues, meta }: { issues: Issue[]; meta: Meta }
           </li>
         ))}
       </ol>
-    </aside>
+    </section>
   );
 }
 

@@ -3,12 +3,13 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { TrackForm } from "@/components/forms";
-import { CATEGORY_ICONS, EmptyState, IssueList, Legend, PageSkeleton, mapPoints } from "@/components/issue-parts";
+import { CATEGORY_ICONS, IssueList, Legend, PageSkeleton, STAGES, StatusBadge, mapPoints } from "@/components/issue-parts";
 import { IssueMap } from "@/components/maps";
 import { Card, Figure, NeedsAttention, figureChip } from "@/components/overview";
 import { ReportCard } from "@/components/report-card";
+import { StageBar, TrackedReport } from "@/components/tracked-report";
 import { buttonVariants } from "@/components/ui/button";
-import { api, getAnnouncements, getIssues, getMeta, getStats, getUser, isStaff } from "@/lib/api";
+import { getAnnouncements, getIssues, getMeta, getMyIssues, getStats, getUser, isStaff } from "@/lib/api";
 import { timeAgo } from "@/lib/format";
 import { categoryPhoto } from "@/lib/photos";
 import type { Announcement, IssuePage, Meta, Stats } from "@/lib/types";
@@ -16,6 +17,46 @@ import type { Announcement, IssuePage, Meta, Stats } from "@/lib/types";
 async function Greeting() {
   const user = await getUser();
   return <>Hello, {user?.name.split(" ")[0] ?? "neighbor"}</>;
+}
+
+/** The banner panel: a resident's own latest report when they have one, otherwise the tracking box. */
+async function HeroPanel() {
+  const user = await getUser();
+  const [meta, mine] = await Promise.all([getMeta(), user && !isStaff(user) ? getMyIssues() : null]);
+  const latest = mine?.items.find((issue) => issue.status !== "resolved" && issue.status !== "rejected") ?? mine?.items[0];
+
+  if (!latest) {
+    return (
+      <div className="track-panel">
+        <TrackForm dark />
+        <p className="text-sm text-[#dbe5f2]">Use the number you got when you sent your report.</p>
+      </div>
+    );
+  }
+
+  const step = STAGES.indexOf(latest.status) + 1;
+
+  return (
+    <section aria-labelledby="latest-report" className="track-panel">
+      <div className="flex items-center justify-between gap-2">
+        <h2 id="latest-report" className="text-sm font-semibold text-[#dbe5f2]">Your latest report</h2>
+        <StatusBadge status={latest.status} meta={meta} />
+      </div>
+      <p className="font-heading text-lg leading-snug font-bold text-white [overflow-wrap:anywhere]">{latest.title}</p>
+      {step > 0 && (
+        <div className="grid gap-1.5">
+          <StageBar issue={latest} onDark />
+          <p className="text-sm text-[#dbe5f2]">Step {step} of {STAGES.length}: {meta.statuses[latest.status]}</p>
+        </div>
+      )}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+        <Link href={`/track/${latest.tracking_code}`} className="flex h-11 items-center gap-1.5 rounded-xl bg-white px-4 font-semibold text-[#0b1f3a] transition-colors hover:bg-[#e6eefc]">
+          Open report <ArrowRight aria-hidden className="size-4" />
+        </Link>
+        <Link href="/track" className="py-3 text-sm font-semibold text-white underline underline-offset-3">Track another</Link>
+      </div>
+    </section>
+  );
 }
 
 function FixedRing({ percent }: { percent: number }) {
@@ -113,7 +154,7 @@ async function CommunityHome() {
     getStats(),
     getIssues("sort=newest"),
     getIssues("open=1&sort=priority"),
-    resident ? api<IssuePage>("/my/issues") : null,
+    resident ? getMyIssues() : null,
     getAnnouncements(),
   ]);
 
@@ -133,11 +174,13 @@ async function CommunityHome() {
         {mine ? (
           <Card title="Your reports" id="mine-title" action={{ href: "/my-reports", label: "View all" }}>
             {mine.items.length > 0 ? (
-              <IssueList issues={mine.items.slice(0, 3)} meta={meta} ownReports />
+              <ul className="-mx-3 grid gap-1">
+                {mine.items.slice(0, 3).map((issue) => <TrackedReport key={issue.id} issue={issue} meta={meta} />)}
+              </ul>
             ) : (
-              <div className="grid justify-items-center gap-3 py-6 text-center">
-                <EmptyState>You haven&apos;t reported anything yet. When you do, you can follow it here.</EmptyState>
-                <Link href="/report" className={buttonVariants({ className: "cta -mt-6 h-11 gap-2 px-5" })}>
+              <div className="grid justify-items-center gap-4 py-8 text-center">
+                <p className="text-lg text-muted-foreground">You haven&apos;t reported anything yet. When you do, you can follow it here.</p>
+                <Link href="/report" className={buttonVariants({ className: "cta h-11 gap-2 px-5" })}>
                   <Megaphone aria-hidden className="size-4.5" /> File your first report
                 </Link>
               </div>
@@ -157,7 +200,7 @@ async function CommunityHome() {
           <Legend meta={meta} />
         </div>
         <div className="lg:relative">
-          <IssueMap points={mapPoints(open.items)} center={meta.map_center} labels={meta.statuses} title="Problems near you" className="h-[40rem] rounded-none border-x-0 border-b-0" />
+          <IssueMap points={mapPoints(open.items)} center={meta.map_center} labels={meta.statuses} title="Problems near you" className="h-80 rounded-none border-x-0 border-b-0 lg:h-[40rem]" />
           <NeedsAttention issues={open.items} meta={meta} />
         </div>
       </section>
@@ -166,7 +209,7 @@ async function CommunityHome() {
         <section aria-labelledby="latest-title" className="reveal grid gap-5">
           <div className="flex items-center justify-between gap-3">
             <h2 id="latest-title" className="text-2xl">Latest in your community</h2>
-            <Link href="/issues" className="flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+            <Link href="/issues" className="flex min-h-11 items-center gap-1 text-sm font-semibold text-primary hover:underline">
               See all reports <ArrowRight aria-hidden className="size-3.5" />
             </Link>
           </div>
@@ -186,7 +229,7 @@ export default function HomePage() {
         <img src="/photos/home.jpg" alt="A street in a Philippine town with a tricycle and parked motorcycles" fetchPriority="high" />
         <div className="portal-rise relative grid w-full items-end gap-8 p-6 pb-24 sm:p-10 sm:pb-28 xl:grid-cols-[minmax(0,1fr)_24rem] xl:p-14 xl:pb-32">
           <div className="grid max-w-3xl gap-5">
-            <p className="flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 font-semibold text-white backdrop-blur">
+            <p className="flex w-fit items-center gap-2 rounded-full border border-white/25 bg-black/30 px-3.5 py-1 font-semibold text-white backdrop-blur">
               <span aria-hidden className="live-dot" />
               <Suspense fallback="Hello"><Greeting /></Suspense>
             </p>
@@ -202,10 +245,9 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <div className="track-panel">
-            <TrackForm dark />
-            <p className="text-sm text-[#c9d6e8]">Use the number you got when you sent your report.</p>
-          </div>
+          <Suspense fallback={<div className="track-panel min-h-40" />}>
+            <HeroPanel />
+          </Suspense>
         </div>
       </section>
 

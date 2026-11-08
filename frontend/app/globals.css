@@ -59,7 +59,7 @@
   --border: #e4e9f1;
   --input: #cfd8e5;
   --ring: #2563eb;
-  --brand-green: #16a34a;
+  --brand-green: #15803d;
   --brand-navy: #0b1f3a;
   --sky: #eaf1ff;
   --ink-line: #e4e9f1;
@@ -80,6 +80,8 @@
   }
   html {
     @apply font-sans;
+    /* Keeps focused items and link targets clear of the sticky top bar. */
+    scroll-padding-top: 5.5rem;
     font-feature-settings: "ss01", "cv11";
   }
   body {
@@ -106,7 +108,7 @@
     font-weight: 600;
   }
   :focus-visible {
-    outline: 2px solid var(--ring);
+    outline: 3px solid var(--ring);
     outline-offset: 2px;
   }
   ::selection {
@@ -162,8 +164,8 @@
   /* The main action on a page: a glowing green gradient. */
   .cta,
   .cta:not(:disabled) {
-    background-image: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
-    background-color: #16a34a !important;
+    background-image: linear-gradient(180deg, #15803d 0%, #166534 100%) !important;
+    background-color: #15803d !important;
     color: #fff !important;
     border-radius: 0.75rem;
     box-shadow:
@@ -171,7 +173,7 @@
       0 8px 20px -8px rgb(22 163 74 / 65%);
   }
   .cta:hover {
-    background-image: linear-gradient(180deg, #16a34a 0%, #15803d 100%) !important;
+    background-image: linear-gradient(180deg, #166534 0%, #14532d 100%) !important;
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 25%),
       0 12px 26px -8px rgb(22 163 74 / 75%);
@@ -292,7 +294,7 @@
     display: flex;
     align-items: center;
     gap: 0.7rem;
-    min-height: 2.6rem;
+    min-height: 2.75rem;
     padding: 0.4rem 0.75rem;
     border-radius: 0.7rem;
     color: #c4d2e4;
@@ -324,6 +326,31 @@
     z-index: 1100;
     background: rgb(245 247 251 / 75%);
     backdrop-filter: blur(14px);
+  }
+
+  /* Hidden until a keyboard user reaches it. */
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 2000;
+    padding: 0.7rem 1.1rem;
+    border-radius: 0.75rem;
+    background: #fff;
+    color: var(--primary);
+    font-weight: 700;
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-200%);
+  }
+  .skip-link:focus {
+    transform: none;
+  }
+
+  /* Focus rings stay visible on dark panels and photos. */
+  .home-hero :focus-visible,
+  .page-hero :focus-visible,
+  .news-card :focus-visible {
+    outline-color: #fff;
   }
 
   /* The home page banner: a real street that drifts slowly, with the text on a dark fade. */
@@ -421,12 +448,76 @@
     }
   }
 
+  /* The results: the newest report big, the rest around it. */
+  .bento {
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media (min-width: 40rem) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .bento > .bento-featured {
+      grid-column: span 2;
+    }
+  }
+  @media (min-width: 64rem) {
+    .bento {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .bento > .bento-featured {
+      grid-row: span 2;
+    }
+  }
+  @media (min-width: 96rem) {
+    .bento {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* Problem type filters, wrapping instead of scrolling sideways */
+  .cat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    padding: 0.3rem 1rem;
+    line-height: 1.2;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--foreground);
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .cat-chip svg {
+    flex: none;
+  }
+  @media (max-width: 40rem) {
+    .cat-chip {
+      border-radius: 0.9rem;
+    }
+  }
+  .cat-chip:hover {
+    border-color: #b9cdf6;
+    background: var(--sky);
+  }
+  .cat-chip[aria-current="page"] {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+  }
+  .cat-chip[aria-current="page"] svg {
+    color: #fff;
+  }
+
   /* Status tabs with a count */
   .status-tab {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    height: 2.5rem;
+    height: 2.75rem;
     padding: 0 0.9rem;
     border: 1px solid var(--border);
     border-radius: 999px;
@@ -473,7 +564,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    height: 2.1rem;
+    height: 2.75rem;
     padding: 0 0.75rem;
     border-radius: 0.6rem;
     color: var(--muted-foreground);
@@ -493,7 +584,7 @@
     padding: 1.4rem;
     border: 1px solid rgb(255 255 255 / 20%);
     border-radius: 1.25rem;
-    background: rgb(8 24 48 / 58%);
+    background: rgb(8 24 48 / 80%);
     backdrop-filter: blur(16px);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 24px 50px -28px rgb(0 0 0 / 70%);
   }
@@ -753,7 +844,7 @@
     background: var(--border);
   }
   .step[data-done]:not(:first-child)::before {
-    background: linear-gradient(90deg, #22c55e, #16a34a);
+    background: var(--brand-green);
   }
   .step-dot {
     position: relative;
@@ -769,7 +860,7 @@
   }
   .step[data-done] .step-dot {
     border-color: transparent;
-    background: linear-gradient(180deg, #22c55e, #16a34a);
+    background: var(--brand-green);
     color: #fff;
   }
   .step[aria-current] {
@@ -895,6 +986,16 @@
   }
   .map-tool:hover {
     background: #f4f4f4;
+  }
+  /* Bigger map buttons for fingers. */
+  @media (pointer: coarse) {
+    /* Important, because Leaflet's own stylesheet sits outside these layers and would win. */
+    .map-tool,
+    .leaflet-touch .leaflet-bar a {
+      width: 44px !important;
+      height: 44px !important;
+      line-height: 44px !important;
+    }
   }
 
   .leaflet-container {
@@ -1112,7 +1213,7 @@
     position: relative;
     overflow: hidden;
     background-color: #1a4fd6;
-    background-image: linear-gradient(100deg, #1a4fd6 0%, #1a4fd6 25%, #0f8f7a 62%, #16a34a 100%);
+    background-image: linear-gradient(100deg, #1a4fd6 0%, #1a4fd6 25%, #0f766e 62%, #15803d 100%);
     background-size: 170% 100%;
     background-position: 0% 0%;
     box-shadow: 0 14px 28px -12px rgb(22 120 120 / 85%), inset 0 1px 0 rgb(255 255 255 / 22%);
