@@ -512,6 +512,89 @@
     color: #fff;
   }
 
+  /* The four stages, joined by a line: across on wide screens, down on phones. */
+  .journey {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .journey-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .journey-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    top: 3rem;
+    bottom: -1.25rem;
+    left: 1.5rem;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--border);
+  }
+  .journey-dot {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--plate-solid) 14%, white);
+    color: var(--plate-ink);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--plate-solid) 30%, transparent);
+  }
+  @media (min-width: 64rem) {
+    .journey {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+    .journey-step {
+      grid-template-columns: none;
+      align-content: start;
+      gap: 0.9rem;
+    }
+    .journey-step:not(:last-child)::before {
+      top: 1.5rem;
+      right: -1.5rem;
+      bottom: auto;
+      left: 3.75rem;
+      width: auto;
+      height: 2px;
+      margin: -1px 0 0;
+    }
+  }
+
+  /* The same stages as one column, even on wide screens. */
+  @media (min-width: 64rem) {
+    .journey-vertical {
+      grid-template-columns: none;
+      gap: 1.25rem;
+    }
+    .journey-vertical .journey-step {
+      grid-template-columns: 3rem minmax(0, 1fr);
+      gap: 1rem;
+    }
+    .journey-vertical .journey-step:not(:last-child)::before {
+      top: 3rem;
+      right: auto;
+      bottom: -1.25rem;
+      left: 1.5rem;
+      width: 2px;
+      height: auto;
+      margin: 0 0 0 -1px;
+    }
+  }
+  .journey-dark .journey-step:not(:last-child)::before {
+    background: rgb(255 255 255 / 22%);
+  }
+  .journey-dark .journey-dot {
+    background: color-mix(in srgb, var(--plate-solid) 30%, #0b1f3a);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 18%);
+  }
+
   /* Status tabs with a count */
   .status-tab {
     display: inline-flex;
